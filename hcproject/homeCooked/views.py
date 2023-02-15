@@ -22,11 +22,11 @@ def createPost(cur, postid, producerid, recipeid):
 
     """
     CREATE TABLE Posts(
-        producerid Number(16),
-        recipeid Number(16),
-        consumerid Number(8),
+        producerid Number(1000000),
+        recipeid Number(1000000),
+        consumerid Number(1000000),
         available Bool(1)
-        created date,
+        created String(),
         compleated date
     );
     """
