@@ -2,18 +2,20 @@ from django.db import models
 
 # Create your models here.
 
-class Post(producerID, recipeID):
-    producerID = producerID;
-    recipeID = recipeID;
-    available = True;
-    consumerid = 0;
-    timestamp = "";
+class Post(postid, producerID, recipeID):
+    postid = 0
+    producerID = 0
+    recipeID = 0
+    available = True
+    consumerid = 0
+    created = ""
+    compleated = ""
 
-    def __init__(self, producerid, recipeid):
+    def __init__(self, postid, producerid, recipeid, timeStamp, available=True, consumerid=0, compleated=""):
+        self.postid = postid
         self.producerid = producerid
         self.recipeid = recipeid
-
-    def update(sefl, consumerid, timestamp):
-        self.available = False
+        self.created = timeStamp
+        self.available = available
         self.consumerid = consumerid
-        self.timestamp = timestamp
+        self.compleated = compleated

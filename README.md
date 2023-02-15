@@ -1,17 +1,5 @@
 # HomeCooked
-## Hawk's Branch,
 
-# Responsibilities:
-1. Creating post backends
- - Creating class
- - upon creation, attatch a unique postid to each post
- - add each post to the database
- - Retrieve a post for a unique consumer
- - Query server for specificic meals within a certain area 
-2. Creating toggle between consumer and producer modes
-
-# Creating post backends:
-sql shenanigans:
 ```
 CREATE TABLE Posts(
     postid Number(8),
