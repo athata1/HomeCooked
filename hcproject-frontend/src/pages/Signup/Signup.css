@@ -21,7 +21,9 @@
 
 .signup-signupform {
   border-radius: 25px;
-  width: max(min(762px, 100%), 300px);
+  width: max(min(712px, 100%), 300px);
+  padding-left: 25px;
+  padding-right: 25px;
   min-height: 300px;
   border: solid #CAAA02 6px;
   box-sizing: border-box;
@@ -46,7 +48,7 @@
 
 .signup-signupform .signup-input {
   
-  width: min(500px, calc(100% - 25px - 12px));
+  width: min(500px, calc(100% - 12px));
   height: 50px;
   margin: 0 auto;
 
