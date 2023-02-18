@@ -23,7 +23,7 @@ class MessageAdmin(admin.ModelAdmin):
 class PostAdmin(admin.ModelAdmin):
     fieldsets = [
         ('Producer Side', {'fields': ['post_producer', 'post_desc']}),
-        ('Consumer Side', {'fields': ['post_consumer', 'post_review']})
+        ('Consumer Side', {'fields': ['post_consumer', 'post_review', 'post_created', 'post_compleated']})
     ]
 
 class RecipeAdmin(admin.ModelAdmin):

@@ -64,6 +64,7 @@ class Message (models.Model):
     message = models.CharField(max_length=200)
     message_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
     message_recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
+    message_sent = models.DateTimeField()
 
     def __str__(self):
         return self.message_desc

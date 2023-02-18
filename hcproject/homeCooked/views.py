@@ -6,7 +6,7 @@ import json
 def index(request):
     return HttpResponse("Hello, world!")
 
-def getPostsByUser(request, producer):
+def getPostsByUser(producer):
     return Post.objects.filter(post_producer__exact=producer)
 
 def createPost(user, recipeUsed):
