@@ -53,6 +53,8 @@ class Post (models.Model):
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
     post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer')
     post_review = models.ForeignKey(Review, on_delete=models.CASCADE)
+    post_created = models.DateTimeField()
+    post_compleated = models.DateTimeField()
 
     def __str__(self):
         return self.post_desc
