@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from datetime import datetime
 
 class User (models.Model):
     user_id = models.AutoField(primary_key=True)
@@ -11,7 +11,7 @@ class User (models.Model):
     biography = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.user_name
+        return self.username
 
 class Event (models.Model):
     event_id = models.AutoField(primary_key=True)
@@ -37,27 +37,27 @@ class Recipe (models.Model):
     def __str__(self):
         return self.recipe_name
 
+class Post (models.Model):
+    post_id = models.AutoField(primary_key=True)
+    post_desc = models.CharField(max_length=200)
+    post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
+    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer')
+    #post_created = models.DateTimeField(default=datetime.now)
+    #post_completed = models.DateTimeField()
+
+    def __str__(self):
+        return self.post_desc
+
 class Review (models.Model):
     review_id = models.AutoField(primary_key=True)
     review_desc = models.CharField(max_length=200)
     review_user = models.ForeignKey(User, on_delete=models.CASCADE)
     review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
+    review_post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.review_desc
-
-class Post (models.Model):
-    post_id = models.AutoField(primary_key=True)
-    post_desc = models.CharField(max_length=200)
-    post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
-    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer')
-    post_review = models.ForeignKey(Review, on_delete=models.CASCADE)
-    post_created = models.DateTimeField()
-    post_compleated = models.DateTimeField()
-
-    def __str__(self):
-        return self.post_desc
 
 class Message (models.Model):
     message_id = models.AutoField(primary_key=True)
