@@ -1,0 +1,39 @@
+@import url("https://fonts.googleapis.com/css?family=Sen:regular,bold,italic&subset=latin,latin-ext");
+
+.settings-line {
+  display: block;
+  width: auto;
+  height: 1px;
+  background: black;
+  margin: 20px auto;
+}
+
+.settings-label {
+  font-family: "Sen";
+  font-style: normal;
+}
+
+.settings-form {
+  width: 650px;
+}
+
+.settings-title {
+  font-family: "Sen";
+  font-size: 48px;
+}
+
+.settings-form .settings-input {
+  height: 50px;
+  margin: 0 auto;
+
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  text-align: center;
+
+  border-radius: 25px;
+  margin-bottom: 25px;
+  outline: none;
+  background: #d9d9d9;
+}
