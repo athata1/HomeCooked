@@ -1,10 +1,15 @@
 import React from 'react'
 import { useState } from 'react';
+import Navbar from '../../components/Navbar/Navbar';
 const Dashboard = () => {
   const [userMode, setUserMode] = useState("consumer");
   return (
-    <div>Dashboard</div>
+    <div className="dashboard">
+      <Navbar/>
+      Dashboard
+    </div>
+    
   )
 }
 
-export default Dashboards
+export default Dashboard
