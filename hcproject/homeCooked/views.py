@@ -23,38 +23,26 @@ CREATE TABLE Posts(
 
 # interact with database:
 
-def getPostsByUser(cur, producerid):
-    postids = cur.execute("SELECT ROW_NUMBER FROM posts WHERE producerid=%d;", producerid).fetchall()
-    posts=[]
-    for i in range(0, len(postids)):
-        row = cur.execute("SELECT * FROM Posts WHERE ROW_NUMBER()=%d",postids[i]).fetchone()
-        posts[i] = Post(cur, row[0], row[1], row[2]);
-    return posts
+def getPostsByUser(producer):
+    return Post.objects.filter(producer__exact=producer)
 
-def createPost(cur, postid, producerid, recipeid):
-    if (cur.execute("Select 1 FROM Posts where producerid=%d;", producerid).fetchone()[0] == 1):
-        raise ValueError("Producerid is invalid")
-    if (cur.execute("Select 1 FROM Posts where recipeid=%d;", recipeid).fetchone()[0] <= 1):
-        raise ValueError("Recipeid is invalid")
+def createPost(postid, user, recipeUsed):
+    post = Post(producer=producercur, recipe=recipeUsed, created=datetime.datetime.now())
+    post.save()
+    return post
 
+def getTransactionsByUser(cur, user):
+    createdBy = Post.objects.filter(producer__exact=user)
+    boughtFrom = Post.objects.filter(consumer__exact=user)
+    return createdBy.union(boughtFrom)
+
+def completeTransaction(post, user):
     timeStamp = datetime.datetime.now();
-    cur.execute("INSERT INTO Posts (producerid, recipeid, available, created) VALUES (%d, %d, %d, %s);", (producerid, recipeid, 1, timestamp))
 
-    return Post(cur, producerid, recipeid, timeStamp)
-
-def getTransactionsByUser(cur, userid):
-    postids = cur.execute("SELECT ROW_NUMBER FROM posts WHERE consumerid=userid OR producerid=userid;").fetchall()
-    posts=[]
-    for i in range(0, len(postids)):
-        row = cur.execute("SELECT * FROM Posts WHERE ROW_NUMBER()=%d",postids[i]).fetchone()
-        posts[i] = Post(cur, row[0], row[1], row[2]);
-    return posts
-
-def completeTransaction(cur, postid, consumerid):
-    timeStamp = datetime.datetime.now();
-    cur.execute("UPDATE Posts SET consumerid=userid, available=False, compleated=timeStamp WHERE ROW_NUMBER()=postid;")
-    row = cur.execute("SELECT * FROM Posts where ROW_NUMBER()=%d",postid).fetchone()
-    return Post(cur, row[0], row[1], row[2]);
+    post.consumer=user
+    post.compleated=datetime.datetime.now()
+    post.save()
+    return post
 
 # interact w/ user
 
