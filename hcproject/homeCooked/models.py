@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 
 class User (models.Model):
     user_id = models.AutoField(primary_key=True)
@@ -30,7 +32,7 @@ class Recipe (models.Model):
     recipe_user = models.ForeignKey(User, on_delete=models.CASCADE)
     recipe_name = models.CharField(max_length=200)
     recipe_ingredients = models.CharField(max_length=200)
-    recipe_img = models.CharField(max_length=200)
+    recipe_img = models.ImageField(upload_to='images')
 
     def __str__(self):
         return self.recipe_name
@@ -40,7 +42,7 @@ class Review (models.Model):
     review_desc = models.CharField(max_length=200)
     review_user = models.ForeignKey(User, on_delete=models.CASCADE)
     review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    review_rating = models.IntegerField()
+    review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
 
     def __str__(self):
         return self.review_desc
