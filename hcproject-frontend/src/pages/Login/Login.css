@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css?family=Sen:regular,bold,italic&subset=latin,latin-ext');
+
+.login {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  color: #DDE0E5;
+}
+
+.login-background {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background-image: url("../../images/backgroundImage.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: .4;
+  z-index: -1;
+}
+
+.login-signupform {
+  border-radius: 25px;
+  width: max(min(712px, 100%), 300px);
+  padding-left: 25px;
+  padding-right: 25px;
+  min-height: 300px;
+  border: solid #CAAA02 6px;
+  box-sizing: border-box;
+  background-color: #002F2F;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-signupform .login-title {
+  width: calc(100% - 12px);
+  text-align: center;
+  font-family: 'Sen';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 48px;
+  padding-top: 91px;
+  padding-bottom: 91px;
+}
+
+.login-signupform .login-input {
+  
+  width: min(500px, calc(100% - 12px));
+  height: 50px;
+  margin: 0 auto;
+
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  text-align: center;
+
+  border-radius: 25px;
+  margin-bottom: 25px;
+  outline: none;
+}
+
+.login-signupform .login-input:hover,
+.login-signupform .login-input:focus {
+  outline: solid 3px #CAAA02;
+}
+
+.login-button {
+  cursor: pointer;
+  width: 226px;
+  height: 50px;
+  border-radius: 50px;
+  background-color: #CAAA02;
+  color: black;
+
+  font-family: 'Sen';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 25px;
+  text-align: center;
+  margin-bottom: 10px;
+  transition: background-color 1s ease
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: #FFD700;
+}
+
+.signup-forgot-links {
+  display: flex;
+  justify-content: space-between;
+  width: min(500px, calc(100% - 12px));
+  margin-bottom: 30px;
+}
+
+.signup-forgot-links .signup-link,
+.signup-forgot-links .forgot-password-link{
+  color: white;
+  text-decoration: none;
+  font-family: 'Sen';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 30px;
+  text-align: center;
+}
