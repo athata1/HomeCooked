@@ -41,9 +41,9 @@ class Post (models.Model):
     post_id = models.AutoField(primary_key=True)
     post_desc = models.CharField(max_length=200)
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
-    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer')
-    post_created = models.DateTimeField(default=datetime.now)
-    post_completed = models.DateTimeField()
+    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer', default=2)
+    post_created = models.DateTimeField(auto_created=True)
+    post_completed = models.DateTimeField(auto_now=True)
     post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
     def __str__(self):
