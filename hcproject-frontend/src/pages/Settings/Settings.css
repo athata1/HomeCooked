@@ -14,7 +14,7 @@
 }
 
 .settings-form {
-  width: 650px;
+  width: 950px;
 }
 
 .settings-title {
@@ -40,4 +40,34 @@
 
 .settings-profile {
   font-size: large;
+  width: 10rem;
+}
+
+.settings-button {
+  background: #d9d9d9;
+  border-radius: 20px;
+  /* font-size: 1.5rem; */
+  width: 10rem;
+}
+
+.settings-button-remove {
+  border-radius: 20px;
+  width: 10rem;
+}
+
+.settings-textarea {
+  width: 400px;
+  height: 130px;
+  resize: none;
+}
+
+.settings-save-button {
+  background: #002f2f;
+  color: white;
+  margin: 10px;
+  width: 16rem;
+}
+
+.settings-delete-account-button {
+  width: 16rem;
 }
