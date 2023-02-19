@@ -6,6 +6,9 @@
   display: grid;
   place-items: center;
   color: #DDE0E5;
+  box-sizing: border-box;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .login-background {
