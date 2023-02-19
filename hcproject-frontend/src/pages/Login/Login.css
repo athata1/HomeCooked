@@ -19,9 +19,10 @@
   z-index: -1;
 }
 
-.login-signupform {
+.login-loginform {
   border-radius: 25px;
   width: max(min(712px, 100%), 300px);
+  margin:25px;
   padding-left: 25px;
   padding-right: 25px;
   min-height: 300px;
@@ -35,7 +36,7 @@
   align-items: center;
 }
 
-.login-signupform .login-title {
+.login-loginform .login-title {
   width: calc(100% - 12px);
   text-align: center;
   font-family: 'Sen';
@@ -46,7 +47,7 @@
   padding-bottom: 91px;
 }
 
-.login-signupform .login-input {
+.login-loginform .login-input {
   
   width: min(500px, calc(100% - 12px));
   height: 50px;
@@ -63,8 +64,8 @@
   outline: none;
 }
 
-.login-signupform .login-input:hover,
-.login-signupform .login-input:focus {
+.login-loginform .login-input:hover,
+.login-loginform .login-input:focus {
   outline: solid 3px #CAAA02;
 }
 
@@ -82,7 +83,7 @@
   font-size: 25px;
   text-align: center;
   margin-bottom: 10px;
-  transition: background-color 1s ease
+  transition: background-color 0.1s ease
 }
 
 .login-button:hover:not(:disabled) {
@@ -99,6 +100,10 @@
 .signup-forgot-links .signup-link,
 .signup-forgot-links .forgot-password-link{
   color: white;
+  width: 120px;
+  height: 100%;
+  display: grid;
+  place-items: center;
   text-decoration: none;
   font-family: 'Sen';
   font-style: normal;
