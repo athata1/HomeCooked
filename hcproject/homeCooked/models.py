@@ -42,8 +42,9 @@ class Post (models.Model):
     post_desc = models.CharField(max_length=200)
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
     post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer')
-    #post_created = models.DateTimeField(default=datetime.now)
-    #post_completed = models.DateTimeField()
+    post_created = models.DateTimeField(default=datetime.now)
+    post_completed = models.DateTimeField()
+    post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.post_desc
@@ -64,7 +65,7 @@ class Message (models.Model):
     message = models.CharField(max_length=200)
     message_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
     message_recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
-    message_sent = models.DateTimeField()
+    message_sent = models.DateTimeField(default=datetime.now)
 
     def __str__(self):
         return self.message_desc
