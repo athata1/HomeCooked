@@ -1,10 +1,18 @@
 from django.http import HttpResponse
+from django.shortcuts import render
+from .models import Post, Recipe, User
 # import datetime
 # import sqlite3
 # import json
 
 def index(request):
-    return HttpResponse("Hello, world!")
+    latest_user_list = User.objects.order_by('-user_id')[:5]
+    context = {'latest_user_list': latest_user_list}
+    return render(request, 'homeCooked/index.html', context)
+
+def user(request, user_id):
+    return HttpResponse("You're looking at user %s." % user_id)
+    
 
 # def getPostsByUser(producer):
 #     return Post.objects.filter(post_producer__exact=producer)
