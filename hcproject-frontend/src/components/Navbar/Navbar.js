@@ -1,13 +1,19 @@
 import React from "react";
 import './Navbar.css'
-const Navbar = () => {
+
+function Navbar({data}) {
   return <div className="navbar">
-    <div className="navbar-left">a</div>
-    <div className="navbar-middle">
-      <input className="navbar-searchbar"></input>
+    <div className="navbarLeft">left</div>
+    <div className="navbarMiddle">
+      <div className="searchInput">
+        <input type="text" placeholder={"Find profiles, posts, events..."} /> 
+        <div className="searchIcon"> </div>
+      </div>
+      <div className="searchResult"></div>
     </div>
-    <div className="navbar-right">c</div>
+    <div className="navbarRight">right</div>
   </div>;
 };
 
 export default Navbar;
+
