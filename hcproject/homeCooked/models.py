@@ -3,79 +3,79 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 
 class User (models.Model):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=200)
-    password = models.CharField(max_length=200)
-    email = models.CharField(max_length=200)
-    address = models.CharField(max_length=200)
-    biography = models.CharField(max_length=200)
+    user_id = models.AutoField(primary_key=True, verbose_name='User ID')
+    username = models.CharField(max_length=200, verbose_name='Username')
+    password = models.CharField(max_length=200, verbose_name='Password')
+    email = models.EmailField(max_length=200, verbose_name='Email')
+    address = models.CharField(max_length=200, verbose_name='Address')
+    biography = models.CharField(max_length=200, verbose_name='Biography')
 
     def __str__(self):
         return self.username
 
 class Event (models.Model):
-    event_id = models.AutoField(primary_key=True)
-    event_name = models.CharField(max_length=200)
-    event_desc = models.CharField(max_length=200)
-    event_date = models.DateField()
-    event_time = models.TimeField()
-    event_location = models.CharField(max_length=200)
-    event_capacity = models.IntegerField()
-    event_host = models.ForeignKey(User, on_delete=models.CASCADE)
+    event_id = models.AutoField(primary_key=True, verbose_name='Event ID')
+    event_name = models.CharField(max_length=200, verbose_name='Name')
+    event_desc = models.CharField(max_length=200, verbose_name='Description')
+    event_date = models.DateField(verbose_name='Date')
+    event_time = models.TimeField(verbose_name='Time')
+    event_location = models.CharField(max_length=200, verbose_name='Location')
+    event_capacity = models.IntegerField(verbose_name='Capacity')
+    event_host = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Host')
 
     def __str__(self):
         return self.event_name
 
 class Recipe (models.Model):
-    recipe_id = models.AutoField(primary_key=True)
-    recipe_desc = models.CharField(max_length=200)
-    recipe_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    recipe_name = models.CharField(max_length=200)
-    recipe_ingredients = models.CharField(max_length=200)
-    recipe_img = models.ImageField(upload_to='images')
+    recipe_id = models.AutoField(primary_key=True, verbose_name='Recipe ID')
+    recipe_desc = models.CharField(max_length=200, verbose_name='Description')
+    recipe_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
+    recipe_name = models.CharField(max_length=200, verbose_name='Name')
+    recipe_ingredients = models.CharField(max_length=200, verbose_name='Ingredients')
+    recipe_img = models.CharField(max_length=200, verbose_name='Image')
 
     def __str__(self):
         return self.recipe_name
 
 class Post (models.Model):
-    post_id = models.AutoField(primary_key=True)
-    post_desc = models.CharField(max_length=200)
-    post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer')
-    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer', default=2)
-    post_created = models.DateTimeField(auto_created=True)
-    post_completed = models.DateTimeField(auto_now=True)
-    post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    post_id = models.AutoField(primary_key=True, verbose_name='Post ID')
+    post_desc = models.CharField(max_length=200, verbose_name='Description')
+    post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer', verbose_name='Producer')
+    post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer', default=2, verbose_name='Consumer')
+    post_created = models.DateTimeField(auto_created=True, verbose_name='Created Date/Time')
+    post_completed = models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')
+    post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
 
     def __str__(self):
         return self.post_desc
 
 class Review (models.Model):
-    review_id = models.AutoField(primary_key=True)
-    review_desc = models.CharField(max_length=200)
-    review_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)])
-    review_post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    review_id = models.AutoField(primary_key=True, verbose_name='Review ID')
+    review_desc = models.CharField(max_length=200, verbose_name='Description')
+    review_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
+    review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
+    review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)], verbose_name='Rating')
+    review_post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Post')
 
     def __str__(self):
         return self.review_desc
 
 class Message (models.Model):
-    message_id = models.AutoField(primary_key=True)
-    message = models.CharField(max_length=200)
-    message_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender')
-    message_recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient')
-    message_sent = models.DateTimeField(default=datetime.now)
+    message_id = models.AutoField(primary_key=True, verbose_name='Message ID')
+    message = models.CharField(max_length=200, verbose_name='Content')
+    message_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender', verbose_name='Sender')
+    message_recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='recipient', verbose_name='Recipient')
+    message_sent = models.DateTimeField(default=datetime.now, verbose_name='Sent Date/Time')
 
     def __str__(self):
         return self.message_desc
 
 class DiscussionBoard (models.Model):
-    discussion_id = models.AutoField(primary_key=True)
-    discussion_desc = models.CharField(max_length=200)
-    discussion_sender = models.ForeignKey(User, on_delete=models.CASCADE)
-    discussion_event = models.ForeignKey(Event, on_delete=models.CASCADE)
-    discussion_data = models.DateField()
+    discussion_id = models.AutoField(primary_key=True, verbose_name='Discussion ID')
+    discussion_desc = models.CharField(max_length=200, verbose_name='Description')
+    discussion_sender = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Sender')
+    discussion_event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name='Event')
+    discussion_data = models.DateField(verbose_name='Date')
 
     def __str__(self):
         return self.discussion_name
