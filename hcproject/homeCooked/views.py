@@ -6,12 +6,20 @@ from .models import Post, Recipe, User
 # import json
 
 def index(request):
-    latest_user_list = User.objects.order_by('-user_id')[:5]
-    context = {'latest_user_list': latest_user_list}
-    return render(request, 'homeCooked/index.html', context)
+    user = User.objects.all
 
-def user(request, user_id):
-    return HttpResponse("You're looking at user %s." % user_id)
+    use = {
+        "username" : user
+    }
+    return render(request, "homeCooked\index.html", use)
+
+def post_request(request):
+    posts = Post.objects.all
+
+    context = {
+        "post_list" : posts
+    }
+    return render(request, "homeCooked\posts.html", context)
     
 
 # def getPostsByUser(producer):

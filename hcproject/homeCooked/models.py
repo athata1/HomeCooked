@@ -39,6 +39,7 @@ class Recipe (models.Model):
 
 class Post (models.Model):
     post_id = models.AutoField(primary_key=True, verbose_name='Post ID')
+    post_title = models.CharField(max_length=100, verbose_name='Title')
     post_desc = models.CharField(max_length=200, verbose_name='Description')
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer', verbose_name='Producer')
     post_consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='consumer', default=2, verbose_name='Consumer')
