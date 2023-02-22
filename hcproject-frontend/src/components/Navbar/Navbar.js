@@ -6,7 +6,7 @@ function Navbar({data}) {
     <div className="navbarLeft">left</div>
     <div className="navbarMiddle">
       <div className="searchInput">
-        <input type="text" placeholder={"Find profiles, posts, events..."} /> 
+        <input className="navbar-search" type="text" placeholder={"Find profiles, posts, events..."} /> 
         <div className="searchIcon"> </div>
       </div>
       <div className="searchResult"></div>
