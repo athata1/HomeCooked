@@ -31,10 +31,15 @@ export function AuthProvider({children}) {
     })
   }
 
+  function login(email, password) {
+    auth.signInWithEmailAndPassword(email, password)
+  }
+
   const value = {
     currentUser,
     signup,
     signout,
+    login
   }
 
   return (
