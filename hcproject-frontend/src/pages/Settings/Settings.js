@@ -2,19 +2,31 @@ import React, { useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { states, stateCities } from "../../utils/stateCity";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const availableCities = stateCities.getCities(selectedState);
+  const navigate = useNavigate();
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
   };
 
+  const confirmDeleteAccount = (e) => {
+    e.preventDefault();
+    navigate("/login");
+  };
+
   const handleRemoveImage = (e) => {
     e.preventDefault();
     setSelectedImage(null);
+  };
+
+  const handleChangeImage = (e) => {
+    e.preventDefault();
+    setSelectedImage(e.target.files[0]);
   };
 
   return (
@@ -101,10 +113,23 @@ const Settings = () => {
         </div>
         <div className="row mt-2">
           <div className="col">
-            <button className="btn" disabled="true">
-              <CgProfile size={80} />
+            <>
+              {selectedImage ? (
+                <img alt="profile-img" src={selectedImage} />
+              ) : (
+                <CgProfile size={80} />
+              )}
+            </>
+            <button className="btn">
+              <input
+                type="file"
+                id="file"
+                ref={selectedImage}
+                className="ps-5"
+                onChange={handleChangeImage}
+              />
             </button>
-            <button className="mx-5 btn settings-button">Change</button>
+
             <button
               className="btn btn-danger settings-button-remove"
               onClick={handleRemoveImage}
@@ -148,7 +173,7 @@ const Settings = () => {
               <div className="modal-content">
                 <div className="modal-header">
                   <h5 className="modal-title" id="exampleModalLabel">
-                    Modal title
+                    Are You Sure You Want To Delete Your Account?
                   </h5>
                   <button
                     type="button"
@@ -157,7 +182,12 @@ const Settings = () => {
                     aria-label="Close"
                   ></button>
                 </div>
-                <div className="modal-body">...</div>
+                <div className="modal-body">
+                  All your data will be deleted. We will not store any
+                  credentials, email included. If you want to use the platfrom
+                  again you may do so with the same email. However, all the data
+                  related to your previous account will be deleted.
+                </div>
                 <div className="modal-footer">
                   <button
                     type="button"
@@ -166,8 +196,13 @@ const Settings = () => {
                   >
                     Close
                   </button>
-                  <button type="button" className="btn btn-primary">
-                    Save changes
+                  <button
+                    type="button"
+                    className="btn btn-danger"
+                    data-bs-dismiss="modal"
+                    onClick={confirmDeleteAccount}
+                  >
+                    Delete Account
                   </button>
                 </div>
               </div>
