@@ -73,8 +73,8 @@
 }
 
 .settings-img {
-  min-height: 50px;
-  max-height: 50px;
+  min-height: 100px;
+  max-height: 100px;
 }
 
 input::-webkit-outer-spin-button,
