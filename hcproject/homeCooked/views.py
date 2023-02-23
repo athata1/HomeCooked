@@ -1,9 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render
+from django.core import serializers
 from .models import Post, Recipe, User
 # import datetime
 # import sqlite3
-# import json
+import json
 
 def index(request):
     user = User.objects.all
@@ -20,10 +21,9 @@ def post_request(request):
         "post_list" : posts
     }
     return render(request, "homeCooked\posts.html", context)
-    
 
-# def getPostsByUser(producer):
-#     return Post.objects.filter(post_producer__exact=producer)
+def post_byUser_request(request, pk):
+    return JsonResponse(serializers.serialize('json', Post.objects.filter(post_producer__exact=pk)), safe=False)
 
 # def createPost(user, recipeUsed):
 #     post = Post(post_producer=producercur, post_recipe=recipeUsed, post_created=datetime.datetime.now())
