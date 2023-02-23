@@ -22,22 +22,53 @@ def post_request(request):
     }
     return render(request, "homeCooked\posts.html", context)
 
-def post_byUser_request(request, pk):
-    return JsonResponse(serializers.serialize('json', Post.objects.filter(post_producer__exact=pk)), safe=False)
+'''.git\
+TODO:
+1. change to a class based model
+2. urls to have:
+posts/
+    /author, 
+    /all user
+    /new user, recipe, title, desc
+    /buy id, consumer
+    /complete id, producer, recipe, title, desc, consumer
+'''
 
-# def createPost(user, recipeUsed):
-#     post = Post(post_producer=producercur, post_recipe=recipeUsed, post_created=datetime.datetime.now())
-#     post.save()
+def post_produced_by(request):
+    if request.method == 'GET':
+        pk = request.GET.get('user', None)
+        return JsonResponse(serializers.serialize('json', Post.objects.filter(post_producer__exact=pk)), safe=False)
 
-# def getTransactionsByUser(cur, user):
-#     createdBy = Post.objects.filter(post_producer__exact=user)
-#     boughtFrom = Post.objects.filter(post_consumer__exact=user)
-#     return createdBy.union(boughtFrom)
+def post_new_post(request):
+    if request.method == 'POST':
+        producer = request.POST.get('producer', None)
+        created = request.POST.get('recipe', None)
+        title = request.POST.get('title', None)
+        desc = reqeusts.POST.get('desc', None)
+        post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
+        post.save()
+        return JsonResponse(serializers.serialize('json', post), safe=False)
 
-# def completeTransaction(id, user):
-#     post=Post.objects.get(post_id__exact=post)
+def post_post_has(request):
+    if request.method == 'GET':
+        user=request.GET.get('user', None)
+        print(user)
+        createdBy = Post.objects.filter(post_producer__exact=user)
+        boughtFrom = Post.objects.filter(post_consumer__exact=user)
+        data = createdBy.union(boughtFrom)
+        return JsonResponse(serializers.serialize('json', data), safe=False)
 
-#     post.post_consumer=user
-#     post.post_compleated=datetime.datetime.now()
-#     post.save()
-#     return post
+def post_complete(request):
+    if request.method == 'POST':
+        post = requests.POST.get('id', None)
+        consumer = requests.POST.get('consumer', None)
+
+        post=Post.objects.get(post_id__exact=post)
+
+        post.post_consumer=user
+        post.post_compleated=datetime.datetime.now()
+        post.post_available=False
+        post.save()
+        return JsonResponse(serializers.serialize('json', post))
+
+# update post later (gonna have to do some sneeky stuff with optional arguments and stuff.)

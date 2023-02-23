@@ -46,6 +46,7 @@ class Post (models.Model):
     post_created = models.DateTimeField(auto_created=True, verbose_name='Created Date/Time')
     post_completed = models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')
     post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
+    post_available = models.BooleanField(default=True)
 
     def __str__(self):
         return self.post_desc
