@@ -1,17 +1,20 @@
 import React, { useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
+import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
 import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("");
+  const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [zipcode, setZipcode] = useState("");
+  const [firstName, setFirstName] = useState("FirstName");
+  const [lastName, setLastName] = useState("LastName");
+  const [username, setUsername] = useState("Username");
+  const [email, setEmail] = useState("Email");
+  const [zipcode, setZipcode] = useState("00000");
+  const [about, setAbout] = useState("About");
   const availableCities = stateCities.getCities(selectedState);
   const navigate = useNavigate();
 
@@ -36,10 +39,28 @@ const Settings = () => {
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
   };
 
+  const handleEdit = () => {
+    setEdit(true);
+    console.log(edit);
+  };
+
+  const handleSave = (e) => {
+    e.preventDefault();
+    setEdit(false);
+  };
+
   return (
     <div className="px-5">
       <div>
-        <h1 className="settings-title">Account</h1>
+        <h1 className="settings-title">
+          Account{" "}
+          {!edit && (
+            <AiOutlineEdit
+              className="settings-edit ps-3"
+              onClick={handleEdit}
+            />
+          )}
+        </h1>
       </div>
 
       <div className="settings-line"></div>
@@ -52,6 +73,7 @@ const Settings = () => {
               placeholder="First name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              readOnly={!edit}
             />
           </div>
           <div className="col">
@@ -61,6 +83,7 @@ const Settings = () => {
               placeholder="Last name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              readOnly={!edit}
             />
           </div>
         </div>
@@ -73,6 +96,7 @@ const Settings = () => {
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              readOnly={!edit}
             />
           </div>
           <div className="col">
@@ -82,6 +106,7 @@ const Settings = () => {
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              readOnly={!edit}
             />
           </div>
         </div>
@@ -93,6 +118,7 @@ const Settings = () => {
               aria-label="Default select example"
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
+              disabled={!edit}
             >
               <option>--Choose State--</option>
               {states?.map((e, key) => {
@@ -105,7 +131,11 @@ const Settings = () => {
             </select>
           </div>
           <div className="col pt-2">
-            <select className="form-select" aria-label="Default select example">
+            <select
+              className="form-select"
+              aria-label="Default select example"
+              disabled={!edit}
+            >
               <option>--Choose City--</option>
               {availableCities?.map((c) => (
                 <option value={c} key={c}>
@@ -121,6 +151,7 @@ const Settings = () => {
               placeholder="Zipcode"
               value={zipcode}
               onChange={(e) => setZipcode(e.target.value)}
+              readOnly={!edit}
             />
           </div>
         </div>
@@ -143,14 +174,21 @@ const Settings = () => {
               )}
             </>
 
-            <input type="file" onChange={handleChangeImage} className="px-5" />
-
-            <button
-              className="btn btn-danger settings-button-remove"
-              onClick={handleRemoveImage}
-            >
-              Remove
-            </button>
+            {edit && (
+              <input
+                type="file"
+                onChange={handleChangeImage}
+                className="ps-5"
+              />
+            )}
+            {edit && (
+              <button
+                className="btn btn-danger settings-button-remove"
+                onClick={handleRemoveImage}
+              >
+                Remove
+              </button>
+            )}
           </div>
         </div>
         <div className="row mt-5">
@@ -160,11 +198,19 @@ const Settings = () => {
         </div>
         <div className="row mb-5">
           <div className="col">
-            <textarea className="settings-textarea"></textarea>
+            <textarea
+              className="settings-textarea"
+              value={about}
+              onChange={(e) => setAbout(e.target.value)}
+              readOnly={!edit}
+            ></textarea>
           </div>
         </div>
         <div className="col mb-3 settings-save-div d-flex justify-content-center">
-          <button className="mx-5 btn settings-button settings-save-button">
+          <button
+            className="mx-5 btn settings-button settings-save-button"
+            onClick={handleSave}
+          >
             Save
           </button>
         </div>
