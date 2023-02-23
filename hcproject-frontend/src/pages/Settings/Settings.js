@@ -7,6 +7,11 @@ import { useNavigate } from "react-router-dom";
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [zipcode, setZipcode] = useState("");
   const availableCities = stateCities.getCities(selectedState);
   const navigate = useNavigate();
 
@@ -22,11 +27,13 @@ const Settings = () => {
   const handleRemoveImage = (e) => {
     e.preventDefault();
     setSelectedImage(null);
+    e.target.value = null;
   };
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    setSelectedImage(e.target.files[0]);
+    console.log(e.target.files);
+    setSelectedImage(URL.createObjectURL(e.target.files[0]));
   };
 
   return (
@@ -34,6 +41,7 @@ const Settings = () => {
       <div>
         <h1 className="settings-title">Account</h1>
       </div>
+
       <div className="settings-line"></div>
       <form className="settings-form">
         <div className="row">
@@ -42,6 +50,8 @@ const Settings = () => {
               type="text"
               className="form-control settings-input"
               placeholder="First name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
             />
           </div>
           <div className="col">
@@ -49,6 +59,8 @@ const Settings = () => {
               type="text"
               className="form-control settings-input"
               placeholder="Last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
             />
           </div>
         </div>
@@ -59,6 +71,8 @@ const Settings = () => {
               type="text"
               className="form-control settings-input"
               placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
           <div className="col">
@@ -66,6 +80,8 @@ const Settings = () => {
               type="text"
               className="form-control settings-input"
               placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         </div>
@@ -100,9 +116,11 @@ const Settings = () => {
           </div>
           <div className="col">
             <input
-              type="text"
-              className="form-control settings-input "
+              type="number"
+              className="form-control settings-input"
               placeholder="Zipcode"
+              value={zipcode}
+              onChange={(e) => setZipcode(e.target.value)}
             />
           </div>
         </div>
@@ -115,20 +133,17 @@ const Settings = () => {
           <div className="col">
             <>
               {selectedImage ? (
-                <img alt="profile-img" src={selectedImage} />
+                <img
+                  alt="profile-img"
+                  src={selectedImage}
+                  className="settings-img"
+                />
               ) : (
                 <CgProfile size={80} />
               )}
             </>
-            <button className="btn">
-              <input
-                type="file"
-                id="file"
-                ref={selectedImage}
-                className="ps-5"
-                onChange={handleChangeImage}
-              />
-            </button>
+
+            <input type="file" onChange={handleChangeImage} className="px-5" />
 
             <button
               className="btn btn-danger settings-button-remove"
