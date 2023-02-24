@@ -4,11 +4,11 @@ from datetime import datetime
 
 class User (models.Model):
     user_id = models.AutoField(primary_key=True, verbose_name='User ID')
-    username = models.CharField(max_length=200, verbose_name='Username')
-    password = models.CharField(max_length=200, verbose_name='Password')
-    email = models.EmailField(max_length=200, verbose_name='Email')
-    address = models.CharField(max_length=200, verbose_name='Address')
-    biography = models.CharField(max_length=200, verbose_name='Biography')
+    user_username = models.CharField(max_length=200, verbose_name='Username') # no changing the name. this is funny
+    user_pass = models.CharField(max_length=200, verbose_name='Password')
+    user_email = models.EmailField(max_length=200, verbose_name='Email')
+    user_address = models.CharField(max_length=200, verbose_name='Address')
+    user_bio = models.CharField(max_length=200, verbose_name='Biography')
 
     def __str__(self):
         return self.username

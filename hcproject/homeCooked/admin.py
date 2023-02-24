@@ -2,10 +2,10 @@ from django.contrib import admin
 from .models import *
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'username', 'password', 'email', 'address', 'biography')
-    list_display_links = ('user_id', 'username')
-    list_filter = ('user_id', 'username', 'email')
-    search_fields = ('user_id', 'username', 'email')
+    list_display = ('user_id', 'user_username', 'user_pass', 'user_email', 'user_address', 'user_bio')
+    list_display_links = ('user_id', 'user_username')
+    list_filter = ('user_id', 'user_username', 'user_email')
+    search_fields = ('user_id', 'user_username', 'user_email')
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('event_id', 'event_name', 'event_desc', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
