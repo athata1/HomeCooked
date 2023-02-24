@@ -8,6 +8,8 @@ class User (models.Model):
     user_pass = models.CharField(max_length=200, verbose_name='Password')
     user_email = models.EmailField(max_length=200, verbose_name='Email')
     user_address = models.CharField(max_length=200, verbose_name='Address')
+    user_city = models.CharField(max_length=200, verbose_name='City')
+    user_state = models.CharField(max_length=200, verbose_name='State')
     user_bio = models.CharField(max_length=200, verbose_name='Biography')
 
     def __str__(self):
