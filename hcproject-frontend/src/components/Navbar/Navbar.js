@@ -1,13 +1,16 @@
 import React from "react";
 import './Navbar.css'
+import ProfileDropdown
+ from "../ProfileDropdown/ProfileDropdown";
 const Navbar = () => {
-  return <div className="navbar">
+  return <nav className="navbar">
     <div className="navbar-left">a</div>
     <div className="navbar-middle">
-      <input className="navbar-searchbar"></input>
     </div>
-    <div className="navbar-right">c</div>
-  </div>;
+    <div className="navbar-right">
+      <ProfileDropdown />
+    </div>
+  </nav>;
 };
 
 export default Navbar;
