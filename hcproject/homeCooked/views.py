@@ -69,6 +69,35 @@ def post_complete(request):
         post.post_compleated=datetime.datetime.now()
         post.post_available=False
         post.save()
-        return JsonResponse(serializers.serialize('json', post))
+        return JsonResponse(serializers.serialize('json', post), safe=False)
 
-# update post later (gonna have to do some sneeky stuff with optional arguments and stuff.)
+def post_get(requst):
+    if request.method == 'GET':
+        post = request.GET.get('id', None)
+        return JsonResponse(serializers.serialize('json', Post.objects.filter(post_id__exact=post)), safe=False)
+
+def post_update(request):
+    if request.method == 'POST':
+        postid = request.POST.get('id', False)
+        title = request.POST.get('title', False)
+        desc = request.POST.get('desc', False)
+        producer = request.POST.get('producer', False)
+        consumer = request.POST.get('consumer', False)
+        recipe = request.POST.get('recipe', False)
+
+        post = Post.objects.filter(post_id__exact=postid)
+        if 'title' in request.POST:
+            post.post_title = request.POST.get('title', 'ERROR!!')
+        if 'desc' in request.POST:
+            post.post_desc = request.POST.get('desc', 'ERROR!!')
+        if 'producer' in request.POST:
+            post.post_producer = request.POST.get('producer', 'ERROR!!')
+        if 'consumer' in request.POST:
+            post.post_consumer = request.POST.get('consumer', 'ERROR!!')
+        if 'recipe' in request.POST:
+            post.post_recipe = request.POST.get('recipe', 'ERRROR!')
+        
+        post.save()
+
+        return JsonResponse(serializers.serialize('json', post), safe=False)
+        

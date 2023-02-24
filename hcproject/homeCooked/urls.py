@@ -9,5 +9,7 @@ urlpatterns = [
     path('posts/by', views.post_produced_by),
     path('posts/all', views.post_post_has),
     path('posts/new', views.post_new_post),
-    path('posts/done', views.post_complete)
+    path('posts/done', views.post_complete),
+    path('posts/update', views.post_update),
+    path('posts/get', views.post_get),
 ]
