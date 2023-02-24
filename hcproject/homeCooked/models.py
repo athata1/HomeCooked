@@ -4,7 +4,7 @@ from datetime import datetime
 
 class User (models.Model):
     user_id = models.AutoField(primary_key=True, verbose_name='User ID')
-    user_username = models.CharField(max_length=200, verbose_name='Username') # no changing the name. this is funny
+    user_uname = models.CharField(max_length=200, verbose_name='Username')
     user_pass = models.CharField(max_length=200, verbose_name='Password')
     user_email = models.EmailField(max_length=200, verbose_name='Email')
     user_address = models.CharField(max_length=200, verbose_name='Address')

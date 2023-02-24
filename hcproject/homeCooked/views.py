@@ -104,7 +104,31 @@ def user_manager(request):
             #find email & verify password
             return "TO Be Completed later!"
         if 'username' in request.GET:
-            return JsonResponse(serializers.serialize('json', USER.objects.filter(username__exact=request.GET.get('username'))), safe=False)
+            return JsonResponse(serializers.serialize('json', USER.objects.filter(user_uname__exact=request.GET.get('username'))), safe=False)
         if 'email' in request.GET:
-            return JsonResponse(serializers.serialize('json', USER.objects.filter(email__exact=request.GET.get('email'))), safe=False)
-            
+            return JsonResponse(serializers.serialize('json', USER.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
+    if request.method == 'POST':
+        if ('email' in request.POST) and ('username' in request.POST) and ('password' in request.POST):
+            email = request.POST.get('email')
+            username = request.POST.get('username')
+            password = request.POST.get('pass')
+            if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
+                #TODO: verify username is acceptable, split username and email and return an actual error here
+                return "ERROR, username or email already taken"
+            user = User(user_email=email, user_uname=username, user_password=password)
+            if 'address' in request.POST:
+                user.user_address=request.get('address')
+            if 'bio' in request.POST:
+                user.user_bio=requesst.get('bio')
+            user.save()
+            return JsonResponse(serializers.serialize('json', user), safe=False)
+        if 'id' in request.POST:
+            user = User.objects.filter(user_id__exact=request.POST.get('id'))
+            if 'email' in request.POST:
+                # TODO: verify email isn't taken
+                user.user_email = request.POST.get('email')
+            if 'uname' in request.POST:
+                # TODO: verify email isn't taken
+                user.user_email = request.POST.get('email')
+
+                    
