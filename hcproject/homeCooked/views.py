@@ -89,10 +89,11 @@ def user_manager(request):
     GET:
         users(email|username) - returns a user object coresponding to the correct email
         users(id) - returns the user coresponding to the user id
-        users(email|username, password) - confirms if the email / password combo is valid (TODO: update to password hash)
+        TODO: users(state, city) - returns the users in a specific state and city
+        TODO: users(email|username, password) - confirms if the email / password combo is valid (TODO: update to password hash)
     POST:
-        users(email, username, password, *address, *biography) - creates a new user
-        users(id|email|username, email|username|password|address|biography)
+        users(email, username, password, *address, *biography, *state, *city) - creates a new user
+        users(id|email|username, email|uname|pass|address|bio|city|state) - updates one of the previous fields
     """
     if request.method == 'GET':
         if 'id' in request.GET:
@@ -115,20 +116,37 @@ def user_manager(request):
             if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
                 #TODO: verify username is acceptable, split username and email and return an actual error here
                 return "ERROR, username or email already taken"
-            user = User(user_email=email, user_uname=username, user_password=password)
+            user = User(user_email=email, user_uname=username, user_pass=password)
             if 'address' in request.POST:
                 user.user_address=request.get('address')
             if 'bio' in request.POST:
                 user.user_bio=requesst.get('bio')
+            if 'city' in request.POST:
+                user.user_city=requesst.get('city')
+            if 'state' in request.POST:
+                user.user_state=request.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-        if 'id' in request.POST:
+        if 'id' in request.POST: # change to id email or password
             user = User.objects.filter(user_id__exact=request.POST.get('id'))
             if 'email' in request.POST:
                 # TODO: verify email isn't taken
                 user.user_email = request.POST.get('email')
             if 'uname' in request.POST:
-                # TODO: verify email isn't taken
-                user.user_email = request.POST.get('email')
+                # TODO: verify username isn't taken
+                user.user_uname = request.POST.get('uname')
+            if 'pass' in request.POST:
+                user.user_pass = request.POST.get('pass')
+            if 'address' in request.POST:
+                user.user_address = request.POST.get('address')
+            if 'bio' in request.POST:
+                user.user_bio = request.POST.get('bio')
+            if 'city' in request.POST:
+                user.user_city = request.POST.get('city')
+            if 'state' in request.POST:
+                user.user_state = request.POST.get('state')
+            user.save()
+            return JsonResponse(serializers.serialize('json', user), safe=False)
+            
 
                     
