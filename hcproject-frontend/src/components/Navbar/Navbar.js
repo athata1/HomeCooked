@@ -12,8 +12,9 @@ function Navbar({data}) {
       </div>
       <div className="searchResult"></div>
     </div>
-    <div className="navbarRight">right</div>
+    <div className="navbarRight">
       <ProfileDropdown />
+      </div>
   </div>;
 };
 

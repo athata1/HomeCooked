@@ -18,7 +18,7 @@ export default function ProfileDropdown() {
     <div className='profile-dropdown'>
       <CgProfile size={40} style={{color: "#FFFFFF"}}/>
       <ul className='profile-dropdown-list'>
-        <li className='profile-dropdown-item'>Profile</li>
+        <li onClick={() => {redirect("/profile")}} className='profile-dropdown-item'>Profile</li>
         <li onClick={() => {redirect("/settings")}} className='profile-dropdown-item'>Settings</li>
         <li onClick={() => {signout()}} className='profile-dropdown-item'>Logout</li>
       </ul>
