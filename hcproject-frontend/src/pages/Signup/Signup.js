@@ -72,7 +72,7 @@ export default function Signup() {
   }
 
   return (
-    <>
+    <div className="signup">
       <div className="signup-background"></div>
       <div className="signup">
         <div className="signup-signupform">
@@ -85,6 +85,6 @@ export default function Signup() {
         <div className="signup-login">Already have an account: <Link to="/login" style={{ textDecoration: 'none' }}><span className="signup-login-link">Login</span></Link></div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

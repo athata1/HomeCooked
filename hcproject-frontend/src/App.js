@@ -8,6 +8,7 @@ import { AuthProvider } from "./Firebase/AuthContext";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
 
+
 function App() {
   return (
     <Router>

@@ -206,15 +206,18 @@ const Settings = () => {
             ></textarea>
           </div>
         </div>
-        <div className="col mb-3 settings-save-div d-flex justify-content-center">
-          <button
-            className="mx-5 btn settings-button settings-save-button"
-            onClick={handleSave}
-          >
-            Save
-          </button>
-        </div>
-        <div className="col mb-5 settings-save-div d-flex justify-content-center">
+        {edit && (
+          <div className="col mb-3 settings-save-div d-flex justify-content-center">
+            <button
+              className="mx-5 btn settings-button settings-save-button"
+              onClick={handleSave}
+            >
+              Save
+            </button>
+          </div>
+        )}
+
+        <div className="col my-5 settings-save-div d-flex justify-content-center">
           <button
             className="btn btn-danger settings-button-remove settings-delete-account-button"
             data-bs-toggle="modal"
