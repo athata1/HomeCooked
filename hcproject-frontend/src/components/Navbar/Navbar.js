@@ -1,5 +1,6 @@
 import React from "react";
 import './Navbar.css'
+import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
 
 function Navbar({data}) {
   return <div className="navbar">
@@ -12,6 +13,7 @@ function Navbar({data}) {
       <div className="searchResult"></div>
     </div>
     <div className="navbarRight">right</div>
+      <ProfileDropdown />
   </div>;
 };
 
