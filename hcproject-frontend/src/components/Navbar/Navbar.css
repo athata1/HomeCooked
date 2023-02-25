@@ -70,7 +70,21 @@
 } */
 
 .navbarRight {
+  display: flex;
+  justify-content: right;
+  align-items: center;
   height: 100%;
+  margin-left: 10px;
 }
 
 
+
+.navbarRight >*:hover {
+  background-color: black;
+}
+
+.navbarBellContainer {
+  display: grid;
+  place-items: center;
+  width: 65px;
+}

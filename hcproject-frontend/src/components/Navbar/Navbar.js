@@ -1,7 +1,7 @@
 import React from "react";
 import './Navbar.css'
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
-import {BsHouseDoor} from 'react-icons/bs'
+import {BsHouseDoor, BsBell} from 'react-icons/bs'
 import {Link} from 'react-router-dom'
 
 function Navbar({data}) {
@@ -19,6 +19,9 @@ function Navbar({data}) {
       <div className="searchResult"></div>
     </div>
     <div className="navbarRight">
+      <div className="navbarBellContainer">
+        <BsBell size={40} style={{color: "#ffffff"}}/>
+      </div>
       <ProfileDropdown />
     </div>
   </div>;
