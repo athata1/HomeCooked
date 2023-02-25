@@ -34,7 +34,7 @@ def post_manager(request):
     POST:
         posts(producer, recipe, title, desc) - creates a new post with the above description
             TODO: make desc optional
-        posts(id, title||desc||producer||consumer||recipe) - updates an existing post
+        posts(id, title|desc|producer|consumer|recipe) - updates an existing post
             if the consumer is updated and post_available is true, marks post as non avialable and sets post_completed
     Returns:
         post[]: a list of posts found
@@ -44,8 +44,8 @@ def post_manager(request):
         if 'producer' in request.GET:
             producer = request.GET.get('producer')
             posts = Post.objects.filter(post_producer__exact=producer)
-        elif 'user' in request.GET:
-            user = request.GET.get('user')
+        elif 'userid' in request.GET:
+            user = request.GET.get('userid')
             posts = Post.objects.filter(post_producer__exact=user) | Post.objects.filter(post_consumer__exact=user)
         elif 'id' in request.GET:
             postid = request.GET.get('id')
@@ -90,15 +90,15 @@ def user_manager(request):
         users(email|uname) - returns a user object coresponding to the correct email
         users(id) - returns the user coresponding to the user id
         users(state, city) - returns the users in a specific state and city
-        TODO: users(email|username, password) - confirms if the email / password combo is valid (TODO: update to password hash)
+        TODO: users(email|uname, password) - confirms if the email / password combo is valid (TODO: update to password hash)
     POST:
-        users(email, username, password, *address, *biography, *state, *city) - creates a new user
+        users(email, uname, pass, *address, *bio, *state, *city) - creates a new user
         users(id|prev_email|prev_uname, email|uname|pass|address|bio|city|state) - updates one of the previous fields
     """
     if request.method == 'GET':
         if 'id' in request.GET:
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
-        if 'username' in request.GET and 'pass' in request.GET:
+        if 'uname' in request.GET and 'pass' in request.GET:
             # TODO: find username & verify password
             return "TO Be Completed later!"
         if 'email' in request.GET and 'pass' in request.GET:
@@ -111,10 +111,10 @@ def user_manager(request):
         if ('city' in request.GET) and ('state' in request.GET):
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
     if request.method == 'POST':
-        if ('email' in request.POST) and ('username' in request.POST) and ('password' in request.POST):
+        if ('email' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
             # new user
             email = request.POST.get('email')
-            username = request.POST.get('username')
+            username = request.POST.get('uname')
             password = request.POST.get('pass')
             if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
                 #TODO: verify username is acceptable, split username and email and return an actual error here
@@ -131,7 +131,6 @@ def user_manager(request):
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
         elif ('id' in request.POST) or ('email' in request.POST) or ('username' in request.POST): # change to id email or password
-            
             # Find user TODO: send 500 if can't find user
             user = None
             if 'id' in request.POST:
