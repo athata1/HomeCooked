@@ -5,6 +5,7 @@ import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
 import { useNavigate } from "react-router-dom";
 import Alert from "react-bootstrap/Alert";
+import Navbar from "../../components/Navbar/Navbar";
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
@@ -50,6 +51,7 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
+    console.log(selectedState);
     setValidFields(true);
     setEdit(false);
     if (!validateEmail(email)) {
@@ -89,15 +91,13 @@ const Settings = () => {
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    if (selectedCity === "--Choose City--") {
-      console.log(selectedCity);
-      setErrorField("city");
+    if (selectedState === "--Choose State--") {
+      setErrorField("state");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    if (selectedState === "--Choose State--") {
-      console.log(selectedCity);
+    if (selectedCity === "--Choose City--") {
       setErrorField("city");
       setEdit(true);
       setValidFields(false);
@@ -114,7 +114,8 @@ const Settings = () => {
   };
 
   return (
-    <div className="px-5">
+    <div className="">
+      <Navbar />
       <div>
         <h1 className="settings-title">
           Account{" "}
@@ -127,11 +128,7 @@ const Settings = () => {
         </h1>
       </div>
       {!validFields && (
-        <Alert
-          variant="danger"
-          dismissible
-          onClick={() => setValidFields(false)}
-        >
+        <Alert variant="danger" onClick={() => setValidFields(false)}>
           <Alert.Heading>Please enter a valid {errorField}</Alert.Heading>
         </Alert>
       )}
@@ -317,16 +314,7 @@ const Settings = () => {
             ></textarea>
           </div>
         </div>
-        {edit && (
-          <div className="col mb-3 settings-save-div d-flex justify-content-center">
-            <input
-              type="password"
-              className="form-control settings-input settings-password-input"
-              placeholder="Enter your password to save changes"
-              readOnly={!edit}
-            />
-          </div>
-        )}
+
         {edit && (
           <div className="col mb-3 settings-save-div d-flex justify-content-center">
             <button
