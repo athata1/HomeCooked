@@ -63,27 +63,27 @@
 - discussion_data       (date)
 
 ## Urls:
-/posts/      gives a list of all posts
-/posts/db
-    GET Request:
-        [producer] - posts producer by a user
-        [userid] - posts including a user
-        [id] - a specific post with a specific id
-        [] - all posts
-    POST Request:
-        [producer, recipe, title(str), desc(str)] - creates a new post
-        [id(int), title|desc|producer|consumer|recipe] - updates an existing post
-/users/
-    GET Request:
-        [email|uname] - finds a user by email or username
-        [id] - finds the coresponding user
-        [city, state] - finds all users in the coresponding city and state
-        TODO: [email|uname, pass] - confirm the email/uname pass works.
-    POST Request:
-        [email, uname, pass, *address, *bio, *state, *city] - creates a new user (TODO: confirm email and uname aren't taken)
-        [id|prev_email|prev_uname, email|uname|pass|address|bio|city|state] - updates an existing user
+/posts/      gives a list of all posts <br>
+/posts/db<br>
+    GET Request:<br>
+        [producer] - posts producer by a user<br>
+        [userid] - posts including a user<br>
+        [id] - a specific post with a specific id<br>
+        [] - all posts<br>
+    POST Request:<br>
+        [producer, recipe, title(str), desc(str)] - creates a new post<br>
+        [id(int), title|desc|producer|consumer|recipe] - updates an existing post<br>
+/users/<br>
+    GET Request:<br>
+        [email|uname] - finds a user by email or username<br>
+        [id] - finds the coresponding user<br>
+        [city, state] - finds all users in the coresponding city and state<br>
+        TODO: [email|uname, pass] - confirm the email/uname pass works.<br>
+    POST Request:<br>
+        [email, uname, pass, *address, *bio, *state, *city] - creates a new user (TODO: confirm email and uname aren't taken)<br>
+        [id|prev_email|prev_uname, email|uname|pass|address|bio|city|state] - updates an existing user<br>
 
 ###format:
-/path
-    Request type
-        [param_option1|param_option2, *optional_param] - description
+/path<br>
+    Request type<br>
+        [param_option1|param_option2, *optional_param] - description<br>
