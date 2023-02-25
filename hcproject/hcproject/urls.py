@@ -15,8 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth.models import User, Group
 
+admin.site.site_header = "HomeCooked Admin"
+admin.site.site_title = ""
+admin.site.index_title = "Welcome to HomeCooked's Admin Portal"
 urlpatterns = [
-    path('homeCooked/', include('homeCooked.urls')),
+    path('', include('homeCooked.urls')),
     path('admin/', admin.site.urls),
 ]

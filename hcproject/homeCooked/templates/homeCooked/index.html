@@ -1,0 +1,8 @@
+<h2>test</h2>
+{% block content %}
+{% for user in username %}
+    <div class="user">
+        <h3>{{ user.username }}</h3>
+    </div>
+{% endfor %}
+{% endblock content %}

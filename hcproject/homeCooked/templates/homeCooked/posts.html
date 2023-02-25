@@ -1,0 +1,13 @@
+<h2>Posts</h2>
+{% block content %}
+{% for post in post_list%}
+    <div class="post">
+        <h3>{{ post.post_title }}</h3>
+        <p>{{ post.post_desc }}</p>
+        <p>{{ post.post_producer }}</p>
+        <p>{{ post.post_consumer }}</p>
+        <p>{{ post.post_recipe }}</p>
+    </div>
+    <hr>
+{% endfor %}
+{% endblock content %}

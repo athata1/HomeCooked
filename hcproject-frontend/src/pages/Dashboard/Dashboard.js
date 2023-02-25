@@ -9,7 +9,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <Navbar placeholder="Search..." />
+      <Navbar />
       Dashboard
       {currentUser ? currentUser.email : ""}
     </div>
