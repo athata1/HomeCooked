@@ -90,3 +90,7 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.settings-password-input {
+  width: 50%;
+}

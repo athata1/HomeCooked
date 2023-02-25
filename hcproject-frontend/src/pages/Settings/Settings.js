@@ -4,18 +4,24 @@ import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
 import { useNavigate } from "react-router-dom";
-
+import Alert from "react-bootstrap/Alert";
 const Settings = () => {
-  const [selectedState, setSelectedState] = useState("");
+  const [selectedState, setSelectedState] = useState("--Choose State--");
+  const [selectedCity, setSelectedCity] = useState("--Choose City--");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [firstName, setFirstName] = useState("FirstName");
   const [lastName, setLastName] = useState("LastName");
   const [username, setUsername] = useState("Username");
-  const [email, setEmail] = useState("Email");
+  const [email, setEmail] = useState("Email@email.com");
   const [zipcode, setZipcode] = useState("00000");
-  const [about, setAbout] = useState("About");
+  const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
   const availableCities = stateCities.getCities(selectedState);
+  const [validFields, setValidFields] = useState(true);
+  const [errorField, setErrorField] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
   const handleDeleteAccount = (e) => {
@@ -35,18 +41,76 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    console.log(e.target.files);
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
   };
 
   const handleEdit = () => {
     setEdit(true);
-    console.log(edit);
   };
 
   const handleSave = (e) => {
     e.preventDefault();
+    setValidFields(true);
     setEdit(false);
+    if (!validateEmail(email)) {
+      setErrorField("email");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (username.length <= 3 || username.length >= 25) {
+      setErrorField("username");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (firstName.length === 0 || firstName.length >= 25) {
+      setErrorField("first name.");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (lastName.length === 0 || lastName.length >= 25) {
+      setErrorField("last name.");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (zipcode.length !== 5) {
+      setErrorField("zipcode");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    if (about.length <= 15) {
+      setErrorField("about section");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (selectedCity === "--Choose City--") {
+      console.log(selectedCity);
+      setErrorField("city");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (selectedState === "--Choose State--") {
+      console.log(selectedCity);
+      setErrorField("city");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const validateEmail = (email) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
   };
 
   return (
@@ -62,6 +126,15 @@ const Settings = () => {
           )}
         </h1>
       </div>
+      {!validFields && (
+        <Alert
+          variant="danger"
+          dismissible
+          onClick={() => setValidFields(false)}
+        >
+          <Alert.Heading>Please enter a valid {errorField}</Alert.Heading>
+        </Alert>
+      )}
 
       <div className="settings-line"></div>
       <form className="settings-form">
@@ -135,6 +208,7 @@ const Settings = () => {
               className="form-select"
               aria-label="Default select example"
               disabled={!edit}
+              onChange={(e) => setSelectedCity(e.target.value)}
             >
               <option>--Choose City--</option>
               {availableCities?.map((c) => (
@@ -151,6 +225,43 @@ const Settings = () => {
               placeholder="Zipcode"
               value={zipcode}
               onChange={(e) => setZipcode(e.target.value)}
+              readOnly={!edit}
+            />
+          </div>
+        </div>
+        <div className="row mt-3">
+          <div className="col">
+            <h3 className="settings-label mb-4">Change Password</h3>
+          </div>
+        </div>
+        <div className="row">
+          <div className="col">
+            <input
+              type="password"
+              className="form-control settings-input"
+              placeholder="Old Password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              readOnly={!edit}
+            />
+          </div>
+          <div className="col">
+            <input
+              type="password"
+              className="form-control settings-input"
+              placeholder="New Password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              readOnly={!edit}
+            />
+          </div>
+          <div className="col">
+            <input
+              type="password"
+              className="form-control settings-input"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               readOnly={!edit}
             />
           </div>
@@ -208,6 +319,16 @@ const Settings = () => {
         </div>
         {edit && (
           <div className="col mb-3 settings-save-div d-flex justify-content-center">
+            <input
+              type="password"
+              className="form-control settings-input settings-password-input"
+              placeholder="Enter your password to save changes"
+              readOnly={!edit}
+            />
+          </div>
+        )}
+        {edit && (
+          <div className="col mb-3 settings-save-div d-flex justify-content-center">
             <button
               className="mx-5 btn settings-button settings-save-button"
               onClick={handleSave}
@@ -217,7 +338,7 @@ const Settings = () => {
           </div>
         )}
 
-        <div className="col my-5 settings-save-div d-flex justify-content-center">
+        <div className="col mb-5 settings-save-div d-flex justify-content-center">
           <button
             className="btn btn-danger settings-button-remove settings-delete-account-button"
             data-bs-toggle="modal"
