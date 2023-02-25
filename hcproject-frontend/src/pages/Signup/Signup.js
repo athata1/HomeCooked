@@ -10,7 +10,7 @@ export default function Signup() {
   const passwordRef = useRef()
   const confirmPasswordRef = useRef()
   const usernameRef = useRef()
-  const { currentUser, signup, signout } = useAuth()
+  const { currentUser, signup } = useAuth()
   const [isLoading, setIsLoading] = useState(false);
   
   let location = useLocation()
@@ -60,7 +60,6 @@ export default function Signup() {
     try {
       setIsLoading(true)
       console.log(process.env.REACT_APP_FIREBASE_API_KEY);
-      await signout()
       await signup(emailRef.current.value, passwordRef.current.value)
       console.log("Success!")
     }
