@@ -11,7 +11,7 @@ const Dashboard = () => {
     <div className="dashboard">
       <Navbar />
       Dashboard
-      {currentUser ? currentUser.email : ""}
+      <code>{currentUser ? JSON.stringify(currentUser) : ""}</code>
     </div>
     
   )

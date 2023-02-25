@@ -12,8 +12,22 @@ export function AuthProvider({children}) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
 
-  async function deleteUser() {
-    return auth.currentUser.delete()
+  async function deleteUser(password) {
+    const credential = auth.EmailAuthProvider.credential(
+      currentUser.email,
+      password
+    )
+  
+    const result = await auth.reauthenticateWithCredential(
+      auth.currentUser,
+      credential
+    )
+  
+    // Pass result.user here
+    await deleteUser(result.user)
+   
+    console.log("success in deleting")
+    localStorage.removeItem("user");
   }
 
   useEffect(() => {
@@ -32,8 +46,8 @@ export function AuthProvider({children}) {
     })
   }
 
-  function login(email, password) {
-    return auth.signInWithEmailAndPassword(email, password)
+  async function login(email, password) {
+    await auth.signInWithEmailAndPassword(email, password)
   }
 
   function signup(email, password) {
