@@ -11,7 +11,10 @@
 
 .navbarLeft {
     height: 100%;
-  }
+    display: grid;
+    place-items: center;
+    width: 60px;
+}
 
 
 
@@ -22,9 +25,7 @@
     justify-content: center;
     align-items: center;
     height: 100%;
-
-
-    width: min(calc(100% - 200px));
+    flex-grow: 1;
 
     font-family: 'Montserrat';
     font-style: normal;
@@ -47,7 +48,7 @@
   height: 50%;
   background: #D9D9D9;
   border-radius: 15px;
-  width: min(calc(100% - 200px));
+  flex-grow: 1;
   padding: 5px;
   /* margin-left: 10px; */
   /* margin-right: 10px; */
@@ -69,7 +70,21 @@
 } */
 
 .navbarRight {
+  display: flex;
+  justify-content: right;
+  align-items: center;
   height: 100%;
+  margin-left: 10px;
 }
 
 
+
+.navbarRight >*:hover {
+  background-color: black;
+}
+
+.navbarBellContainer {
+  display: grid;
+  place-items: center;
+  width: 65px;
+}
