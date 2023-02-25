@@ -9,7 +9,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <Navbar/>
+      <Navbar />
       Dashboard
       {currentUser ? currentUser.email : ""}
     </div>

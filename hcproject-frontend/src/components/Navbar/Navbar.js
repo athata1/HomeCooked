@@ -1,16 +1,22 @@
 import React from "react";
 import './Navbar.css'
-import ProfileDropdown
- from "../ProfileDropdown/ProfileDropdown";
-const Navbar = () => {
-  return <nav className="navbar">
-    <div className="navbar-left">a</div>
-    <div className="navbar-middle">
+import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
+
+function Navbar({data}) {
+  return <div className="navbar">
+    <div className="navbarLeft">left</div>
+    <div className="navbarMiddle">
+      <div className="searchInput">
+        <input className="navbar-search" type="text" placeholder={"Find profiles, posts, events..."} /> 
+        <div className="searchIcon"> </div>
+      </div>
+      <div className="searchResult"></div>
     </div>
-    <div className="navbar-right">
+    <div className="navbarRight">
       <ProfileDropdown />
-    </div>
-  </nav>;
+      </div>
+  </div>;
 };
 
 export default Navbar;
+
