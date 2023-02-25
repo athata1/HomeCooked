@@ -130,7 +130,7 @@ def user_manager(request):
                 user.user_state=request.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-        elif ('id' in request.POST) or ('email' in request.POST) or ('username' in request.POST): # change to id email or password
+        elif ('id' in request.POST) or ('email' in request.POST) or ('uname' in request.POST): # change to id email or password
             # Find user TODO: send 500 if can't find user
             user = None
             if 'id' in request.POST:
