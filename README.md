@@ -84,7 +84,7 @@
         [email, uname, pass, *address, *bio, *state, *city] - creates a new user (TODO: confirm email and uname aren't taken)
         [id|prev_email|prev_uname, email|uname|pass|address|bio|city|state] - updates an existing user
 ```
-###format:
+### format:
 ```
 /path
     Request type
