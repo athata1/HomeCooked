@@ -1,10 +1,47 @@
 from django.http import HttpResponse, JsonResponse, response
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core import serializers
 from .models import Post, Recipe, User
 # import datetime
 # import sqlite3
 import json
+import requests
+
+'''
+config={
+    'apiKey' : "AIzaSyAcO3timaqQBIDH8NI3lo2VmYPp9gTrico",
+    'authDomain' : "homecooked-7cc68.firebaseapp.com",
+    'projectId': "homecooked-7cc68",
+    'storageBucket' : "homecooked-7cc68.appspot.com",
+    'senderId': "735235129085",
+    'appId': "1:735235129085:web:70e1dfb0c5c373c0b98894" ,
+}
+
+
+firebase=pyrebase.initialize_app(config)
+authe = firebase.auth()
+database=firebase.database()
+'''
+
+def allergy_request(food):
+    url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
+
+    querystring = {"ingr":"1 " + food}
+
+    headers = {
+        "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
+        "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
+    }
+
+    return requests.request("GET", url, headers=headers, params=querystring)
+
+def delete_post(request):
+    if request.method == 'POST':
+        post_id=request.POST.get('id')
+        post = Post.objects.filter(pk__exact=post_id)
+        data = serializers.serialize('json', post)
+        post.delete()
+        return JsonResponse(data, safe=False)
 
 def index(request):
     user = User.objects.all
@@ -83,6 +120,8 @@ def post_manager(request):
 
 def user_manager(request):
     """
+    TODO: user uses tokens, not a lot of stuff, expect structure of pages / request types / queries to change
+
     * = optional argument
     | = one argument or the other
     TODO
@@ -91,6 +130,7 @@ def user_manager(request):
         users(id) - returns the user coresponding to the user id
         users(state, city) - returns the users in a specific state and city
         TODO: users(email|uname, password) - confirms if the email / password combo is valid (TODO: update to password hash)
+        users() - returns all users
     POST:
         users(email, uname, pass, *address, *bio, *state, *city) - creates a new user
         users(id|prev_email|prev_uname, email|uname|pass|address|bio|city|state) - updates one of the previous fields
@@ -110,6 +150,7 @@ def user_manager(request):
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
         if ('city' in request.GET) and ('state' in request.GET):
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
+        return JsonResponse(serializers.serialize('json', User.objects.all()), safe=False)
     if request.method == 'POST':
         if ('email' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
             # new user
