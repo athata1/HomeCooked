@@ -87,29 +87,32 @@ def user_manager(request):
     | = one argument or the other
     TODO
     GET:
-        users(email|username) - returns a user object coresponding to the correct email
+        users(email|uname) - returns a user object coresponding to the correct email
         users(id) - returns the user coresponding to the user id
-        TODO: users(state, city) - returns the users in a specific state and city
+        users(state, city) - returns the users in a specific state and city
         TODO: users(email|username, password) - confirms if the email / password combo is valid (TODO: update to password hash)
     POST:
         users(email, username, password, *address, *biography, *state, *city) - creates a new user
-        users(id|email|username, email|uname|pass|address|bio|city|state) - updates one of the previous fields
+        users(id|prev_email|prev_uname, email|uname|pass|address|bio|city|state) - updates one of the previous fields
     """
     if request.method == 'GET':
         if 'id' in request.GET:
-            return JsonResponse(serializers.serialize('json', USER.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
+            return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
         if 'username' in request.GET and 'pass' in request.GET:
-            #find username & verify password
+            # TODO: find username & verify password
             return "TO Be Completed later!"
         if 'email' in request.GET and 'pass' in request.GET:
-            #find email & verify password
+            # TODO: find email & verify password
             return "TO Be Completed later!"
-        if 'username' in request.GET:
-            return JsonResponse(serializers.serialize('json', USER.objects.filter(user_uname__exact=request.GET.get('username'))), safe=False)
+        if 'uname' in request.GET:
+            return JsonResponse(serializers.serialize('json', User.objects.filter(user_uname__exact=request.GET.get('username'))), safe=False)
         if 'email' in request.GET:
-            return JsonResponse(serializers.serialize('json', USER.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
+            return JsonResponse(serializers.serialize('json', User.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
+        if ('city' in request.GET) and ('state' in request.GET):
+            return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
     if request.method == 'POST':
         if ('email' in request.POST) and ('username' in request.POST) and ('password' in request.POST):
+            # new user
             email = request.POST.get('email')
             username = request.POST.get('username')
             password = request.POST.get('pass')
@@ -127,8 +130,18 @@ def user_manager(request):
                 user.user_state=request.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-        if 'id' in request.POST: # change to id email or password
-            user = User.objects.filter(user_id__exact=request.POST.get('id'))
+        elif ('id' in request.POST) or ('email' in request.POST) or ('username' in request.POST): # change to id email or password
+            
+            # Find user TODO: send 500 if can't find user
+            user = None
+            if 'id' in request.POST:
+                user = User.objects.filter(user_id__exact=request.POST.get('id'))
+            if 'prev_uname' in request.POST:
+                user = User.objects.filter(user_uname__exact=request.POST.get('prev_uname'))
+            if 'prev_email' in request.POST:
+                user = User.objects.filter(user_email__exact=request.POST.get('prev_email'))
+            
+            # updating the requested feature TODO: seperate uname and email for finding and the to update uname and email 
             if 'email' in request.POST:
                 # TODO: verify email isn't taken
                 user.user_email = request.POST.get('email')
@@ -147,6 +160,3 @@ def user_manager(request):
                 user.user_state = request.POST.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-            
-
-                    
