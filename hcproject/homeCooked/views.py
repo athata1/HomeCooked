@@ -99,7 +99,7 @@ def user_manager(request):
         if 'id' in request.GET:
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
         if 'uname' in request.GET and 'pass' in request.GET:
-            # TODO: find username & verify password
+            
             return "TO Be Completed later!"
         if 'email' in request.GET and 'pass' in request.GET:
             # TODO: find email & verify password
