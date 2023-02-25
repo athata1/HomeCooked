@@ -3,7 +3,8 @@ import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
-import { useNavigate } from "react-router-dom";
+import {useAuth} from '../../Firebase/AuthContext'
+import Navbar from "../../components/Navbar/Navbar";
 
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("");
@@ -16,15 +17,14 @@ const Settings = () => {
   const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("About");
   const availableCities = stateCities.getCities(selectedState);
-  const navigate = useNavigate();
-
+  const {deleteUser}= useAuth();
   const handleDeleteAccount = (e) => {
     e.preventDefault();
   };
 
-  const confirmDeleteAccount = (e) => {
+  const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    navigate("/login");
+
   };
 
   const handleRemoveImage = (e) => {
@@ -50,6 +50,8 @@ const Settings = () => {
   };
 
   return (
+    <>
+    <Navbar/>
     <div className="px-5">
       <div>
         <h1 className="settings-title">
@@ -275,6 +277,7 @@ const Settings = () => {
         </div>
       </form>
     </div>
+    </>
   );
 };
 

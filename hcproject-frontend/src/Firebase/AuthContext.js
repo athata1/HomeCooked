@@ -15,6 +15,10 @@ export function AuthProvider({children}) {
     return auth.createUserWithEmailAndPassword(email, password)
   }
 
+  async function deleteUser() {
+    return auth.currentUser.delete()
+  }
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged( user => {
       setLoading(true)
@@ -39,7 +43,8 @@ export function AuthProvider({children}) {
     currentUser,
     signup,
     signout,
-    login
+    login,
+    deleteUser
   }
 
   return (

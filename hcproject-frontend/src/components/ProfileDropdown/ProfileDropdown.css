@@ -26,6 +26,8 @@
   box-sizing: border-box;
   display: none;
   width: 200%;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .profile-dropdown-list::before {
