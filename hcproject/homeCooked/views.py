@@ -45,8 +45,8 @@ def delete_post(request):
     
 def delete_user(request):
     if request.method == 'POST':
-        user_id=request.POST.get('id')
-        user = User.objects.filter(pk__exact=user_id)
+        user_fid=request.POST.get('id')
+        user = User.objects.filter(pk__exact=user_fid)
         data=serializers.serialize('json', user)
         user.delete()
         return JsonResponse(data, safe=False)

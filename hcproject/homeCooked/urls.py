@@ -9,6 +9,6 @@ urlpatterns = [
     path('posts/', post_manager),
     path('users/', user_manager),
     path('posts/delete', delete_post),
-    path('users/delete', delete_post),
+    path('users/delete', delete_user),
     path('allergy/', allergy_request, name='allergy_request'),
 ]
