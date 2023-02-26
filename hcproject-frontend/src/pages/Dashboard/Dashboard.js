@@ -15,7 +15,7 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard">
-      <Navbar />
+      <Navbar part="Posts" mode={userMode}/>
       Dashboard
       <code>{currentUser ? token : ""}</code>
     </div>

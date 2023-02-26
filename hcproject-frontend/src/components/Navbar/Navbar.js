@@ -3,13 +3,15 @@ import './Navbar.css'
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
 import {BsHouseDoor, BsBell} from 'react-icons/bs'
 import {Link} from 'react-router-dom'
+import NavbarDropdown from "../NavbarDropdown/NavbarDropdown";
 
-function Navbar({data}) {
+function Navbar({part}) {
   return <div className="navbar">
     <div className="navbarLeft">
-      <Link to="/dashboard">
+      <div className="navbarBellContainer">
         <BsHouseDoor size={40} style={{color: "#ffffff"}}/>
-      </Link>
+      </div>
+      <NavbarDropdown part={part}/>
     </div>
     <div className="navbarMiddle">
       <div className="searchInput">
