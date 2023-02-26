@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Allergy Request</title>
+</head>
+<body>
+    <h1>Allergy Request</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="food">Enter a food:</label>
+        <input type="text" name="food">
+        <button type="submit">Submit</button>
+    </form>
+    {% if allergy %}
+        <h2>Food: {{ allergy.food_name }}</h2>
+        <h2>Health Labels: {{ allergy.health_labels }}</h2>
+    {% endif %}
+</body>
+</html>

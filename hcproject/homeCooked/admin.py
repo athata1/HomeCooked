@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import *
 
+class AllergyAdmin(admin.ModelAdmin):
+    list_display = ('food_name', 'health_labels')
+    list_filter = ('health_labels',)
+    search_fields = ('food_name', 'health_labels')
+
 class UserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state')
     list_display_links = ('user_id', 'user_fid')
@@ -44,6 +49,7 @@ class DiscussionBoardAdmin(admin.ModelAdmin):
     search_fields = ('discussion_id', 'discussion_sender', 'discussion_event')
 
 # Register your models here.
+admin.site.register(Allergy, AllergyAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Recipe, RecipeAdmin)

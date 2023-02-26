@@ -1,33 +1,39 @@
 from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render, redirect
 from django.core import serializers
-from .models import Post, Recipe, User
+from .models import *
 # import datetime
 # import sqlite3
 import json
 import requests
-import firebase_admin
-from firebase_admin import credentials, auth
+# import firebase_admin
+# from firebase_admin import credentials, auth
 
 
-def validate_token(token):
-    decoded_token = auth.verify_id_token(token)
-    if decoded_token is None:
-        return None
-    email = decoded_token['email']
-    return email
+# def validate_token(token):
+#     decoded_token = auth.verify_id_token(token)
+#     if decoded_token is None:
+#         return None
+#     email = decoded_token['email']
+#     return email
 
-def allergy_request(food):
-    url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
-
-    querystring = {"ingr":"1 " + food}
-
-    headers = {
-        "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
-        "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
-    }
-
-    return requests.request("GET", url, headers=headers, params=querystring)
+def allergy_request(request):
+    if request.method == 'POST':
+        food = request.POST['food']
+        url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
+        querystring = {"ingr":"1 " + food}
+        headers = {
+            "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
+            "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
+        }
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        data = response.json()
+        health_labels = ', '.join(data['healthLabels'])
+        allergy = Allergy(food_name=food, health_labels=health_labels)
+        allergy.save()
+        return render(request, 'homeCooked/allergy.html', {'allergy': allergy})
+    else:
+        return render(request, 'homeCooked/allergy.html')
 
 def delete_post(request):
     if request.method == 'POST':

@@ -2,6 +2,13 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from datetime import datetime
 
+class Allergy (models.Model):
+    food_name = models.CharField(max_length=200)
+    health_labels = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.food_name
+
 class User (models.Model):
     user_id = models.AutoField(primary_key=True, verbose_name='User ID')
     user_fid = models.CharField(max_length=200, verbose_name='Firebase ID')
