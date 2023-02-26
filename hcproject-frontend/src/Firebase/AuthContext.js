@@ -60,8 +60,24 @@ export function AuthProvider({ children }) {
     await auth.signInWithEmailAndPassword(email, password)
   }
 
-  function signup(email, password) {
-    return auth.createUserWithEmailAndPassword(email, password);
+
+  async function updatePassword(oldPassword, newPassword) {
+    await auth.signInWithEmailAndPassword(currentUser.email, oldPassword).then((user)=> 
+    {
+      user.updatePassword(newPassword)
+    });
+  }
+
+  async function updateEmail(password, email) {
+    await auth.signInWithEmailAndPassword(currentUser.email, password).then((user) => {
+      user.updateEmail(email);
+    })
+  }
+
+  async function signup(email, password) {
+     await auth.createUserWithEmailAndPassword(email, password).then((user) => {
+      console.log(user.getIdToken(true));
+     });
   }
 
   const value = {

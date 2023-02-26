@@ -65,7 +65,7 @@ export default function Signup() {
     try {
       setIsLoading(true)
       console.log(process.env.REACT_APP_FIREBASE_API_KEY);
-      await signup(emailRef.current.value, passwordRef.current.value)
+      signup(emailRef.current.value, passwordRef.current.value)
       console.log("Success!")
     }
     catch (e){
