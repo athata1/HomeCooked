@@ -3,9 +3,8 @@
 ## data structures
 ### User:
 - user_id               (key)
+- user_fid              (str)
 - user_uname            (str)
-- user_email            (str)
-- user_pass             (str)
 - user_address          (str)
 - user_bio              (str)
 - user_state            (str)

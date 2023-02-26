@@ -127,30 +127,25 @@ def user_manager(request):
     * = optional argument
     | = one argument or the other
     GET:
-        users(token) - returns a user object coresponding to the email provided by the token
+        users(token) - returns a user object coresponding to the fid provided by the token
         users() - returns all users TODO: TEMPORARY, DEBUGGING ONLY. REMOVE ONCE DEBUGGING DONE
     POST:
         users(token, uname, pass, *address, *bio, *state, *city) - creates a new user
-        users(token, email|uname|pass|address|bio|city|state) - updates one of the user settings (note, email and pass must ALSO be updated seperately in firebase)
+        users(token, fid|uname|pass|address|bio|city|state) - updates one of the user settings
     """
     if request.method == 'GET':
-        if 'id' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
         if 'token' in request.GET:
             return JsonResponse(serializers.serialize('json', User.objects.flter(user_email__exact=validate_token(request.GET.get('token')))), safe=False)
-        if ('city' in request.GET) and ('state' in request.GET):
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
         return JsonResponse(serializers.serialize('json', User.objects.all()), safe=False)
     if request.method == 'POST':
-        if ('token' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
+        if ('token' in request.POST) and ('uname' in request.POST):
             # new user
-            email = validate_token(request.POST.get('token'))
-            if email is None:
+            fid = validate_token(request.POST.get('token'))
+            if fid is None:
                 return None
             username = request.POST.get('uname')
-            password = request.POST.get('pass')
-            if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
-                #TODO: verify username is acceptable, split username and email and return an actual error here
+            if len(list(User.object.filter(user_fid__exact=fid))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
+                #TODO: verify username is acceptable and return an actual error here
                 return "ERROR, username or email already taken"
             user = User(user_email=email, user_uname=username, user_pass=password)
             if 'address' in request.POST:
@@ -163,17 +158,17 @@ def user_manager(request):
                 user.user_state=request.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-        elif ('token' in request.POST) and (('email' in request.POST) or ('uname' in request.POST) or ('pass' in request.POST) or ('address' in request.POST) or ('bio' in request.POST) or ('state' in request.POST) or ('city' in request.POST)): # change to id email or password
-            user = User.objects.get(user_email__exact=request.POST.get('id'))
+        elif ('token' in request.POST) and (('fid' in request.POST) or ('uname' in request.POST) or ('address' in request.POST) or ('bio' in request.POST) or ('state' in request.POST) or ('city' in request.POST)): # change to id email or password
+            user = User.objects.get(user_fid__exact=validate_token(request.POST.get('token')))
 
-            if 'email' in request.POST:
-                # TODO: verify email isn't taken
-                user.user_email = request.POST.get('email')
-            if 'uname' in request.POST:
-                # TODO: verify username isn't taken
-                user.user_uname = request.POST.get('uname')
-            if 'pass' in request.POST:
-                user.user_pass = request.POST.get('pass')
+            if 'fid' in request.POST and len(list(User.object.filter(user_fid__exact=request.POST.get('fid')))) == 0:
+                user.user_fid = request.POST.get('fid')
+            elif len(list(User.object.filter(user_fid__exact=request.POST.get('fid')))) > 0:
+                print("ERROR, fid/email already taken")
+            if 'uname' in request.POST and len(list(User.object.filter(user_uname__exact=request.POST.get('uname')))) == 0:
+                user.user_uname = request.POST.get('uname') # TODO: replace with real error warning
+            elif len(list(User.object.filter(user_uname__exact=request.POST.get('uname')))) > 0:
+                print("ERROR, username already taken") # TODO: replace with real error warning
             if 'address' in request.POST:
                 user.user_address = request.POST.get('address')
             if 'bio' in request.POST:
