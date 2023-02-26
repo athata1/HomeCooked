@@ -58,6 +58,7 @@ const Settings = () => {
     console.log(selectedState);
     setValidFields(true);
     setEdit(false);
+    setDeletedAccount(true);
     if (!validateEmail(email)) {
       setErrorField("email");
       setEdit(true);
@@ -133,14 +134,12 @@ const Settings = () => {
           </h1>
         </div>
         {!validFields && (
-          <Alert variant="danger" onClick={() => setValidFields(false)}>
+          <Alert
+            variant="danger"
+            onClick={() => setValidFields(true)}
+            dismissible
+          >
             <Alert.Heading>Please enter a valid {errorField}</Alert.Heading>
-          </Alert>
-        )}
-
-        {deletedAccount === false && (
-          <Alert variant="danger" onClick={() => setDeletedAccount(true)}>
-            <Alert.Heading>Unable to delete account.</Alert.Heading>
           </Alert>
         )}
 
@@ -198,7 +197,10 @@ const Settings = () => {
                 className="form-select"
                 aria-label="Default select example"
                 value={selectedState}
-                onChange={(e) => setSelectedState(e.target.value)}
+                onChange={(e) => {
+                  setSelectedState(e.target.value);
+                  setSelectedCity("--Choose City--");
+                }}
                 disabled={!edit}
               >
                 <option>--Choose State--</option>
@@ -325,7 +327,18 @@ const Settings = () => {
               ></textarea>
             </div>
           </div>
-
+          {deletedAccount === false && (
+            <div className="align-items-center">
+              <Alert
+                variant="danger"
+                className="settings-delete-banner"
+                dismissible
+                onClick={() => setDeletedAccount(true)}
+              >
+                <Alert.Heading>Unable to delete account.</Alert.Heading>
+              </Alert>
+            </div>
+          )}
           {edit && (
             <div className="col mb-3 settings-save-div d-flex justify-content-center">
               <button
@@ -336,7 +349,6 @@ const Settings = () => {
               </button>
             </div>
           )}
-
           <div className="col mb-5 settings-save-div d-flex justify-content-center">
             <button
               className="btn btn-danger settings-button-remove settings-delete-account-button"

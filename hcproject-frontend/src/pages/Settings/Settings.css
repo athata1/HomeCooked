@@ -97,3 +97,11 @@ input[type="number"] {
 .settings-password-input {
   width: 50%;
 }
+
+.settings-delete-banner {
+  display: "flex";
+  align-items: "center";
+  justify-content: "center";
+  border: 1px solid red;
+  padding-left: 20rem;
+}
