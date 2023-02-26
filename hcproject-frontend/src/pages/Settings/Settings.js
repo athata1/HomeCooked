@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -12,8 +12,6 @@ const Settings = () => {
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [firstName, setFirstName] = useState("FirstName");
-  const [lastName, setLastName] = useState("LastName");
   const [username, setUsername] = useState("Username");
   const [email, setEmail] = useState("Email@email.com");
   const [zipcode, setZipcode] = useState("00000");
@@ -25,8 +23,25 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteAccountPassword, setDeleteAccountPassword] = useState("");
-  const { deleteUser } = useAuth();
+  const [emailChangePassword, setEmailChangePassword] = useState("");
+  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
+  const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
+  const {
+    deleteUser,
+    currentUser,
+    changeEmail,
+    getUsername,
+    setCurrentUsername,
+    changePassword,
+  } = useAuth();
   const [deletedAccount, setDeletedAccount] = useState(true);
+
+  useEffect(() => {
+    if (currentUser.email !== undefined) {
+      setEmail(currentUser.email);
+      setUsername(getUsername());
+    }
+  }, []);
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
@@ -55,7 +70,29 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    console.log(selectedState);
+    validationChecks();
+    if (emailChangePassword !== "") {
+      changeEmail(email, emailChangePassword)
+        .then((res) => setEmailChangeSuccess(res))
+        .catch((err) => console.log(err));
+    }
+    setCurrentUsername(username);
+    if (validationChecks()) {
+      if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
+        changePassword(oldPassword, newPassword).then((res) => {
+          setPasswordChangeSuccess(res);
+          console.log(res);
+        });
+      }
+    }
+
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setEmailChangePassword("");
+  };
+
+  const validationChecks = () => {
     setValidFields(true);
     setEdit(false);
     setDeletedAccount(true);
@@ -64,30 +101,21 @@ const Settings = () => {
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
-    if (username.length <= 3 || username.length >= 25) {
+    if (username.length <= 6 || username.length >= 25) {
       setErrorField("username");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    if (firstName.length === 0 || firstName.length >= 25) {
-      setErrorField("first name.");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    if (lastName.length === 0 || lastName.length >= 25) {
-      setErrorField("last name.");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
     if (zipcode.length !== 5) {
       setErrorField("zipcode");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
 
     if (about.length <= 15) {
@@ -95,19 +123,27 @@ const Settings = () => {
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
     if (selectedState === "--Choose State--") {
       setErrorField("state");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
     if (selectedCity === "--Choose City--") {
       setErrorField("city");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
     }
+    if (!passwordChangeSuccess) {
+      setEdit(true);
+      return false;
+    }
+    return true;
   };
 
   const validateEmail = (email) => {
@@ -120,7 +156,7 @@ const Settings = () => {
 
   return (
     <div>
-      <Navbar part="Settings" mode="none"/>
+      <Navbar part="Settings" mode="none" />
       <div className="px-5">
         <div>
           <h1 className="settings-title pt-3">
@@ -145,51 +181,20 @@ const Settings = () => {
 
         <div className="settings-line"></div>
         <form className="settings-form">
-          <div className="row">
+          <div className="row mt-3">
             <div className="col">
               <input
                 type="text"
-                className="form-control settings-input"
-                placeholder="First name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-            <div className="col">
-              <input
-                type="text"
-                className="form-control settings-input"
-                placeholder="Last name"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-          </div>
-          <br />
-          <div className="row">
-            <div className="col">
-              <input
-                type="text"
-                className="form-control settings-input"
+                className="form-control settings-input settings-input-username"
                 placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 readOnly={!edit}
               />
             </div>
-            <div className="col">
-              <input
-                type="text"
-                className="form-control settings-input"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
+            <div className="col"></div>
           </div>
+
           <div className="row pt-3 pb-5">
             <div className="col pt-2">
               <select
@@ -239,7 +244,27 @@ const Settings = () => {
               />
             </div>
           </div>
-          <div className="row mt-3">
+          {newPassword !== confirmPassword && (
+            <div className="align-items-center">
+              <Alert
+                variant="danger"
+                className="settings-delete-banner"
+                onClick={() => setDeletedAccount(true)}
+              >
+                <Alert.Heading>Passwords Do Not Match</Alert.Heading>
+              </Alert>
+            </div>
+          )}
+          {!passwordChangeSuccess && (
+            <Alert
+              variant="danger"
+              onClick={() => setPasswordChangeSuccess(true)}
+              dismissible
+            >
+              <Alert.Heading>Unable to change password</Alert.Heading>
+            </Alert>
+          )}
+          <div className="row">
             <div className="col">
               <h3 className="settings-label mb-4">Change Password</h3>
             </div>
@@ -276,6 +301,43 @@ const Settings = () => {
               />
             </div>
           </div>
+          {!emailChangeSuccess && (
+            <Alert
+              variant="danger"
+              onClick={() => setEmailChangeSuccess(true)}
+              dismissible
+            >
+              <Alert.Heading>Unable to change email</Alert.Heading>
+            </Alert>
+          )}
+          <div className="row mt-3">
+            <div className="col">
+              <h3 className="settings-label mb-4">Change Email</h3>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col">
+              <input
+                type="text"
+                className="form-control settings-input"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                readOnly={!edit}
+              />
+            </div>
+            <div className="col">
+              <input
+                type="password"
+                className="form-control settings-input"
+                placeholder="Current Password"
+                value={emailChangePassword}
+                onChange={(e) => setEmailChangePassword(e.target.value)}
+                readOnly={!edit}
+              />
+            </div>
+          </div>
+
           <div className="row mt-3">
             <div className="col">
               <h3 className="settings-label">Photo</h3>
@@ -344,6 +406,7 @@ const Settings = () => {
               <button
                 className="mx-5 btn settings-button settings-save-button"
                 onClick={handleSave}
+                disabled={newPassword !== confirmPassword}
               >
                 Save
               </button>

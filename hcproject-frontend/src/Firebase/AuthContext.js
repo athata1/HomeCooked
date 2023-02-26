@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
     let token = await auth.currentUser.getIdToken(false);
     return token;
   }
-  
+
   async function deleteUser(password) {
     /*const user = auth.currentUser;
     console.log(auth);
@@ -57,27 +57,53 @@ export function AuthProvider({ children }) {
   }
 
   async function login(email, password) {
-    await auth.signInWithEmailAndPassword(email, password)
+    await auth.signInWithEmailAndPassword(email, password);
   }
 
+  async function changePassword(oldPassword, newPassword) {
+    try {
+      await auth
+        .signInWithEmailAndPassword(currentUser.email, oldPassword)
+        .then((userCred) => {
+          userCred.user.updatePassword(newPassword);
+        });
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 
-  async function updatePassword(oldPassword, newPassword) {
-    await auth.signInWithEmailAndPassword(currentUser.email, oldPassword).then((user)=> 
-    {
-      user.updatePassword(newPassword)
+  async function changeEmail(email, password) {
+    try {
+      await auth
+        .signInWithEmailAndPassword(currentUser.email, password)
+        .then((userCred) => {
+          userCred.user.updateEmail(email);
+        });
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  function getUsername() {
+    return auth.currentUser.displayName;
+  }
+
+  async function setCurrentUsername(username) {
+    await auth.currentUser.updateProfile({
+      displayName: username,
     });
   }
 
-  async function updateEmail(password, email) {
-    await auth.signInWithEmailAndPassword(currentUser.email, password).then((user) => {
-      user.updateEmail(email);
-    })
-  }
-
-  async function signup(email, password) {
-     await auth.createUserWithEmailAndPassword(email, password).then((user) => {
-      console.log(user.getIdToken(true));
-     });
+  async function signup(email, password, username) {
+    await auth
+      .createUserWithEmailAndPassword(email, password)
+      .then(async (user) => {
+        await auth.currentUser.updateProfile({
+          displayName: username,
+        });
+      });
   }
 
   const value = {
@@ -88,8 +114,12 @@ export function AuthProvider({ children }) {
     deleteUser,
     getToken,
     userMode,
-    setUserMode
-  }
+    setUserMode,
+    changeEmail,
+    changePassword,
+    getUsername,
+    setCurrentUsername,
+  };
 
   return (
     <AuthContext.Provider value={value}>
