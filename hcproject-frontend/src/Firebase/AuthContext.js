@@ -30,8 +30,13 @@ export function AuthProvider({children}) {
     localStorage.removeItem("user");
   }
 
+  async function getToken() {
+    let token = await auth.currentUser.getIdToken(false);
+    return token;
+  }
+
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged( user => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
       setLoading(true)
       setCurrentUser(user)
       setLoading(false)
@@ -59,7 +64,8 @@ export function AuthProvider({children}) {
     signup,
     signout,
     login,
-    deleteUser
+    deleteUser,
+    getToken,
   }
 
   return (
