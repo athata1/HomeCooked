@@ -62,7 +62,16 @@ export function AuthProvider({ children }) {
 
 
   async function updatePassword(oldPassword, newPassword) {
-    await auth.signInWithEmailAndPassword(currentUser.email, oldPassword).updatePassword(newPassword);
+    await auth.signInWithEmailAndPassword(currentUser.email, oldPassword).then((user)=> 
+    {
+      user.updatePassword(newPassword)
+    });
+  }
+
+  async function updateEmail(password, email) {
+    await auth.signInWithEmailAndPassword(currentUser.email, password).then((user) => {
+      user.updateEmail(email);
+    })
   }
 
   async function signup(email, password) {
