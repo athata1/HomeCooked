@@ -35,6 +35,9 @@ def allergy_request(request):
     else:
         return render(request, 'homeCooked/allergy.html')
 
+
+    #Deletes a post upon user request
+    
 def delete_post(request):
     if request.method == 'POST':
         post_id=request.POST.get('id')
@@ -43,6 +46,9 @@ def delete_post(request):
         post.delete()
         return JsonResponse(data, safe=False)
     
+    # Deletes a user and all associated data, 
+    # i.e. any data with references to user will be deleted
+
 def delete_user(request):
     if request.method == 'POST':
         user_fid=request.POST.get('id')
