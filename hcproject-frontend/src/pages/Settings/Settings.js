@@ -33,6 +33,9 @@ const Settings = () => {
 
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
+    console.log("delete user", deleteUser(deleteAccountPassword));
+
+    setDeleteAccountPassword("");
   };
 
   const handleRemoveImage = (e) => {
@@ -372,7 +375,6 @@ const Settings = () => {
                       placeholder="Confirm Password"
                       value={deleteAccountPassword}
                       onChange={(e) => setDeleteAccountPassword(e.target.value)}
-                      readOnly={!edit}
                     />
                   </div>
                   <div className="modal-footer">
