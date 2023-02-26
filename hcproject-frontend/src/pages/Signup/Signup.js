@@ -53,6 +53,11 @@ export default function Signup() {
       return;
     }
 
+    if (passwordRef.current.value.length < 6) {
+      alert("Error: Password must have length of at least 6");
+      return;
+    }
+    
     if (confirmPasswordRef.current.value !== passwordRef.current.value) {
       alert("Error: Passwords do not match");
       return;
