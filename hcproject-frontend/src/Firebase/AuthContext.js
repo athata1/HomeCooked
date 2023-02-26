@@ -102,7 +102,9 @@ export function AuthProvider({ children }) {
       .then(async (user) => {
         await auth.currentUser.updateProfile({
           displayName: username,
-        });
+        }
+        )
+        console.log(user.user.getIdToken(true))
       });
   }
 
