@@ -29,7 +29,7 @@ const ExampleToast = ({ children }) => {
 
 const Profile = () => (
 <div className="profile">
-      <Navbar />
+      <Navbar part="Profile" mode="none"/>
       Profile
 
 
