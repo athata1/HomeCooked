@@ -11,8 +11,9 @@ export function AuthProvider({children}) {
 
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
-  function signup(email, password) {
-    return auth.createUserWithEmailAndPassword(email, password)
+
+  async function deleteUser() {
+    return auth.currentUser.delete()
   }
 
   useEffect(() => {
@@ -32,14 +33,19 @@ export function AuthProvider({children}) {
   }
 
   function login(email, password) {
-    auth.signInWithEmailAndPassword(email, password)
+    return auth.signInWithEmailAndPassword(email, password)
+  }
+
+  function signup(email, password) {
+    return auth.createUserWithEmailAndPassword(email, password)
   }
 
   const value = {
     currentUser,
     signup,
     signout,
-    login
+    login,
+    deleteUser
   }
 
   return (

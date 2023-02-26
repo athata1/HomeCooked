@@ -3,9 +3,10 @@ import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
-import { useNavigate } from "react-router-dom";
-import Alert from "react-bootstrap/Alert";
+import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
+import Alert from "react-bootstrap/Alert";
+
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
@@ -24,15 +25,14 @@ const Settings = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteAccountPassword, setDeleteAccountPassword] = useState("");
-  const navigate = useNavigate();
+  const { deleteUser } = useAuth();
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
   };
 
-  const confirmDeleteAccount = (e) => {
+  const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    navigate("/login");
   };
 
   const handleRemoveImage = (e) => {

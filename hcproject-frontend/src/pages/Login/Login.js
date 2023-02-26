@@ -24,26 +24,31 @@ export default function Login() {
       );
   };
 
-  function handleLogin() {
-      console.log(emailRef.current.value)
-      if (!validateEmail(emailRef.current.value)) {
-        alert("Error: Please enter a valid email")
-        return;
-      }
+  async function handleSubmit(e) {
+    e.preventDefault()
 
-      if (passwordRef.current.value.length < 6) {
-        alert("Error: Password must have length of at least 6");
-        return;
-      }
+    console.log(emailRef.current.value)
+      
+    if (!validateEmail(emailRef.current.value)) {
+      alert("Error: Please enter a valid email")
+      return;
+    }
 
-      try {
-        setIsLoading(true);
-        login(emailRef.current.value, passwordRef.current.value);
-      }
-      catch {
-        alert("Error: Login credentials invalid");
-      }
-      setIsLoading(false);
+    if (passwordRef.current.value.length < 6) {
+      alert("Error: Password must have length of at least 6");
+      return;
+    }
+
+    try {
+      setIsLoading(true)
+      await login(emailRef.current.value, passwordRef.current.value)
+      console.log("Success!")
+    }
+    catch (e){
+      alert("Failed to login to account")
+      console.log(e);
+    }
+    setIsLoading(false);
   }
 
   return (
@@ -54,7 +59,7 @@ export default function Login() {
           <div className="login-title">HomeCooked</div>
           <input ref={emailRef} className="login-input" type="email" placeholder='Enter Email Address'></input>
           <input ref={passwordRef} className="login-input" type="password" placeholder='Enter Password'></input>
-          <button disabled={isLoading} onClick={() => {handleLogin()}} className="login-button">Login</button>
+          <button disabled={isLoading} onClick={(e) => {handleSubmit(e)}} className="login-button">Login</button>
           <div className='signup-forgot-links'>
           <Link to="/signup" style={{ textDecoration: 'none' }}>
             <div className="signup-link">Sign Up</div>
