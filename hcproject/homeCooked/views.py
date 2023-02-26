@@ -6,22 +6,16 @@ from .models import Post, Recipe, User
 # import sqlite3
 import json
 import requests
-
-'''
-config={
-    'apiKey' : "AIzaSyAcO3timaqQBIDH8NI3lo2VmYPp9gTrico",
-    'authDomain' : "homecooked-7cc68.firebaseapp.com",
-    'projectId': "homecooked-7cc68",
-    'storageBucket' : "homecooked-7cc68.appspot.com",
-    'senderId': "735235129085",
-    'appId': "1:735235129085:web:70e1dfb0c5c373c0b98894" ,
-}
+import firebase_admin
+from firebase_admin import credentials, auth
 
 
-firebase=pyrebase.initialize_app(config)
-authe = firebase.auth()
-database=firebase.database()
-'''
+def validate_token(token):
+    decoded_token = auth.verify_id_token(token)
+    if decoded_token is None:
+        return None
+    email = decoded_token['email']
+    return email
 
 def allergy_request(food):
     url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
@@ -132,37 +126,27 @@ def user_manager(request):
 
     * = optional argument
     | = one argument or the other
-    TODO
     GET:
-        users(email|uname) - returns a user object coresponding to the correct email
-        users(id) - returns the user coresponding to the user id
-        users(state, city) - returns the users in a specific state and city
-        TODO: users(email|uname, password) - confirms if the email / password combo is valid (TODO: update to password hash)
-        users() - returns all users
+        users(token) - returns a user object coresponding to the email provided by the token
+        users() - returns all users TODO: TEMPORARY, DEBUGGING ONLY. REMOVE ONCE DEBUGGING DONE
     POST:
-        users(email, uname, pass, *address, *bio, *state, *city) - creates a new user
-        users(id|prev_email|prev_uname, email|uname|pass|address|bio|city|state) - updates one of the previous fields
+        users(token, uname, pass, *address, *bio, *state, *city) - creates a new user
+        users(token, email|uname|pass|address|bio|city|state) - updates one of the user settings (note, email and pass must ALSO be updated seperately in firebase)
     """
     if request.method == 'GET':
         if 'id' in request.GET:
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
-        if 'uname' in request.GET and 'pass' in request.GET:
-            
-            return "TO Be Completed later!"
-        if 'email' in request.GET and 'pass' in request.GET:
-            # TODO: find email & verify password
-            return "TO Be Completed later!"
-        if 'uname' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_uname__exact=request.GET.get('username'))), safe=False)
-        if 'email' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
+        if 'token' in request.GET:
+            return JsonResponse(serializers.serialize('json', User.objects.flter(user_email__exact=validate_token(request.GET.get('token')))), safe=False)
         if ('city' in request.GET) and ('state' in request.GET):
             return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
         return JsonResponse(serializers.serialize('json', User.objects.all()), safe=False)
     if request.method == 'POST':
-        if ('email' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
+        if ('token' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
             # new user
-            email = request.POST.get('email')
+            email = validate_token(request.POST.get('token'))
+            if email is None:
+                return None
             username = request.POST.get('uname')
             password = request.POST.get('pass')
             if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
@@ -179,17 +163,9 @@ def user_manager(request):
                 user.user_state=request.get('state')
             user.save()
             return JsonResponse(serializers.serialize('json', user), safe=False)
-        elif ('id' in request.POST) or ('email' in request.POST) or ('uname' in request.POST): # change to id email or password
-            # Find user TODO: send 500 if can't find user
-            user = None
-            if 'id' in request.POST:
-                user = User.objects.filter(user_id__exact=request.POST.get('id'))
-            if 'prev_uname' in request.POST:
-                user = User.objects.filter(user_uname__exact=request.POST.get('prev_uname'))
-            if 'prev_email' in request.POST:
-                user = User.objects.filter(user_email__exact=request.POST.get('prev_email'))
-            
-            # updating the requested feature TODO: seperate uname and email for finding and the to update uname and email 
+        elif ('token' in request.POST) and (('email' in request.POST) or ('uname' in request.POST) or ('pass' in request.POST) or ('address' in request.POST) or ('bio' in request.POST) or ('state' in request.POST) or ('city' in request.POST)): # change to id email or password
+            user = User.objects.get(user_email__exact=request.POST.get('id'))
+
             if 'email' in request.POST:
                 # TODO: verify email isn't taken
                 user.user_email = request.POST.get('email')
