@@ -4,7 +4,7 @@ import './NavbarDropdown.css'
 
 export default function NavbarDropdown({part}) {
 
-  let types = [["Chat", "/chat"],["Events", "/events"], ["Posts", "/dashboard"]]
+  let types = [["Chat", "/chat"],["Events", "/events"], ["Posts", "/dashboard"], ["Settings", "/settings"]]
 
   return (
     <div className='navbar-page-dropdown'>

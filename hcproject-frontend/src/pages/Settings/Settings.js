@@ -119,7 +119,7 @@ const Settings = () => {
 
   return (
     <div>
-      <Navbar />
+      <Navbar part="Settings" mode="none"/>
       <div className="px-5">
         <div>
           <h1 className="settings-title pt-3">

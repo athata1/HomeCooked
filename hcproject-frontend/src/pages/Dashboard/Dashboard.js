@@ -4,9 +4,9 @@ import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
 
 const Dashboard = () => {
-  const [userMode, setUserMode] = useState("consumer");
-  const { currentUser, signout, getToken } = useAuth()
+  const { currentUser, getToken, userMode, setUserMode } = useAuth()
   const [token, setToken] = useState();
+  
   useEffect(() => {
     getToken().then((t) => {
       setToken(t);

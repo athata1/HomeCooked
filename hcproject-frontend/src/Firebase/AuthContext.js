@@ -10,6 +10,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
+  const [userMode, setUserMode] = useState("consumer");
 
   async function getToken() {
     let token = await auth.currentUser.getIdToken(false);
@@ -70,6 +71,8 @@ export function AuthProvider({ children }) {
     login,
     deleteUser,
     getToken,
+    userMode,
+    setUserMode
   }
 
   return (

@@ -1,0 +1,44 @@
+.navbar-switch {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-switch-toggle {
+  visibility: hidden;
+  position: absolute;
+}
+
+.navbar-switch-container {
+  height: 80%;
+  width: 70px;
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.navbar-switch-mode {
+  color: #FFFFFF;
+  position: relative;
+  font-size: 1rem;
+  display: inline-block;
+}
+
+.navbar-switch-mode::before {
+  position: absolute;
+  content:"";
+  width: 0;
+  height: .1rem;
+  background: white;
+  left: 0;
+  bottom: 0;
+  transition: width 200ms ease-in-out;
+}
+
+.navbar-switch-container:hover .navbar-switch-mode::before  {
+  width: 100%;
+}

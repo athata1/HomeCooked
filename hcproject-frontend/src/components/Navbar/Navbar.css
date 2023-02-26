@@ -79,7 +79,7 @@
 
 
 
-.navbarRight >*:hover {
+.navbarRight >*:hover:not(:first-child) {
   background-color: black;
 }
 
