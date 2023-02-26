@@ -60,8 +60,10 @@ export function AuthProvider({ children }) {
     await auth.signInWithEmailAndPassword(email, password)
   }
 
-  function signup(email, password) {
-    return auth.createUserWithEmailAndPassword(email, password);
+  async function signup(email, password) {
+     await auth.createUserWithEmailAndPassword(email, password).then((user) => {
+      console.log(user.getIdToken(true));
+     });
   }
 
   const value = {
