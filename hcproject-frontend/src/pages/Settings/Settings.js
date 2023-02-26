@@ -26,6 +26,7 @@ const Settings = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [deleteAccountPassword, setDeleteAccountPassword] = useState("");
   const { deleteUser } = useAuth();
+  const [deletedAccount, setDeletedAccount] = useState(true);
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
@@ -33,8 +34,7 @@ const Settings = () => {
 
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    console.log("delete user", deleteUser(deleteAccountPassword));
-
+    deleteUser(deleteAccountPassword).then((res) => setDeletedAccount(res));
     setDeleteAccountPassword("");
   };
 
@@ -135,6 +135,12 @@ const Settings = () => {
         {!validFields && (
           <Alert variant="danger" onClick={() => setValidFields(false)}>
             <Alert.Heading>Please enter a valid {errorField}</Alert.Heading>
+          </Alert>
+        )}
+
+        {deletedAccount === false && (
+          <Alert variant="danger" onClick={() => setDeletedAccount(true)}>
+            <Alert.Heading>Unable to delete account.</Alert.Heading>
           </Alert>
         )}
 
