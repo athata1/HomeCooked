@@ -60,6 +60,11 @@ export function AuthProvider({ children }) {
     await auth.signInWithEmailAndPassword(email, password)
   }
 
+
+  async function updatePassword(oldPassword, newPassword) {
+    await auth.signInWithEmailAndPassword(currentUser.email, oldPassword).updatePassword(newPassword);
+  }
+
   async function signup(email, password) {
      await auth.createUserWithEmailAndPassword(email, password).then((user) => {
       console.log(user.getIdToken(true));
