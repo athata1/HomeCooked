@@ -15,7 +15,9 @@ const Dashboard = () => {
   useEffect(() => {
     getToken().then((t) => {
       setToken(t);
+      console.log(t);
     });
+    console.log("Here");
   }, []);
 
   return (

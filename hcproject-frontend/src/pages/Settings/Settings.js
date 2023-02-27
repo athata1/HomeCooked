@@ -61,6 +61,10 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
+    if (e.target.files[0].type !== 'png') {
+      alert("Error: filetype not png")
+      return;
+    }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
   };
 

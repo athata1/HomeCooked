@@ -19,9 +19,9 @@ export function Switch({mode}) {
 
   return (
     <div className="navbar-switch">
-      <label class="navbar-switch-container">
+      <label className="navbar-switch-container">
         <input onChange={() => {handleToggle()}} checked={mode === "consumer"} className="navbar-switch-toggle"type="checkbox"/>
-        <span class="navbar-switch-mode">{capitalizeFirstLetter(mode)}</span>
+        <span className="navbar-switch-mode">{capitalizeFirstLetter(mode)}</span>
       </label>
     </div>
   )
