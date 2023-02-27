@@ -62,6 +62,7 @@
 - discussion_data       (date)
 
 ## Urls:
+```
 /posts/      gives a list of all posts
 /posts/db
     GET Request:
@@ -74,13 +75,17 @@
         [id(int), title|desc|producer|consumer|recipe] - updates an existing post
 /users/
     GET Request:
-        [token] - returns a user object coresponding to the email provided by the token
-        [] - returns all users TODO: TEMPORARY, DEBUGGING ONLY. REMOVE ONCE DEBUGGING DONE
-    POST Request:
-        [token, uname, pass, *address, *bio, *state, *city] - creates a new user
-        [token, email|uname|pass|address|bio|city|state] - updates one of the user settings (note, email and pass must ALSO be updated seperately in firebase)
-
-###format:
+        [email|uname] - finds a user by email or username
+        [id] - finds the coresponding user
+        [city, state] - finds all users in the coresponding city and state
+        TODO: [email|uname, pass] - confirm the email/uname pass works.
+    POST Request:<br>
+        [email, uname, pass, *address, *bio, *state, *city] - creates a new user (TODO: confirm email and uname aren't taken)
+        [id|prev_email|prev_uname, email|uname|pass|address|bio|city|state] - updates an existing user
+```
+### format:
+```
 /path
     Request type
         [param_option1|param_option2, *optional_param] - description
+```

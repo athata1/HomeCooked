@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css?family=Sen:regular,bold,italic&subset=latin,latin-ext");
+
+.settings-line {
+  display: block;
+  width: auto;
+  height: 1px;
+  background: black;
+  margin: 20px auto;
+}
+
+.settings-label {
+  font-family: "Sen";
+  font-style: normal;
+}
+
+.settings-form {
+  width: 950px;
+}
+
+.settings-title {
+  font-family: "Sen";
+  font-size: 48px;
+}
+
+.settings-form .settings-input {
+  height: 50px;
+  margin: 0 auto;
+
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  text-align: center;
+
+  border-radius: 25px;
+  margin-bottom: 25px;
+  outline: none;
+  background: #d9d9d9;
+}
+
+.settings-profile {
+  font-size: large;
+  width: 10rem;
+}
+
+.settings-button {
+  background: #d9d9d9;
+  border-radius: 20px;
+  /* font-size: 1.5rem; */
+  width: 10rem;
+}
+
+.settings-button-remove {
+  border-radius: 20px;
+  width: 10rem;
+}
+
+.settings-textarea {
+  width: 400px;
+  height: 130px;
+  resize: none;
+}
+
+.settings-save-button {
+  background: #002f2f;
+  color: white;
+  margin: 10px;
+  width: 16rem;
+}
+
+.settings-delete-account-button {
+  width: 16rem;
+}
+
+.settings-img {
+  min-height: 110px;
+  max-height: 110px;
+  max-width: 110px;
+  min-width: 110px;
+  border-radius: 50%;
+}
+
+.settings-edit {
+  cursor: pointer;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.settings-password-input {
+  width: 50%;
+}
+
+.settings-delete-banner {
+  display: "flex";
+  align-items: "center";
+  justify-content: "center";
+  border: 1px solid red;
+  padding-left: 20rem;
+}

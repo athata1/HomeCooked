@@ -1,24 +1,30 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Settings from "./pages/Settings/Settings";
+import Login from "./pages/Login/Login";
+import Signup from "./pages/Signup/Signup";
+import Dashboard from "./pages/Dashboard/Dashboard"
+import { AuthProvider } from "./Firebase/AuthContext";
+import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
+import "./App.css";
+import Profile from "./pages/Profile/Profile";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/dashboard" element={
+            <PrivateRoute element={<Dashboard/>}/> } />
+          <Route path="/settings" element={
+            <PrivateRoute element={<Settings/>}/> } />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
 
