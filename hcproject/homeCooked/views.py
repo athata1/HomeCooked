@@ -1,21 +1,21 @@
 from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render, redirect
 from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
 from .models import *
 # import datetime
 # import sqlite3
 import json
 import requests
-# import firebase_admin
-# from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth
 
 
-# def validate_token(token):
-#     decoded_token = auth.verify_id_token(token)
-#     if decoded_token is None:
-#         return None
-#     email = decoded_token['email']
-#     return email
+def validate_token(token):
+    decoded_token = auth.verify_id_token(token)
+    if decoded_token is None:
+        return None
+    uid = decoded_token["uid"]
+    return uid
 
 def allergy_request(request):
     if request.method == 'POST':
@@ -37,7 +37,7 @@ def allergy_request(request):
 
 
     #Deletes a post upon user request
-    
+
 def delete_post(request):
     if request.method == 'POST':
         post_id=request.POST.get('id')
@@ -45,17 +45,22 @@ def delete_post(request):
         data = serializers.serialize('json', post)
         post.delete()
         return JsonResponse(data, safe=False)
-    
+
     # Deletes a user and all associated data, 
     # i.e. any data with references to user will be deleted
 
+@csrf_exempt
 def delete_user(request):
     if request.method == 'POST':
-        user_fid=request.POST.get('id')
-        user = User.objects.filter(pk__exact=user_fid)
-        data=serializers.serialize('json', user)
+        uid = validate_token(request.GET.get('fid'))
+        if uid is None:
+            return JsonResponse(data={'status': '400', 'message': 'Error invalid token'})
+        user = User.objects.filter(user_fid=uid)
+        if len(list(user)) == 0:
+            return JsonResponse(data={'status': '400', 'message': 'Error: User does not exist'})
         user.delete()
-        return JsonResponse(data, safe=False)
+        return JsonResponse(data={'status':'200','message':'Deleted User'})
+    return JsonResponse(data={'status':'400','message':'Error not POST request'})
 
 def index(request):
     user = User.objects.all
@@ -127,11 +132,12 @@ def post_manager(request):
             producer = request.POST.get('producer')
             recipe = request.POST.get('recipe')
             title = request.POST.get('title')
-            desc = reqeusts.POST.get('desc')
+            desc = requests.POST.get('desc')
             post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
             post.save()
         return JsonResponse(serializers.serialize('json', post), safe=False)
 
+@csrf_exempt
 def user_manager(request):
     """
     TODO: user uses tokens, not a lot of stuff, expect structure of pages / request types / queries to change
@@ -145,42 +151,55 @@ def user_manager(request):
         users(token, uname, pass, *address, *bio, *state, *city) - creates a new user
         users(token, fid|uname|pass|address|bio|city|state) - updates one of the user settings
     """
-    if request.method == 'GET':
-        if 'token' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.flter(user_email__exact=validate_token(request.GET.get('token')))), safe=False)
-        return JsonResponse(serializers.serialize('json', User.objects.all()), safe=False)
-    if request.method == 'POST':
-        if ('token' in request.POST) and ('uname' in request.POST):
-            # new user
-            fid = validate_token(request.POST.get('token'))
-            if fid is None:
-                return None
-            username = request.POST.get('uname')
-            if len(list(User.object.filter(user_fid__exact=fid))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
-                #TODO: verify username is acceptable and return an actual error here
-                return "ERROR, username or email already taken"
-            user = User(user_email=email, user_uname=username, user_pass=password)
-            if 'address' in request.POST:
-                user.user_address=request.get('address')
-            if 'bio' in request.POST:
-                user.user_bio=requesst.get('bio')
-            if 'city' in request.POST:
-                user.user_city=requesst.get('city')
-            if 'state' in request.POST:
-                user.user_state=request.get('state')
-            user.save()
-            return JsonResponse(serializers.serialize('json', user), safe=False)
-        elif ('token' in request.POST) and (('fid' in request.POST) or ('uname' in request.POST) or ('address' in request.POST) or ('bio' in request.POST) or ('state' in request.POST) or ('city' in request.POST)): # change to id email or password
-            user = User.objects.get(user_fid__exact=validate_token(request.POST.get('token')))
 
-            if 'fid' in request.POST and len(list(User.object.filter(user_fid__exact=request.POST.get('fid')))) == 0:
-                user.user_fid = request.POST.get('fid')
-            elif len(list(User.object.filter(user_fid__exact=request.POST.get('fid')))) > 0:
-                print("ERROR, fid/email already taken")
-            if 'uname' in request.POST and len(list(User.object.filter(user_uname__exact=request.POST.get('uname')))) == 0:
-                user.user_uname = request.POST.get('uname') # TODO: replace with real error warning
-            elif len(list(User.object.filter(user_uname__exact=request.POST.get('uname')))) > 0:
-                print("ERROR, username already taken") # TODO: replace with real error warning
+    if request.method == 'GET':
+        #return JsonResponse(data={'status': '200', 'user': serializers.serialize('json', User.objects.all())}, safe=False)
+        if 'fid' not in request.GET:
+            return JsonResponse(data={'status': '404', 'message': "Error: token not valid"})
+
+        fid = validate_token(request.GET.get('fid'))
+
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'message': "Error: token not valid"})
+
+        user = User.objects.filter(user_fid__exact=fid).only('user_uname', 'user_city', 'user_state', 'user_bio')
+
+        if len(list(user)) == 0:
+            return JsonResponse(data={'status': '404', 'message': "Error: could not find user"})
+
+        return JsonResponse(data={'status': "200", 'user': serializers.serialize('json', user)}, safe=False)
+    if request.method == 'POST':
+        if 'fid' not in request.GET or 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'message': "Error: Missing parameters"})
+
+        fid = validate_token(request.GET.get('fid'))
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'message': "Error:invalid token"})
+
+        if request.GET.get('type') == "Create":
+            # new user
+            if 'uname' not in request.GET:
+                return JsonResponse(data={'status': '404', 'message': "Error:username missing"})
+
+            username = request.GET.get('uname')
+
+            if len(list(User.objects.filter(user_fid__exact=fid))) != 0:
+                return JsonResponse(data={'status': '404', 'message': "Error: Account Already created"})
+
+            if len(list(User.objects.filter(user_uname__exact=username))) != 0:
+                return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
+
+            user = User(user_fid=fid, user_uname=username)
+            user.save()
+
+            return JsonResponse({'status': 200, 'data':'Created user'}, safe=False)
+        elif request.GET.get('type') == "Change": # change to id email or password
+            user = User.objects.filter(user_fid__exact=validate_token(request.POST.get('fid')))[0]
+
+            if 'uname' in request.POST and len(list(User.objects.filter(user_uname__exact=request.POST.get('uname')))) == 0:
+                user.user_uname = request.POST.get('uname')
+            elif len(list(User.objects.filter(user_uname__exact=request.POST.get('uname')))) > 0:
+                return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
             if 'address' in request.POST:
                 user.user_address = request.POST.get('address')
             if 'bio' in request.POST:
@@ -190,4 +209,4 @@ def user_manager(request):
             if 'state' in request.POST:
                 user.user_state = request.POST.get('state')
             user.save()
-            return JsonResponse(serializers.serialize('json', user), safe=False)
+            return JsonResponse(data={'status':'200', 'user': serializers.serialize('json', user)}, safe=False)

@@ -62,8 +62,8 @@ class Post (models.Model):
 class Review (models.Model):
     review_id = models.AutoField(primary_key=True, verbose_name='Review ID')
     review_desc = models.CharField(max_length=200, verbose_name='Description')
-    review_giver = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, verbose_name='User Giver')
-    review_receiver = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User Receiver')
+    review_giver = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='UserGiver')
+    review_receiver = models.ForeignKey(User,null=True, on_delete=models.CASCADE, related_name='UserReceiver')
     review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
     review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)], verbose_name='Rating')
     review_post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Post')

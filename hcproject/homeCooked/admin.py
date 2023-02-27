@@ -25,10 +25,10 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('recipe_id', 'recipe_name', 'recipe_user')
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('review_id', 'review_desc', 'review_user', 'review_recipe', 'review_rating')
+    list_display = ('review_id', 'review_desc', 'review_giver','review_receiver', 'review_recipe', 'review_rating', 'review_post')
     list_display_links = ('review_id', 'review_desc')
-    list_filter = ('review_id', 'review_user', 'review_recipe', 'review_rating')
-    search_fields = ('review_id', 'review_user', 'review_recipe')
+    list_filter = ('review_id', 'review_giver','review_receiver', 'review_recipe', 'review_rating')
+    search_fields = ('review_id', 'review_giver','review_receiver', 'review_recipe')
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available')
