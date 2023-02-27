@@ -11,9 +11,10 @@ from firebase_admin import credentials, auth
 
 
 def validate_token(token):
-    decoded_token = auth.verify_id_token(token)
-    if decoded_token is None:
-        return None
+    try:
+        decoded_token = auth.verify_id_token(token)
+    except:
+        return None;
     uid = decoded_token["uid"]
     return uid
 
@@ -52,9 +53,12 @@ def delete_post(request):
 @csrf_exempt
 def delete_user(request):
     if request.method == 'POST':
+
         uid = validate_token(request.GET.get('fid'))
+
         if uid is None:
             return JsonResponse(data={'status': '400', 'message': 'Error invalid token'})
+
         user = User.objects.filter(user_fid=uid)
         if len(list(user)) == 0:
             return JsonResponse(data={'status': '400', 'message': 'Error: User does not exist'})
@@ -173,8 +177,9 @@ def user_manager(request):
             return JsonResponse(data={'status': '404', 'message': "Error: Missing parameters"})
 
         fid = validate_token(request.GET.get('fid'))
+
         if fid is None:
-            return JsonResponse(data={'status': '404', 'message': "Error:invalid token"})
+            return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
 
         if request.GET.get('type') == "Create":
             # new user
@@ -194,19 +199,26 @@ def user_manager(request):
 
             return JsonResponse({'status': 200, 'data':'Created user'}, safe=False)
         elif request.GET.get('type') == "Change": # change to id email or password
-            user = User.objects.filter(user_fid__exact=validate_token(request.POST.get('fid')))[0]
 
-            if 'uname' in request.POST and len(list(User.objects.filter(user_uname__exact=request.POST.get('uname')))) == 0:
-                user.user_uname = request.POST.get('uname')
-            elif len(list(User.objects.filter(user_uname__exact=request.POST.get('uname')))) > 0:
+            uid = validate_token(request.GET.get('fid'))
+
+            if uid is None:
+                return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
+
+            user = User.objects.filter(user_fid__exact=uid)[0]
+
+            if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
+                user.user_uname = request.GET.get('uname')
+            elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
                 return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
-            if 'address' in request.POST:
-                user.user_address = request.POST.get('address')
-            if 'bio' in request.POST:
-                user.user_bio = request.POST.get('bio')
-            if 'city' in request.POST:
-                user.user_city = request.POST.get('city')
-            if 'state' in request.POST:
-                user.user_state = request.POST.get('state')
+            if 'address' in request.GET:
+                user.user_address = request.GET.get('address')
+            if 'bio' in request.GET:
+                user.user_bio = request.GET.get('bio')
+            if 'city' in request.GET:
+                user.user_city = request.GET.get('city')
+            if 'state' in request.GET:
+                user.user_state = request.GET.get('state')
             user.save()
-            return JsonResponse(data={'status':'200', 'user': serializers.serialize('json', user)}, safe=False)
+
+            return JsonResponse(data={'status':'200', 'message':'Saved data'}, safe=False)
