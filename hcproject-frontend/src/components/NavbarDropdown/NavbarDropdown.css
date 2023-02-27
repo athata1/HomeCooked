@@ -25,6 +25,7 @@
   bottom: 20;
   width: calc(100% + 20px);
   display: none;
+  z-index: 1;
 }
 
 .navbar-page-dropdown-item {

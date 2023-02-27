@@ -23,7 +23,9 @@ function Profile() {
 
           <Col md={{ offset: 0 }}>
             <div> </div>
-            <h1>John Doe</h1>
+            <h1>John Doe
+              
+            </h1>
             <h5>West Lafayette, IN</h5>
             <h3>★★★★</h3>
             <Button variant="danger"> Edit Profile</Button>
