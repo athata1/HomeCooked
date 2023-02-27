@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -9,12 +9,18 @@ import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
 
 const Dashboard = () => {
-  const [userMode, setUserMode] = useState("consumer");
-  const { currentUser, signout } = useAuth()
+  const { currentUser, getToken, userMode, setUserMode } = useAuth();
+  const [token, setToken] = useState();
+
+  useEffect(() => {
+    getToken().then((t) => {
+      setToken(t);
+    });
+  }, []);
 
   return (
     <div className="dashboard">
-      <Navbar />
+      <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
       <Container>
         <Row>
@@ -90,4 +96,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default Dashboard;

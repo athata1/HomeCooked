@@ -12,7 +12,7 @@ import Navbar from '../../components/Navbar/Navbar';
 function Profile() {
   return (
     <div>
-      <Navbar />
+      <Navbar part="Profile" mode="none"/>
       <span>&nbsp;&nbsp;</span>
       <Container>
         <Row>

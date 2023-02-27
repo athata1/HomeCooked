@@ -73,8 +73,11 @@
 }
 
 .settings-img {
-  min-height: 100px;
-  max-height: 100px;
+  min-height: 110px;
+  max-height: 110px;
+  max-width: 110px;
+  min-width: 110px;
+  border-radius: 50%;
 }
 
 .settings-edit {
@@ -93,4 +96,12 @@ input[type="number"] {
 
 .settings-password-input {
   width: 50%;
+}
+
+.settings-delete-banner {
+  display: "flex";
+  align-items: "center";
+  justify-content: "center";
+  border: 1px solid red;
+  padding-left: 20rem;
 }

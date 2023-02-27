@@ -11,9 +11,9 @@
 
 .navbarLeft {
     height: 100%;
-    display: grid;
-    place-items: center;
-    width: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -79,7 +79,7 @@
 
 
 
-.navbarRight >*:hover {
+.navbarRight >*:hover:not(:first-child) {
   background-color: black;
 }
 
