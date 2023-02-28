@@ -12,4 +12,5 @@ urlpatterns = [
     path('users/delete', delete_user),
     path('users/uname', user_by_uname),
     path('allergy/', allergy_request, name='allergy_request'),
+    path('reviews/', review_manager),
 ]

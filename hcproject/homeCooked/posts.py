@@ -22,3 +22,16 @@ def get_post(post_id):
         raise TypeError('post_id must be an integer')
 
     return Post.objects.filter(post_id__exact=post_id)
+
+def create_post(producer, recipe, title, desc):
+    if producer is None or recipe is None or title is None or desc is None:
+                raise ValueError('invalid arguments provided')
+    
+    post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
+
+    if post is None:
+        raise RuntimeError('post creation failed')
+
+    post.save()
+    return post
+
