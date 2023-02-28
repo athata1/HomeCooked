@@ -21,4 +21,4 @@ def get_post(post_id):
     if type(post_id) != int:
         raise TypeError('post_id must be an integer')
 
-    return Post.objects.filter(post_id__exact=user_id)
+    return Post.objects.filter(post_id__exact=post_id)
