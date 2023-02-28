@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
