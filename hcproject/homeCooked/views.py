@@ -222,8 +222,6 @@ def user_manager(request):
                 return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
 
             user = User.objects.filter(user_fid__exact=uid)[0]
-            print(user.user_uname)
-            print(request.GET.get('uname'))
             if 'uname' in request.GET:
                 if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
                     if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
