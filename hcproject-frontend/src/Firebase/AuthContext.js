@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
   const [userMode, setUserMode] = useState("consumer");
-
+  const [creating, setCreating] = useState(false);
   async function getToken() {
     let token = await auth.currentUser.getIdToken(false);
     return token;
@@ -104,8 +104,35 @@ export function AuthProvider({ children }) {
           displayName: username,
         }
         )
-        console.log(user.user.getIdToken(true))
+        
+        await new Promise(r => setTimeout(r, 1000));
+        
+        let token = await user.user.getIdToken(false);
+
+        let url = "http://localhost:8000/users/?type=Create&uname=" + username + "&fid="  + token;
+        try {
+          await fetch(url, {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          }).then(async (res) => {
+              return res.json()
+          }).then((res)=> {
+            console.log(res);
+          });
+        }
+        catch (e) {
+          console.log(e);
+        }
       });
+      setCreating(false)
   }
 
   const value = {
@@ -121,6 +148,8 @@ export function AuthProvider({ children }) {
     changePassword,
     getUsername,
     setCurrentUsername,
+    loading,
+    creating
   };
 
   return (

@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{ useState, useEffect }  from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -6,10 +6,47 @@ import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
-import { useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
+import { useAuth } from '../../Firebase/AuthContext';
 
 function Profile() {
+
+
+  const [username, setUsername] = useState('');
+  const {getToken} = useAuth()
+  const [about, setAbout] = useState('');
+  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState('');
+
+
+  useEffect(() => {
+    getToken().then((token) => {
+
+      let url = "http://localhost:8000/users/?type=Create&fid=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json()
+      }).then((data) => {
+        let userData = JSON.parse(data.user)[0];
+        console.log(userData)
+        setUsername(userData.fields.user_uname);
+        setSelectedState(userData.fields.user_state.toUpperCase());
+        setSelectedCity(userData.fields.user_city.toUpperCase());
+        setAbout(userData.fields.user_bio)
+      })
+      })
+  }, [])
+
   return (
     <div>
       <Navbar part="Profile" mode="none"/>
@@ -23,10 +60,10 @@ function Profile() {
 
           <Col md={{ offset: 0 }}>
             <div> </div>
-            <h1>John Doe
+            <h1>{username}
               
             </h1>
-            <h5>West Lafayette, IN</h5>
+            <h5>{selectedCity}, {selectedState}</h5>
             <h3>★★★★</h3>
             <Button variant="danger"> Edit Profile</Button>
           </Col>
@@ -34,7 +71,7 @@ function Profile() {
         <Row>
           <Card className="aboutMe bg-secondary text-white my-5">
             <Card.Body>
-              About: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+              {about}
             </Card.Body>
           </Card>
           <h3>Posts</h3>
