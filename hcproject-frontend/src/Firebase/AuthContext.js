@@ -97,6 +97,8 @@ export function AuthProvider({ children }) {
   }
 
   async function signup(email, password, username) {
+    
+    setLoading(true);
     await auth
       .createUserWithEmailAndPassword(email, password)
       .then(async (user) => {
@@ -105,7 +107,7 @@ export function AuthProvider({ children }) {
         }
         )
 
-        let token = await user.user.getIdToken(true);
+        let token = await user.user.getIdToken(false);
         let url = "http://localhost:8000/users/?type=Create&uname=" + username + "&fid="  + token;
         try {
           await fetch(url, {
@@ -120,9 +122,10 @@ export function AuthProvider({ children }) {
             redirect: "follow", // manual, *follow, error
             referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
           }).then(async (res) => {
-              res.text().then((data) => {
-                console.log("data" + data);
-              })
+              return res.json()
+          }).then((res)=> {
+            console.log(res);
+            setLoading(false);
           });
         }
         catch (e) {
@@ -144,6 +147,7 @@ export function AuthProvider({ children }) {
     changePassword,
     getUsername,
     setCurrentUsername,
+    loading
   };
 
   return (

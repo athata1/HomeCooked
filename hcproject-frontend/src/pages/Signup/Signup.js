@@ -9,11 +9,11 @@ export default function Signup() {
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
   const usernameRef = useRef();
-  const { currentUser, signup } = useAuth();
+  const { currentUser, signup, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   let location = useLocation();
-  if (currentUser !== null) {
+  if (currentUser !== null && !loading) {
     return <Navigate to="/dashboard" state={{ from: location }} replace />;
   }
 
