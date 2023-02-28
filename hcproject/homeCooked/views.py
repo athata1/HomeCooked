@@ -30,6 +30,9 @@ def allergy_request(request):
         response = requests.request("GET", url, headers=headers, params=querystring)
         data = response.json()
         health_labels = ', '.join(data['healthLabels'])
+        health_labels = ', '.join([x.replace('_', ' ').title() for x in health_labels.split(', ')])
+        extract_strings = ['Vegan', 'Vegetarian', 'Pescatarian', 'Dairy Free', 'Gluten Free', 'Wheat Free', 'Egg Free', 'Milk Free', 'Peanut Free', 'Tree Nut Free', 'Soy Free']
+        health_labels = ', '.join([x.strip() for x in health_labels.split(',') if x.strip() in extract_strings])
         allergy = Allergy(food_name=food, health_labels=health_labels)
         allergy.save()
         return render(request, 'homeCooked/allergy.html', {'allergy': allergy})
