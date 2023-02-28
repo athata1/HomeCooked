@@ -10,5 +10,6 @@ urlpatterns = [
     path('users/', user_manager),
     path('posts/delete', delete_post),
     path('users/delete', delete_user),
+    path('users/uname', user_by_uname),
     path('allergy/', allergy_request, name='allergy_request'),
 ]

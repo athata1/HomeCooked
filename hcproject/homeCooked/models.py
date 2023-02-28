@@ -17,7 +17,7 @@ class User (models.Model):
     user_city = models.CharField(max_length=200, verbose_name='City', default="")
     user_state = models.CharField(max_length=200, verbose_name='State', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")
-
+    image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
     def __str__(self):
         return self.user_uname
 

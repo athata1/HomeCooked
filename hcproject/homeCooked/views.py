@@ -30,6 +30,9 @@ def allergy_request(request):
         response = requests.request("GET", url, headers=headers, params=querystring)
         data = response.json()
         health_labels = ', '.join(data['healthLabels'])
+        health_labels = ', '.join([x.replace('_', ' ').title() for x in health_labels.split(', ')])
+        extract_strings = ['Vegan', 'Vegetarian', 'Pescatarian', 'Dairy Free', 'Gluten Free', 'Wheat Free', 'Egg Free', 'Milk Free', 'Peanut Free', 'Tree Nut Free', 'Soy Free']
+        health_labels = ', '.join([x.strip() for x in health_labels.split(',') if x.strip() in extract_strings])
         allergy = Allergy(food_name=food, health_labels=health_labels)
         allergy.save()
         return render(request, 'homeCooked/allergy.html', {'allergy': allergy})
@@ -142,6 +145,18 @@ def post_manager(request):
         return JsonResponse(serializers.serialize('json', post), safe=False)
 
 @csrf_exempt
+def user_by_uname(request):
+    if request.method == 'GET':
+        if 'uname' not in request.GET:
+            return JsonResponse(data={'status': '405', 'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
+        if len(list(user)) != 0:
+            return JsonResponse({'status':'200', 'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(data={'status':'404', 'response':'uname does not exist'})
+    return JsonResponse(data={'status': '405', 'response': 'Not Get request'})
+
+@csrf_exempt
 def user_manager(request):
     """
     TODO: user uses tokens, not a lot of stuff, expect structure of pages / request types / queries to change
@@ -176,6 +191,7 @@ def user_manager(request):
         if 'fid' not in request.GET or 'type' not in request.GET:
             return JsonResponse(data={'status': '404', 'message': "Error: Missing parameters"})
 
+        print(request.GET.get('fid'))
         fid = validate_token(request.GET.get('fid'))
 
         if fid is None:
@@ -206,11 +222,12 @@ def user_manager(request):
                 return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
 
             user = User.objects.filter(user_fid__exact=uid)[0]
-
-            if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
-                user.user_uname = request.GET.get('uname')
-            elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
-                return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
+            if 'uname' in request.GET:
+                if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
+                    if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
+                        user.user_uname = request.GET.get('uname')
+                    elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
+                        return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
             if 'address' in request.GET:
                 user.user_address = request.GET.get('address')
             if 'bio' in request.GET:
