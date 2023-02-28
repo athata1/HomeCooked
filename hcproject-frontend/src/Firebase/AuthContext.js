@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState();
   const [loading, setLoading] = useState(true);
   const [userMode, setUserMode] = useState("consumer");
-
+  const [creating, setCreating] = useState(false);
   async function getToken() {
     let token = await auth.currentUser.getIdToken(false);
     return token;
@@ -97,8 +97,6 @@ export function AuthProvider({ children }) {
   }
 
   async function signup(email, password, username) {
-    
-    setLoading(true);
     await auth
       .createUserWithEmailAndPassword(email, password)
       .then(async (user) => {
@@ -106,8 +104,11 @@ export function AuthProvider({ children }) {
           displayName: username,
         }
         )
-
+        
+        await new Promise(r => setTimeout(r, 1000));
+        
         let token = await user.user.getIdToken(false);
+
         let url = "http://localhost:8000/users/?type=Create&uname=" + username + "&fid="  + token;
         try {
           await fetch(url, {
@@ -125,13 +126,13 @@ export function AuthProvider({ children }) {
               return res.json()
           }).then((res)=> {
             console.log(res);
-            setLoading(false);
           });
         }
         catch (e) {
           console.log(e);
         }
       });
+      setCreating(false)
   }
 
   const value = {
@@ -147,7 +148,8 @@ export function AuthProvider({ children }) {
     changePassword,
     getUsername,
     setCurrentUsername,
-    loading
+    loading,
+    creating
   };
 
   return (

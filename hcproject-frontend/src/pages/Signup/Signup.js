@@ -14,7 +14,7 @@ export default function Signup() {
 
   let location = useLocation();
   if (currentUser !== null && !loading) {
-    return <Navigate to="/dashboard" state={{ from: location }} replace />;
+    return <Navigate to="/settings" state={{ from: location }} replace />;
   }
 
   const validateEmail = (email) => {
@@ -57,24 +57,48 @@ export default function Signup() {
       return;
     }
 
+    
     if (confirmPasswordRef.current.value !== passwordRef.current.value) {
       alert("Error: Passwords do not match");
       return;
     }
-    try {
-      setIsLoading(true);
-      console.log(process.env.REACT_APP_FIREBASE_API_KEY);
-      signup(
-        emailRef.current.value,
-        passwordRef.current.value,
-        usernameRef.current.value
-      );
-      console.log("Success!");
-    } catch (e) {
-      alert("Failed to create an account");
-      console.log(e);
-    }
-    setIsLoading(false);
+    
+    let url = "http://localhost:8000/users/uname?uname=" + usernameRef.current.value;
+    fetch(url, {
+      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      // mode: "no-cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    }).then((res) => {
+      return res.json()
+    }).then((data) => {
+      if (data.status == '404') {
+        try {
+          setIsLoading(true);
+          console.log(process.env.REACT_APP_FIREBASE_API_KEY);
+          signup(
+            emailRef.current.value,
+            passwordRef.current.value,
+            usernameRef.current.value
+          );
+          console.log("Success!");
+        } catch (e) {
+          alert("Failed to create an account");
+          console.log(e);
+        }
+        setIsLoading(false);
+      }
+      else {
+        alert('Error: username already exists');
+        return;
+      }
+    })
   }
 
   return (

@@ -92,8 +92,7 @@ const Dashboard = () => {
 
       </Container>
 
-      {/* Dashboard
-      {currentUser ? currentUser.email : ""} */}
+      {currentUser ? token: ""}
     </div>
 
   )
