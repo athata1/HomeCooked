@@ -13,7 +13,7 @@ const Settings = () => {
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [username, setUsername] = useState("Username");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Email@email.com");
   const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
@@ -28,7 +28,6 @@ const Settings = () => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
   const [deletedAccount, setDeletedAccount] = useState(true);
-  const [token, setToken] = useState("");
   const {
     deleteUser,
     currentUser,
@@ -80,7 +79,36 @@ const Settings = () => {
   }, [selectedCity]);
 
   if (creating) {
-    return "";
+    return <h1>Loading...</h1>;
+  }
+
+  if (creating || username === "") {
+    getToken().then((token) => {
+      let url = "http://localhost:8000/users/?type=Create&fid=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          let userData = JSON.parse(data.user)[0];
+          setUsername(userData.fields.user_uname);
+          console.log(userData.fields.user_city.toUpperCase());
+          setSelectedState(userData.fields.user_state.toUpperCase());
+          setSelectedCity(userData.fields.user_city.toUpperCase());
+          setAbout(userData.fields.user_bio);
+        });
+    });
   }
 
   const handleDeleteAccount = (e) => {
@@ -227,14 +255,14 @@ const Settings = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (selectedState === "--Choose State--") {
+    if (selectedState === "--Choose State--" || selectedState === "") {
       setErrorField("state");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (selectedCity === "--Choose City--") {
+    if (selectedCity === "--Choose City--" || selectedCity === "") {
       setErrorField("city");
       setEdit(true);
       setValidFields(false);
@@ -323,7 +351,7 @@ const Settings = () => {
                 <input
                   type="test"
                   className="form-control settings-input"
-                  placeholder="--Select State--"
+                  placeholder="--Choose State--"
                   value={selectedState}
                   readOnly={!edit}
                 />
