@@ -1,39 +1,46 @@
 from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render, redirect
 from django.core import serializers
-from .models import Post, Recipe, User
+from django.views.decorators.csrf import csrf_exempt
+from .models import *
 # import datetime
 # import sqlite3
 import json
 import requests
-
-'''
-config={
-    'apiKey' : "AIzaSyAcO3timaqQBIDH8NI3lo2VmYPp9gTrico",
-    'authDomain' : "homecooked-7cc68.firebaseapp.com",
-    'projectId': "homecooked-7cc68",
-    'storageBucket' : "homecooked-7cc68.appspot.com",
-    'senderId': "735235129085",
-    'appId': "1:735235129085:web:70e1dfb0c5c373c0b98894" ,
-}
+from firebase_admin import credentials, auth
 
 
-firebase=pyrebase.initialize_app(config)
-authe = firebase.auth()
-database=firebase.database()
-'''
+def validate_token(token):
+    try:
+        decoded_token = auth.verify_id_token(token)
+    except:
+        return None;
+    uid = decoded_token["uid"]
+    return uid
 
-def allergy_request(food):
-    url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
+def allergy_request(request):
+    if request.method == 'POST':
+        food = request.POST['food']
+        url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
+        querystring = {"ingr":"1 " + food}
+        headers = {
+            "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
+            "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
+        }
+        response = requests.request("GET", url, headers=headers, params=querystring)
+        data = response.json()
+        health_labels = ', '.join(data['healthLabels'])
+        health_labels = ', '.join([x.replace('_', ' ').title() for x in health_labels.split(', ')])
+        extract_strings = ['Vegan', 'Vegetarian', 'Pescatarian', 'Dairy Free', 'Gluten Free', 'Wheat Free', 'Egg Free', 'Milk Free', 'Peanut Free', 'Tree Nut Free', 'Soy Free']
+        health_labels = ', '.join([x.strip() for x in health_labels.split(',') if x.strip() in extract_strings])
+        allergy = Allergy(food_name=food, health_labels=health_labels)
+        allergy.save()
+        return render(request, 'homeCooked/allergy.html', {'allergy': allergy})
+    else:
+        return render(request, 'homeCooked/allergy.html')
 
-    querystring = {"ingr":"1 " + food}
 
-    headers = {
-        "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
-        "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
-    }
-
-    return requests.request("GET", url, headers=headers, params=querystring)
+    #Deletes a post upon user request
 
 def delete_post(request):
     if request.method == 'POST':
@@ -42,14 +49,25 @@ def delete_post(request):
         data = serializers.serialize('json', post)
         post.delete()
         return JsonResponse(data, safe=False)
-    
+
+    # Deletes a user and all associated data, 
+    # i.e. any data with references to user will be deleted
+
+@csrf_exempt
 def delete_user(request):
     if request.method == 'POST':
-        user_id=request.POST.get('id')
-        user = User.objects.filter(pk__exact=user_id)
-        data=serializers.serialize('json', user)
+
+        uid = validate_token(request.GET.get('fid'))
+
+        if uid is None:
+            return JsonResponse(data={'status': '400', 'message': 'Error invalid token'})
+
+        user = User.objects.filter(user_fid=uid)
+        if len(list(user)) == 0:
+            return JsonResponse(data={'status': '400', 'message': 'Error: User does not exist'})
         user.delete()
-        return JsonResponse(data, safe=False)
+        return JsonResponse(data={'status':'200','message':'Deleted User'})
+    return JsonResponse(data={'status':'400','message':'Error not POST request'})
 
 def index(request):
     user = User.objects.all
@@ -121,90 +139,103 @@ def post_manager(request):
             producer = request.POST.get('producer')
             recipe = request.POST.get('recipe')
             title = request.POST.get('title')
-            desc = reqeusts.POST.get('desc')
+            desc = requests.POST.get('desc')
             post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
             post.save()
         return JsonResponse(serializers.serialize('json', post), safe=False)
 
+@csrf_exempt
+def user_by_uname(request):
+    if request.method == 'GET':
+        if 'uname' not in request.GET:
+            return JsonResponse(data={'status': '405', 'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
+        if len(list(user)) != 0:
+            return JsonResponse({'status':'200', 'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(data={'status':'404', 'response':'uname does not exist'})
+    return JsonResponse(data={'status': '405', 'response': 'Not Get request'})
+
+@csrf_exempt
 def user_manager(request):
     """
     TODO: user uses tokens, not a lot of stuff, expect structure of pages / request types / queries to change
 
     * = optional argument
     | = one argument or the other
-    TODO
     GET:
-        users(email|uname) - returns a user object coresponding to the correct email
-        users(id) - returns the user coresponding to the user id
-        users(state, city) - returns the users in a specific state and city
-        TODO: users(email|uname, password) - confirms if the email / password combo is valid (TODO: update to password hash)
-        users() - returns all users
+        users(token) - returns a user object coresponding to the fid provided by the token
+        users() - returns all users TODO: TEMPORARY, DEBUGGING ONLY. REMOVE ONCE DEBUGGING DONE
     POST:
-        users(email, uname, pass, *address, *bio, *state, *city) - creates a new user
-        users(id|prev_email|prev_uname, email|uname|pass|address|bio|city|state) - updates one of the previous fields
+        users(token, uname, pass, *address, *bio, *state, *city) - creates a new user
+        users(token, fid|uname|pass|address|bio|city|state) - updates one of the user settings
     """
+
     if request.method == 'GET':
-        if 'id' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_id__exact=request.GET.get('id'))), safe=False)
-        if 'uname' in request.GET and 'pass' in request.GET:
-            
-            return "TO Be Completed later!"
-        if 'email' in request.GET and 'pass' in request.GET:
-            # TODO: find email & verify password
-            return "TO Be Completed later!"
-        if 'uname' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_uname__exact=request.GET.get('username'))), safe=False)
-        if 'email' in request.GET:
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_email__exact=request.GET.get('email'))), safe=False)
-        if ('city' in request.GET) and ('state' in request.GET):
-            return JsonResponse(serializers.serialize('json', User.objects.filter(user_state__exact=request.GET.get('state')).filter(user_state__exact=request.GET.get('city'))), safe=False)
-        return JsonResponse(serializers.serialize('json', User.objects.all()), safe=False)
+        #return JsonResponse(data={'status': '200', 'user': serializers.serialize('json', User.objects.all())}, safe=False)
+        if 'fid' not in request.GET:
+            return JsonResponse(data={'status': '404', 'message': "Error: token not valid"})
+
+        fid = validate_token(request.GET.get('fid'))
+
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'message': "Error: token not valid"})
+
+        user = User.objects.filter(user_fid__exact=fid).only('user_uname', 'user_city', 'user_state', 'user_bio')
+
+        if len(list(user)) == 0:
+            return JsonResponse(data={'status': '404', 'message': "Error: could not find user"})
+
+        return JsonResponse(data={'status': "200", 'user': serializers.serialize('json', user)}, safe=False)
     if request.method == 'POST':
-        if ('email' in request.POST) and ('uname' in request.POST) and ('pass' in request.POST):
+        if 'fid' not in request.GET or 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'message': "Error: Missing parameters"})
+
+        print(request.GET.get('fid'))
+        fid = validate_token(request.GET.get('fid'))
+
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
+
+        if request.GET.get('type') == "Create":
             # new user
-            email = request.POST.get('email')
-            username = request.POST.get('uname')
-            password = request.POST.get('pass')
-            if len(list(User.object.filter(user_email__exact=email))) > 0 or len(list(User.object.filter(user_uname__exact=username))) > 0:
-                #TODO: verify username is acceptable, split username and email and return an actual error here
-                return "ERROR, username or email already taken"
-            user = User(user_email=email, user_uname=username, user_pass=password)
-            if 'address' in request.POST:
-                user.user_address=request.get('address')
-            if 'bio' in request.POST:
-                user.user_bio=requesst.get('bio')
-            if 'city' in request.POST:
-                user.user_city=requesst.get('city')
-            if 'state' in request.POST:
-                user.user_state=request.get('state')
+            if 'uname' not in request.GET:
+                return JsonResponse(data={'status': '404', 'message': "Error:username missing"})
+
+            username = request.GET.get('uname')
+
+            if len(list(User.objects.filter(user_fid__exact=fid))) != 0:
+                return JsonResponse(data={'status': '404', 'message': "Error: Account Already created"})
+
+            if len(list(User.objects.filter(user_uname__exact=username))) != 0:
+                return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
+
+            user = User(user_fid=fid, user_uname=username)
             user.save()
-            return JsonResponse(serializers.serialize('json', user), safe=False)
-        elif ('id' in request.POST) or ('email' in request.POST) or ('uname' in request.POST): # change to id email or password
-            # Find user TODO: send 500 if can't find user
-            user = None
-            if 'id' in request.POST:
-                user = User.objects.filter(user_id__exact=request.POST.get('id'))
-            if 'prev_uname' in request.POST:
-                user = User.objects.filter(user_uname__exact=request.POST.get('prev_uname'))
-            if 'prev_email' in request.POST:
-                user = User.objects.filter(user_email__exact=request.POST.get('prev_email'))
-            
-            # updating the requested feature TODO: seperate uname and email for finding and the to update uname and email 
-            if 'email' in request.POST:
-                # TODO: verify email isn't taken
-                user.user_email = request.POST.get('email')
-            if 'uname' in request.POST:
-                # TODO: verify username isn't taken
-                user.user_uname = request.POST.get('uname')
-            if 'pass' in request.POST:
-                user.user_pass = request.POST.get('pass')
-            if 'address' in request.POST:
-                user.user_address = request.POST.get('address')
-            if 'bio' in request.POST:
-                user.user_bio = request.POST.get('bio')
-            if 'city' in request.POST:
-                user.user_city = request.POST.get('city')
-            if 'state' in request.POST:
-                user.user_state = request.POST.get('state')
+
+            return JsonResponse({'status': 200, 'data':'Created user'}, safe=False)
+        elif request.GET.get('type') == "Change": # change to id email or password
+
+            uid = validate_token(request.GET.get('fid'))
+
+            if uid is None:
+                return JsonResponse(data={'status': '404', 'message': "Error: invalid token"})
+
+            user = User.objects.filter(user_fid__exact=uid)[0]
+            if 'uname' in request.GET:
+                if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
+                    if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
+                        user.user_uname = request.GET.get('uname')
+                    elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
+                        return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
+            if 'address' in request.GET:
+                user.user_address = request.GET.get('address')
+            if 'bio' in request.GET:
+                user.user_bio = request.GET.get('bio')
+            if 'city' in request.GET:
+                user.user_city = request.GET.get('city')
+            if 'state' in request.GET:
+                user.user_state = request.GET.get('state')
             user.save()
-            return JsonResponse(serializers.serialize('json', user), safe=False)
+
+            return JsonResponse(data={'status':'200', 'message':'Saved data'}, safe=False)

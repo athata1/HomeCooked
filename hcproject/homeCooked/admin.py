@@ -1,11 +1,16 @@
 from django.contrib import admin
 from .models import *
 
+class AllergyAdmin(admin.ModelAdmin):
+    list_display = ('food_name', 'health_labels')
+    list_filter = ('health_labels',)
+    search_fields = ('food_name', 'health_labels')
+
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'user_uname', 'user_pass', 'user_email', 'user_address', 'user_bio', 'user_city', 'user_state')
-    list_display_links = ('user_id', 'user_uname')
-    list_filter = ('user_id', 'user_uname', 'user_email', 'user_city', 'user_state')
-    search_fields = ('user_id', 'user_uname', 'user_email', 'user_city', 'user_state')
+    list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state', 'image_text')
+    list_display_links = ('user_id', 'user_fid')
+    list_filter = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
+    search_fields = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('event_id', 'event_name', 'event_desc', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
@@ -20,10 +25,10 @@ class RecipeAdmin(admin.ModelAdmin):
     search_fields = ('recipe_id', 'recipe_name', 'recipe_user')
 
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ('review_id', 'review_desc', 'review_user', 'review_recipe', 'review_rating')
+    list_display = ('review_id', 'review_desc', 'review_giver','review_receiver', 'review_recipe', 'review_rating', 'review_post')
     list_display_links = ('review_id', 'review_desc')
-    list_filter = ('review_id', 'review_user', 'review_recipe', 'review_rating')
-    search_fields = ('review_id', 'review_user', 'review_recipe')
+    list_filter = ('review_id', 'review_giver','review_receiver', 'review_recipe', 'review_rating')
+    search_fields = ('review_id', 'review_giver','review_receiver', 'review_recipe')
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available')
@@ -44,6 +49,7 @@ class DiscussionBoardAdmin(admin.ModelAdmin):
     search_fields = ('discussion_id', 'discussion_sender', 'discussion_event')
 
 # Register your models here.
+admin.site.register(Allergy, AllergyAdmin)
 admin.site.register(User, UserAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(Recipe, RecipeAdmin)

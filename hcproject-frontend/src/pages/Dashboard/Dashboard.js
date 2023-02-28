@@ -10,13 +10,16 @@ import { useAuth } from '../../Firebase/AuthContext';
 import Posts from '../../components/Posts/Posts';
 
 const Dashboard = () => {
-  const { currentUser, getToken, userMode, setUserMode } = useAuth();
+  const { currentUser, getToken, userMode, setUserMode, loading } = useAuth();
   const [token, setToken] = useState();
+
 
   useEffect(() => {
     getToken().then((t) => {
       setToken(t);
+      console.log(t);
     });
+    console.log("Here");
   }, []);
 
   return (
@@ -55,8 +58,7 @@ const Dashboard = () => {
 
       </Container>
 
-      {/* Dashboard
-      {currentUser ? currentUser.email : ""} */}
+      {currentUser ? token: ""}
     </div>
 
   )
