@@ -7,6 +7,7 @@ import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
+import Posts from '../../components/Posts/Posts';
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -26,50 +27,15 @@ const Dashboard = () => {
         <Row>
           <Col>
             <h2>Post Feed</h2>
-            <Card>
-              <Card.Img variant="top" src="holder.js/100px160" />
-              <Card.Body>
-                <Card.Title>Card title</Card.Title>
-                <Card.Text>
-                  This is a wider card with supporting text below as a natural lead-in
-                  to additional content. This content is a little bit longer.
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Last updated 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="holder.js/100px160" />
-              <Card.Body>
-                <Card.Title>Card title</Card.Title>
-                <Card.Text>
-                  This is a wider card with supporting text below as a natural lead-in
-                  to additional content. This content is a little bit longer.
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Last updated 3 mins ago</small>
-              </Card.Footer>
-            </Card>
+            <Posts />
+            <Posts />
           </Col>
           <Col>
             <h2>Recipe Feed</h2>
-            <Card>
-              <Card.Img variant="top" src="holder.js/100px160" />
-              <Card.Body>
-                <Card.Title>Card title</Card.Title>
-                <Card.Text>
-                  This is a wider card with supporting text below as a natural lead-in
-                  to additional content. This content is a little bit longer.
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Last updated 3 mins ago</small>
-              </Card.Footer>
-            </Card>
+            <Posts />
+            <Posts />
           </Col>
-          <Col>
+          {/* <Col>
             <h2>Post Feed</h2>
             <Card>
               <Card.Img variant="top" src="holder.js/100px160" />
@@ -84,7 +50,7 @@ const Dashboard = () => {
                 <small className="text-muted">Last updated 3 mins ago</small>
               </Card.Footer>
             </Card>
-          </Col>
+          </Col> */}
         </Row>
 
       </Container>
