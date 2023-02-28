@@ -98,7 +98,7 @@ def post_manager(request):
         search_key = request.GET['user']
         request_type = request.GET['type']
 
-        if search_key is NONE:
+        if search_key is None:
             return JsonResponse(data={'status':'400', 'message':'Error: search key invalid'})
         if request_type == 'producer':
             posts = Post.objects.filter(post_producer__exact=search_key)
