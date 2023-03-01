@@ -67,7 +67,6 @@ const Settings = () => {
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
-          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
@@ -79,13 +78,9 @@ const Settings = () => {
     });
   }, []);
 
-  useEffect(() => {
-    console.log("Selected state");
-  }, [selectedState]);
+  useEffect(() => {}, [selectedState]);
 
-  useEffect(() => {
-    console.log("Selected city");
-  }, [selectedCity]);
+  useEffect(() => {}, [selectedCity]);
 
   if (creating) {
     return <h1>Loading...</h1>;
@@ -112,7 +107,6 @@ const Settings = () => {
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
-          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
@@ -144,7 +138,6 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data);
           if (data.status == "200") {
             deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
@@ -168,12 +161,10 @@ const Settings = () => {
       e.target.files[0].type !== "image/png" &&
       e.target.files[0].type !== "image/jpeg"
     ) {
-      console.log(e.target.files[0].type);
       return;
     }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
     setCurrentUploadedFile(e.target.files[0]);
-    console.log("Here");
   };
 
   const handleEdit = () => {
@@ -187,7 +178,6 @@ const Settings = () => {
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
-          console.log(res);
         });
       }
 
@@ -227,14 +217,11 @@ const Settings = () => {
           .then((data) => {
             if (data.status === "200") {
               if (uploadedFile !== null) {
-                console.log("Here!!!");
                 let url = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + url);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
-                  console.log(e);
                   getDownloadURL(e.ref).then((url) => {
                     setCurrentPhoto(url);
-                    console.log("url", url);
                   });
                 });
               }
