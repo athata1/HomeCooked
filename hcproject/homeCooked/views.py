@@ -45,18 +45,6 @@ def allergy_request(request):
     # Deletes a post upon user request
 
 
-def delete_post(request):
-    if request.method == 'POST':
-        post_id = request.POST.get('id')
-        post = Post.objects.filter(pk__exact=post_id)
-        data = serializers.serialize('json', post)
-        post.delete()
-        return JsonResponse(data, safe=False)
-
-    # Deletes a user and all associated data, 
-    # i.e. any data with references to user will be deleted
-
-
 @csrf_exempt
 def delete_user(request):
     if request.method == 'POST':
@@ -191,6 +179,29 @@ def delete_recipe(request):
 
 
 @csrf_exempt
+def delete_post(request):
+    if request.method != 'POST':
+        return JsonResponse(data={'status': '404', 'response': 'Not Post request'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+    if 'post_id' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No post_id in parameters'})
+    try:
+        post = Post.objects.get(post_id=request.GET.get('post_id'))
+        post.delete()
+        if post.post_producer != user.user_id:
+            return JsonResponse(data={'status': '404', 'response': 'You do not have permission to delete this post'})
+    except Exception as e:
+        print(e)
+        return JsonResponse(data={'status': '404', 'response': 'Could not delete post'})
+
+@csrf_exempt
 def post_manager(request):
     """
     | = one or more of
@@ -256,37 +267,10 @@ def post_manager(request):
             post_available = True
             post = Post(post_title=post_title, post_desc=post_desc,
                         post_producer=post_producer, post_created=post_created,
-                        post_recipe=post_recipe, post_available=post_available)
+                        post_recipe=post_recipe, post_available=post_available, post_consumer=None)
             post.save()
             return JsonResponse(data={'status': '200', 'response': 'Post created for user'})
-
-        if 'id' in request.POST:
-            postid = request.POST.get('id')
-            post = Post.objects.filter(post_id__exact=postid)
-            if 'title' in request.POST:
-                post.post_title = request.POST.get('title')
-            if 'desc' in request.POST:
-                post.post_desc = request.POST.get('desc')
-            if 'producer' in request.POST:
-                post.post_producer = request.POST.get('producer')
-            if 'consumer' in request.POST:
-                if not post.post_available:
-                    post.post_available = False
-                    post.post_completed = datetime.datetime.now()
-                post.post_consumer = request.POST.get('consumer')
-            if 'recipe' in request.POST:
-                post.post_recipe = request.POST.get('recipe')
-            post.save
-        elif ('producer' in request.POST) and ('recipe' in request.POST) and ('title' in request.POST) and (
-                'desc' in request.POST):
-            producer = request.POST.get('producer')
-            recipe = request.POST.get('recipe')
-            title = request.POST.get('title')
-            desc = requests.POST.get('desc')
-            post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(),
-                        post_title=title, post_desc=desc)
-            post.save()
-        return JsonResponse(serializers.serialize('json', post), safe=False)
+        return JsonResponse(data={'status': '404', 'response': 'type does not exist'})
 
 
 @csrf_exempt

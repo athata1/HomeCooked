@@ -52,10 +52,10 @@ class Post (models.Model):
     post_title = models.CharField(max_length=100, verbose_name='Title')
     post_desc = models.CharField(max_length=200, verbose_name='Description')
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer', verbose_name='Producer')
-    post_consumer = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='consumer', default=2, verbose_name='Consumer')
+    post_consumer = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='consumer', verbose_name='Consumer')
     post_created = models.DateTimeField(auto_created=True, verbose_name='Created Date/Time')
     post_completed = models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')
-    post_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
+    post_recipe = models.ForeignKey(Recipe, null=True, on_delete=models.CASCADE, related_name='RecipeID', verbose_name='Recipe')
     post_available = models.BooleanField(default=True)
 
     def __str__(self):
