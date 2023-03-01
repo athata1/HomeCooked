@@ -324,7 +324,7 @@ def post_manager(request):
         return JsonResponse(data={'status': '404', 'response': 'type does not exist'})
 
 
-            return JsonResponse(data={'status' : '200', 'post' : serializers.serialize('json', post)})
+        return JsonResponse(data={'status' : '200', 'post' : serializers.serialize('json', post)})
 
 @csrf_exempt
 def user_by_uname(request):
