@@ -6,8 +6,8 @@ import { states, stateCities } from "../../utils/stateCity";
 import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
-import {ref, uploadBytes} from 'firebase/storage'
-import {storage} from '../../Firebase/firebase'
+import { ref, uploadBytes } from "firebase/storage";
+import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 
 const Settings = () => {
@@ -17,7 +17,6 @@ const Settings = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Email@email.com");
-  const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
   const availableCities = stateCities.getCities(selectedState);
   const [validFields, setValidFields] = useState(true);
@@ -30,7 +29,7 @@ const Settings = () => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
   const [deletedAccount, setDeletedAccount] = useState(true);
-  const [prevPhotoSrc, setPrevPhotoSrc] = useState('')
+  const [prevPhotoSrc, setPrevPhotoSrc] = useState("");
   const {
     deleteUser,
     currentUser,
@@ -40,7 +39,7 @@ const Settings = () => {
     creating,
     getToken,
     setCurrentPhoto,
-    getCurrentPhoto
+    getCurrentPhoto,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -69,27 +68,20 @@ const Settings = () => {
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
-          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
         });
     });
     getCurrentPhoto().then((url) => {
-      if (url.length > 0) {
-        setSelectedImage(url)
-        setPrevPhotoSrc(url);
-      }
-    })
+      setSelectedImage(url);
+      setPrevPhotoSrc(url);
+    });
   }, []);
 
-  useEffect(() => {
-    console.log("Selected state");
-  }, [selectedState]);
+  useEffect(() => {}, [selectedState]);
 
-  useEffect(() => {
-    console.log("Selected city");
-  }, [selectedCity]);
+  useEffect(() => {}, [selectedCity]);
 
   if (creating) {
     return <h1>Loading...</h1>;
@@ -116,7 +108,6 @@ const Settings = () => {
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
-          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
@@ -148,7 +139,6 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data);
           if (data.status == "200") {
             deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
@@ -168,13 +158,14 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    if (e.target.files[0].type !== "image/png" && e.target.files[0].type !== "image/jpeg") {
-      console.log(e.target.files[0].type);
+    if (
+      e.target.files[0].type !== "image/png" &&
+      e.target.files[0].type !== "image/jpeg"
+    ) {
       return;
     }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
     setCurrentUploadedFile(e.target.files[0]);
-    console.log("Here");
   };
 
   const handleEdit = () => {
@@ -188,7 +179,6 @@ const Settings = () => {
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
-          console.log(res);
         });
       }
 
@@ -197,7 +187,6 @@ const Settings = () => {
           .then((res) => setEmailChangeSuccess(res))
           .catch((err) => console.log(err));
       }
-
 
       getToken().then((token) => {
         let url =
@@ -227,37 +216,15 @@ const Settings = () => {
             return res.json();
           })
           .then((data) => {
-            if (data.status === '200') {
+            if (data.status === "200") {
               if (uploadedFile !== null) {
-                console.log("Here!!!")
                 let url = crypto.randomUUID();
-                const imageRef = ref(storage, 'images/' + url);
+                const imageRef = ref(storage, "images/" + url);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
-                    console.log(e);
-                    getDownloadURL(e.ref).then((url) => {
-                      setCurrentPhoto(url);
-                      return url
-                    }).then((link) => {
-                      console.log(link)
-                      let url =
-                      "http://localhost:8000/users/?type=Change&uname=" +
-                      "&fid=" +
-                      token +
-                      "&image=" + link + "&uname=" + username;
-                      fetch(url, {
-                        method: "POST", // *GET, POST, PUT, DELETE, etc.
-                        // mode: "no-cors", // no-cors, *cors, same-origin
-                        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-                        credentials: "same-origin", // include, *same-origin, omit
-                        headers: {
-                          "Content-Type": "application/json",
-                          // 'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        redirect: "follow", // manual, *follow, error
-                        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                      })
-                    })
-                })
+                  getDownloadURL(e.ref).then((url) => {
+                    setCurrentPhoto(url);
+                  });
+                });
               }
             }
           });
@@ -283,13 +250,6 @@ const Settings = () => {
     }
     if (username.length <= 6 || username.length >= 25) {
       setErrorField("username");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return false;
-    }
-    if (zipcode.length !== 5) {
-      setErrorField("zipcode");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -548,7 +508,9 @@ const Settings = () => {
               {edit && (
                 <input
                   type="file"
-                  onChange={(e) => {handleChangeImage(e)}}
+                  onChange={(e) => {
+                    handleChangeImage(e);
+                  }}
                   className="ps-5"
                 />
               )}
