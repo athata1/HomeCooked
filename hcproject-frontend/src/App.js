@@ -1,14 +1,18 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Settings from "./pages/Settings/Settings";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
-import Dashboard from "./pages/Dashboard/Dashboard"
+import Dashboard from "./pages/Dashboard/Dashboard";
 import { AuthProvider } from "./Firebase/AuthContext";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
 import Profile from "./pages/Profile/Profile";
-
 
 function App() {
   return (
@@ -18,10 +22,15 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/dashboard" element={
-            <PrivateRoute element={<Dashboard/>}/> } />
-          <Route path="/settings" element={
-            <PrivateRoute element={<Settings/>}/> } />
+          <Route
+            path="/dashboard"
+            element={<PrivateRoute element={<Dashboard />} />}
+          />
+          <Route
+            path="/settings"
+            element={<PrivateRoute element={<Settings />} />}
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
       </AuthProvider>
     </Router>
