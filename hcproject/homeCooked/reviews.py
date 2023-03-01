@@ -4,7 +4,7 @@ def create_review(giver, postid, rating, desc):
     if giver is None or postid is None or rating is None or desc is None or type(giver) != int or type(postid) != int or type(rating) != int or type(desc) != str or rating > 10 or rating < 1:
         raise ValueError
 
-    post = Posts.objects.get(id=postid)
+    post = Post.objects.get(id=postid)
 
     if post is None:
         raise ValueError

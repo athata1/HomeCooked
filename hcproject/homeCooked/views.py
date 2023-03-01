@@ -89,13 +89,13 @@ def post_request(request):
 
 @csrf_exempt
 def review_manager(request):
-    if review.method == 'GET':
-        return JsonResponse({'status':'200', 'reviews':serializers.serialize(get_all_reviews())})
+    if request.method == 'GET':
+        return JsonResponse({'status':'200', 'reviews':serializers.serialize('json', get_all_reviews())})
     if review.method == 'POST':
-        user_id = review.GET['userid']
-        post_id = review.GET['postid']
-        rating = reviews.GET['rating']
-        desc = reviews.GET['desc']
+        user_id = request.GET['userid']
+        post_id = request.GET['postid']
+        rating = request.GET['rating']
+        desc = request.GET['desc']
 
         review = None
         try:
