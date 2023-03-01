@@ -370,6 +370,7 @@ const Settings = () => {
                   className="form-select"
                   aria-label="Default select example"
                   disabled={!edit}
+                  value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                 >
                   <option>--Choose City--</option>

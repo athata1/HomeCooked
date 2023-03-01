@@ -32,9 +32,6 @@ class Migration(migrations.Migration):
                 ('post_completed', models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')),
                 ('post_available', models.BooleanField(default=True)),
             ],
-            options={
-                'ordering': ['post_id'],
-            },
         ),
         migrations.CreateModel(
             name='Recipe',
