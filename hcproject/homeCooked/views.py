@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
+from .posts import *
+from .reviews import *
 # import datetime
 # import sqlite3
 import json
@@ -91,6 +93,23 @@ def post_request(request):
     }
     return render(request, "homeCooked\posts.html", context)
 
+@csrf_exempt
+def review_manager(request):
+    if review.method == 'GET':
+        return JsonResponse({'status':'200', 'reviews':serializers.serialize(get_all_reviews())})
+    if review.method == 'POST':
+        user_id = review.GET['userid']
+        post_id = review.GET['postid']
+        rating = reviews.GET['rating']
+        desc = reviews.GET['desc']
+
+        review = None
+        try:
+            review = create_review(giver=user_id, post_id=post_id, rating=rating, desc=desc)
+        except ValueError:
+            return JsonResponse(data={'status':'400', 'message':'Error: missing/invalid parameters'})
+        except RuntimeError:
+            return JsonResponse(data={'status':'500', 'message':'Error: review creation failed for unknown reason'})
 
 def allergens(food):
     url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
@@ -192,21 +211,6 @@ def delete_recipe(request):
 
 @csrf_exempt
 def post_manager(request):
-    """
-    | = one or more of
-    GET
-        posts(producer) - posts produced by a user
-        posts(user) - posts including a user
-        posts(id) - a specific post with a specific id
-        posts() - all posts
-    POST:
-        posts(producer, recipe, title, desc) - creates a new post with the above description
-            TODO: make desc optional
-        posts(id, title|desc|producer|consumer|recipe) - updates an existing post
-            if the consumer is updated and post_available is true, marks post as non avialable and sets post_completed
-    Returns:
-        post[]: a list of posts found
-    """
     if request.method == 'GET':
         posts = None
         if 'token' not in request.GET:
@@ -285,7 +289,8 @@ def post_manager(request):
             post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(),
                         post_title=title, post_desc=desc)
             post.save()
-        return JsonResponse(serializers.serialize('json', post), safe=False)
+
+            return JsonResponse(data={'status' : '200', 'post' : serializers.serialize('json', post)})
 
 
 @csrf_exempt
