@@ -251,7 +251,8 @@ def post_manager(request):
             post_desc = ''
             post_producer = user
             post_created = datetime.now()
-            post_recipe = request.GET.get('recipe')
+            recipe = Recipe.objects.get(recipe_id=request.GET.get('recipe'))
+            post_recipe = recipe
             post_available = True
             post = Post(post_title=post_title, post_desc=post_desc,
                         post_producer=post_producer, post_created=post_created,
