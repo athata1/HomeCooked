@@ -79,6 +79,23 @@ def post_request(request):
     }
     return render(request, "homeCooked\posts.html", context)
 
+@csrf_exempt
+def review_manager(request):
+    if review.method == 'GET':
+        return JsonResponse({'status':'200', 'reviews':serializers.serialize(get_all_reviews())})
+    if review.method == 'POST':
+        user_id = review.GET['userid']
+        post_id = review.GET['postid']
+        rating = reviews.GET['rating']
+        desc = reviews.GET['desc']
+
+        review = None
+        try:
+            review = create_review(giver=user_id, post_id=post_id, rating=rating, desc=desc)
+        except ValueError:
+            return JsonResponse(data={'status':'400', 'message':'Error: missing/invalid parameters'})
+        except RuntimeError:
+            return JsonResponse(data={'status':'500', 'message':'Error: review creation failed for unknown reason'})
 
 def allergens(food):
     url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
