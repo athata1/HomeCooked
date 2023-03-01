@@ -134,6 +134,25 @@ def create_recipe(request):
     return JsonResponse(data={'status': '200', 'response': 'Created recipe'})
 
 @csrf_exempt
+def get_recipes_by_id(request):
+    if request.method != 'GET':
+        return JsonResponse(data={'status': '404', 'response': 'not GET request'})
+
+    if 'recipe_id' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No recipe_ud in parameters'})
+
+    try:
+        recipe = Recipe.objects.filter(recipe_id=int(request.GET.get('recipe_id')))
+        if (len(list(recipe)) != 1):
+            return JsonResponse(data={'status': '404', 'response': 'Could not find recipe'})
+        return JsonResponse(data={'status':200, 'response':serializers.serialize('json', recipe)}, safe=False)
+    except Exception as e:
+        print(e)
+
+
+
+
+@csrf_exempt
 def get_recipes(request):
     if request.method != 'GET':
         return JsonResponse(data={'status': '404', 'response': 'not GET request'})
@@ -206,6 +225,9 @@ def post_manager(request):
             return JsonResponse(serializers.serialize('json', posts), safe=False)
         elif request.GET.get('type') == 'producer_closed':
             posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
+        elif request.GET.get('type') == 'consumer_closed':
+            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False)
             return JsonResponse(serializers.serialize('json', posts), safe=False)
         else:
             return JsonResponse({'status': '404', 'message': 'Error: Invalid type'}, safe=False)

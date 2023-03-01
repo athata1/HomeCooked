@@ -14,5 +14,6 @@ urlpatterns = [
     path('allergy/', allergy_request, name='allergy_request'),
     path('recipe/create', create_recipe),
     path('recipe/get', get_recipes),
-    path('recipe/delete', delete_recipe)
+    path('recipe/delete', delete_recipe),
+    path('recipe/get/id', get_recipes_by_id)
 ]
