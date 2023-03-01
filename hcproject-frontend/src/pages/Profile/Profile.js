@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
+import Posts from '../../components/Posts/Posts';
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
@@ -64,7 +65,7 @@ function Profile() {
 
   return (
     <div>
-      <Navbar part="Profile" mode="none"/>
+      <Navbar part="Profile" mode="none" />
       <span>&nbsp;&nbsp;</span>
       { !edit ? <Container>
         <Row>
@@ -76,7 +77,7 @@ function Profile() {
 
           </Col>
 
-          <Col md={{ offset: 0 }}>
+          <Col>
             <div> </div>
             <h1>{username}
               
@@ -94,42 +95,14 @@ function Profile() {
           </Card>
           <h3>Posts</h3>
           <CardGroup>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Post title</Card.Title>
-                <Card.Text>
-                  Post Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Post title</Card.Title>
-                <Card.Text>
-                  Post Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Post title</Card.Title>
-                <Card.Text>
-                  Post Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
+            
+            <Posts />
+            <Posts />
+            <Posts />
+            <Posts />
+            <Posts />
+            <Posts />
+            
           </CardGroup>
 
         </Row>
