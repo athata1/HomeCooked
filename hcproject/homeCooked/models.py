@@ -40,6 +40,8 @@ class Recipe (models.Model):
     recipe_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='User')
     recipe_name = models.CharField(max_length=200, verbose_name='Name')
     recipe_ingredients = models.CharField(max_length=200, verbose_name='Ingredients')
+    recipe_sys_tags = models.CharField(max_length=200, verbose_name='Allergens', default='')
+    recipe_tags = models.CharField(max_length=200, verbose_name='Tags', default='')
     recipe_img = models.CharField(max_length=200, verbose_name='Image')
 
     def __str__(self):

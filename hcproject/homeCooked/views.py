@@ -8,6 +8,7 @@ from .models import *
 import json
 import requests
 from firebase_admin import credentials, auth
+import ast
 
 
 def validate_token(token):
@@ -18,11 +19,12 @@ def validate_token(token):
     uid = decoded_token["uid"]
     return uid
 
+
 def allergy_request(request):
     if request.method == 'POST':
         food = request.POST['food']
         url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
-        querystring = {"ingr":"1 " + food}
+        querystring = {"ingr": "1 " + food}
         headers = {
             "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
             "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
@@ -31,7 +33,8 @@ def allergy_request(request):
         data = response.json()
         health_labels = ', '.join(data['healthLabels'])
         health_labels = ', '.join([x.replace('_', ' ').title() for x in health_labels.split(', ')])
-        extract_strings = ['Vegan', 'Vegetarian', 'Pescatarian', 'Dairy Free', 'Gluten Free', 'Wheat Free', 'Egg Free', 'Milk Free', 'Peanut Free', 'Tree Nut Free', 'Soy Free']
+        extract_strings = ['Vegan', 'Vegetarian', 'Pescatarian', 'Dairy Free', 'Gluten Free', 'Wheat Free', 'Egg Free',
+                           'Milk Free', 'Peanut Free', 'Tree Nut Free', 'Soy Free']
         health_labels = ', '.join([x.strip() for x in health_labels.split(',') if x.strip() in extract_strings])
         allergy = Allergy(food_name=food, health_labels=health_labels)
         allergy.save()
@@ -39,12 +42,12 @@ def allergy_request(request):
     else:
         return render(request, 'homeCooked/allergy.html')
 
+    # Deletes a post upon user request
 
-    #Deletes a post upon user request
 
 def delete_post(request):
     if request.method == 'POST':
-        post_id=request.POST.get('id')
+        post_id = request.POST.get('id')
         post = Post.objects.filter(pk__exact=post_id)
         data = serializers.serialize('json', post)
         post.delete()
@@ -52,6 +55,7 @@ def delete_post(request):
 
     # Deletes a user and all associated data, 
     # i.e. any data with references to user will be deleted
+
 
 @csrf_exempt
 def delete_user(request):
@@ -66,26 +70,108 @@ def delete_user(request):
         if len(list(user)) == 0:
             return JsonResponse(data={'status': '400', 'message': 'Error: User does not exist'})
         user.delete()
-        return JsonResponse(data={'status':'200','message':'Deleted User'})
-    return JsonResponse(data={'status':'400','message':'Error not POST request'})
+        return JsonResponse(data={'status': '200', 'message': 'Deleted User'})
+    return JsonResponse(data={'status': '400', 'message': 'Error not POST request'})
+
 
 def index(request):
     user = User.objects.all
 
     use = {
-        "username" : user
+        "username": user
     }
     return render(request, "homeCooked\index.html", use)
 
+
 def post_request(request):
-    posts = Post.objects.all
+    posts = Post.objects.all()
 
     context = {
-        "post_list" : posts
+        "post_list": posts
     }
     return render(request, "homeCooked\posts.html", context)
 
 
+def allergens(food):
+    url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
+
+    query_string = {"ingr": food}
+    headers = {
+        "X-RapidAPI-Key": "b9d9e48884mshcd3b1e80bcbbca0p1f65fajsn2999ad0fce27",
+        "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
+    }
+    res = requests.request("GET", url, headers=headers, params=query_string)
+    print(res.text);
+    return res.text
+
+
+@csrf_exempt
+def create_recipe(request):
+    if request.method != 'POST':
+        return JsonResponse(data={'status': '404', 'response': 'Not post request'})
+    #return JsonResponse(serializers.serialize('json', Recipe.objects.all()), safe=False)
+
+    if 'token' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+
+    recipe_desc = request.GET.get('desc')
+    recipe_user = user
+    recipe_name = request.GET.get('title')
+    recipe_ingredients = request.GET.get('ingredients')
+    ingredients = ast.literal_eval(request.GET.get('ingredients'))
+    recipe_sys_tags = allergens(str(ingredients))
+    recipe_tags = request.GET.get('tags')
+    recipe_img = request.GET.get('image')
+    recipe = Recipe(recipe_desc=recipe_desc, recipe_user=recipe_user,
+                    recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
+                    recipe_sys_tags=recipe_sys_tags, recipe_tags=recipe_tags, recipe_img=recipe_img)
+    recipe.save()
+    return JsonResponse(data={'status': '200', 'response': 'Created recipe'})
+
+@csrf_exempt
+def get_recipes(request):
+    if request.method != 'GET':
+        return JsonResponse(data={'status': '404', 'response': 'not GET request'})
+    if 'token' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+    recipes = Recipe.objects.filter(recipe_user=user.user_id)
+    return JsonResponse(serializers.serialize('json', recipes), safe=False)
+
+@csrf_exempt
+def delete_recipe(request):
+    if request.method != 'POST':
+        return JsonResponse(data={'status': '404', 'response': 'not POST request'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+    if 'recipe_id' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'recipe_id not found'})
+
+    user = User.objects.get(user_fid=fid)
+    try:
+        recipe = Recipe.objects.get(recipe_user=user.user_id, recipe_id=request.GET.get('recipe_id'))
+        recipe.delete()
+    except:
+        return JsonResponse(data={'status': '404', 'response': 'Could not find recipe'})
+
+    return JsonResponse(data={'status': '200', 'response': 'Recipe deleted'})
+
+
+@csrf_exempt
 def post_manager(request):
     """
     | = one or more of
@@ -104,20 +190,53 @@ def post_manager(request):
     """
     if request.method == 'GET':
         posts = None
-        if 'producer' in request.GET:
-            producer = request.GET.get('producer')
-            posts = Post.objects.filter(post_producer__exact=producer)
-        elif 'userid' in request.GET:
-            user = request.GET.get('userid')
-            posts = Post.objects.filter(post_producer__exact=user) | Post.objects.filter(post_consumer__exact=user)
-        elif 'id' in request.GET:
-            postid = request.GET.get('id')
-            posts = Post.objects.filter(post_id__exact=postid)
+        if 'token' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+
+        user = User.objects.get(user_fid=fid)
+
+        if request.GET.get('type') == 'open':
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
+        elif request.GET.get('type') == 'producer_closed':
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
         else:
-            posts=Post.objects.all()
-        return JsonResponse(serializers.serialize('json', posts), safe=False)
+            return JsonResponse({'status': '404', 'message': 'Error: Invalid type'}, safe=False)
+
     elif request.method == 'POST':
         post = None
+
+        if 'token' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+
+        user = User.objects.get(user_fid=fid)
+
+        if request.GET.get('type') == 'Create':
+            post_title = ''
+            post_desc = ''
+            post_producer = user
+            post_created = datetime.now()
+            post_recipe = request.GET.get('recipe')
+            post_available = True
+            post = Post(post_title=post_title, post_desc=post_desc,
+                        post_producer=post_producer, post_created=post_created,
+                        post_recipe=post_recipe, post_available=post_available)
+            post.save()
+            return JsonResponse(data={'status': '200', 'response': 'Post created for user'})
+
         if 'id' in request.POST:
             postid = request.POST.get('id')
             post = Post.objects.filter(post_id__exact=postid)
@@ -135,14 +254,17 @@ def post_manager(request):
             if 'recipe' in request.POST:
                 post.post_recipe = request.POST.get('recipe')
             post.save
-        elif ('producer' in request.POST) and ('recipe' in request.POST) and ('title' in request.POST) and ('desc' in request.POST):
+        elif ('producer' in request.POST) and ('recipe' in request.POST) and ('title' in request.POST) and (
+                'desc' in request.POST):
             producer = request.POST.get('producer')
             recipe = request.POST.get('recipe')
             title = request.POST.get('title')
             desc = requests.POST.get('desc')
-            post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
+            post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(),
+                        post_title=title, post_desc=desc)
             post.save()
         return JsonResponse(serializers.serialize('json', post), safe=False)
+
 
 @csrf_exempt
 def user_by_uname(request):
@@ -152,9 +274,10 @@ def user_by_uname(request):
 
         user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
         if len(list(user)) != 0:
-            return JsonResponse({'status':'200', 'data': serializers.serialize('json', user)}, safe=False)
-        return JsonResponse(data={'status':'404', 'response':'uname does not exist'})
+            return JsonResponse({'status': '200', 'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(data={'status': '404', 'response': 'uname does not exist'})
     return JsonResponse(data={'status': '405', 'response': 'Not Get request'})
+
 
 @csrf_exempt
 def user_manager(request):
@@ -172,7 +295,7 @@ def user_manager(request):
     """
 
     if request.method == 'GET':
-        #return JsonResponse(data={'status': '200', 'user': serializers.serialize('json', User.objects.all())}, safe=False)
+        # return JsonResponse(data={'status': '200', 'user': serializers.serialize('json', User.objects.all())}, safe=False)
         if 'fid' not in request.GET:
             return JsonResponse(data={'status': '404', 'message': "Error: token not valid"})
 
@@ -213,8 +336,8 @@ def user_manager(request):
             user = User(user_fid=fid, user_uname=username)
             user.save()
 
-            return JsonResponse({'status': 200, 'data':'Created user'}, safe=False)
-        elif request.GET.get('type') == "Change": # change to id email or password
+            return JsonResponse({'status': 200, 'data': 'Created user'}, safe=False)
+        elif request.GET.get('type') == "Change":  # change to id email or password
 
             uid = validate_token(request.GET.get('fid'))
 
@@ -224,7 +347,8 @@ def user_manager(request):
             user = User.objects.filter(user_fid__exact=uid)[0]
             if 'uname' in request.GET:
                 if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
-                    if 'uname' in request.GET and len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
+                    if 'uname' in request.GET and len(
+                            list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
                         user.user_uname = request.GET.get('uname')
                     elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
                         return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
@@ -240,4 +364,4 @@ def user_manager(request):
                 user.image_text = request.GET.get('image')
             user.save()
 
-            return JsonResponse(data={'status':'200', 'message':'Saved data'}, safe=False)
+            return JsonResponse(data={'status': '200', 'message': 'Saved data'}, safe=False)
