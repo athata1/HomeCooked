@@ -63,7 +63,7 @@ function Profile() {
         <Row>
           <Col md={3}>
             {photoSource ?
-              <Image src={photoSource} roundedCircle style={{width: "150px"}}/>
+              <Image src={photoSource} roundedCircle style={{width: "150px", height: "150px"}}/>
               : <CgProfile size={150}/>
             }
 

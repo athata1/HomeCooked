@@ -26,7 +26,7 @@ export default function ProfileDropdown() {
   return (
     <div className='profile-dropdown'>
       {
-        photo !== null ?  <img src={photo} style={{width: "40px", borderRadius: "50%"}}/>
+        photo !== null ?  <img src={photo} style={{width: "40px", height: "40px", borderRadius: "50%", border:"solid 2px white"}}/>
         :       <CgProfile size={40} style={{color: "#FFFFFF"}}/>
       }
       <ul className='profile-dropdown-list'>
