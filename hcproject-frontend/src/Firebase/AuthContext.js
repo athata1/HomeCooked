@@ -96,20 +96,34 @@ export function AuthProvider({ children }) {
     });
   }
 
+  async function setCurrentPhoto(link) {
+    auth.currentUser.updateProfile({
+      photoURL: link
+    })
+  }
+
+  async function getCurrentPhoto() {
+    return auth.currentUser.photoURL
+  }
+
   async function signup(email, password, username) {
+    setCreating(true);
     await auth
       .createUserWithEmailAndPassword(email, password)
       .then(async (user) => {
         await auth.currentUser.updateProfile({
           displayName: username,
-        }
-        )
-        
-        await new Promise(r => setTimeout(r, 1000));
-        
+        });
+
+        await new Promise((r) => setTimeout(r, 1000));
+
         let token = await user.user.getIdToken(false);
 
-        let url = "http://localhost:8000/users/?type=Create&uname=" + username + "&fid="  + token;
+        let url =
+          "http://localhost:8000/users/?type=Create&uname=" +
+          username +
+          "&fid=" +
+          token;
         try {
           await fetch(url, {
             method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -122,17 +136,18 @@ export function AuthProvider({ children }) {
             },
             redirect: "follow", // manual, *follow, error
             referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-          }).then(async (res) => {
-              return res.json()
-          }).then((res)=> {
-            console.log(res);
-          });
-        }
-        catch (e) {
+          })
+            .then(async (res) => {
+              return res.json();
+            })
+            .then((res) => {
+              console.log(res);
+            });
+        } catch (e) {
           console.log(e);
         }
       });
-      setCreating(false)
+    setCreating(false);
   }
 
   const value = {
@@ -149,7 +164,9 @@ export function AuthProvider({ children }) {
     getUsername,
     setCurrentUsername,
     loading,
-    creating
+    creating,
+    setCurrentPhoto,
+    getCurrentPhoto
   };
 
   return (
