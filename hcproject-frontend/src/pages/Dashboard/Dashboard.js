@@ -13,6 +13,8 @@ import InputTag from '../../components/InputTag/InputTag';
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
   const [token, setToken] = useState();
+  const [tags, setTags] = useState([])
+  const [ingredients, setIngredients] = useState([]);
 
   const handleNewPost = (e) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ const Dashboard = () => {
           data-bs-target="#exampleModal"
           onClick={handleNewPost}
         >
-          New Post
+          New Recipe
         </button>
         <div
           className="modal fade"
@@ -48,7 +50,7 @@ const Dashboard = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title" id="exampleModalLabel">
-                  Create a post
+                  Create a Recipe
                 </h5>
                 <button
                   type="button"
@@ -88,10 +90,15 @@ const Dashboard = () => {
                   <label for="formFileLg" class="form-label">Input Image</label>
                   <input class="form-control form-control-md" id="formFileLg" type="file" />
                 </div>
-                
 
-                <div>test</div>
-
+                <span>&nbsp;&nbsp;</span>
+                <div>
+                  <InputTag tags={tags} setSelected={setTags} placeholder="Add tags to recipe" />
+                </div>
+                <span>&nbsp;&nbsp;</span>
+                <div>
+                  <InputTag tags={ingredients} setSelected={setIngredients} placeholder="Add ingredients to recipe" />
+                </div>
 
               </div>
               <div className="modal-footer">
@@ -108,7 +115,7 @@ const Dashboard = () => {
                   data-bs-dismiss="modal"
                 // onClick={confirmDeleteAccount}
                 >
-                  Publish Post
+                  Add Recipe
                 </button>
               </div>
             </div>
