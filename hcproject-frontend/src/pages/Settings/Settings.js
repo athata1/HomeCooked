@@ -178,6 +178,10 @@ const Settings = () => {
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
+          setEdit(!res);
+          if (passwordChangeSuccess === false) {
+            window.screenTo(0, 0);
+          }
         });
       }
 
@@ -370,6 +374,7 @@ const Settings = () => {
                   className="form-select"
                   aria-label="Default select example"
                   disabled={!edit}
+                  value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                 >
                   <option>--Choose City--</option>
