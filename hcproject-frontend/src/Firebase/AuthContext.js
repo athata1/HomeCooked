@@ -96,6 +96,16 @@ export function AuthProvider({ children }) {
     });
   }
 
+  async function setCurrentPhoto(link) {
+    auth.currentUser.updateProfile({
+      photoURL: link
+    })
+  }
+
+  async function getCurrentPhoto() {
+    return auth.currentUser.photoURL
+  }
+
   async function signup(email, password, username) {
     setCreating(true);
     await auth
@@ -155,6 +165,8 @@ export function AuthProvider({ children }) {
     setCurrentUsername,
     loading,
     creating,
+    setCurrentPhoto,
+    getCurrentPhoto
   };
 
   return (

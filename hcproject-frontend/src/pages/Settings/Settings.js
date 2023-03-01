@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -6,6 +6,9 @@ import { states, stateCities } from "../../utils/stateCity";
 import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
+import {ref, uploadBytes} from 'firebase/storage'
+import {storage} from '../../Firebase/firebase'
+import { getDownloadURL } from "firebase/storage";
 
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
@@ -27,6 +30,7 @@ const Settings = () => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
   const [deletedAccount, setDeletedAccount] = useState(true);
+  const [prevPhotoSrc, setPrevPhotoSrc] = useState('')
   const {
     deleteUser,
     currentUser,
@@ -35,7 +39,10 @@ const Settings = () => {
     changePassword,
     creating,
     getToken,
+    setCurrentPhoto,
+    getCurrentPhoto
   } = useAuth();
+  const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
   useEffect(() => {
     if (currentUser.email !== null) {
@@ -67,6 +74,10 @@ const Settings = () => {
           setAbout(userData.fields.user_bio);
         });
     });
+    getCurrentPhoto().then((url) => {
+      setSelectedImage(url)
+      setPrevPhotoSrc(url);
+    })
   }, []);
 
   useEffect(() => {
@@ -149,16 +160,18 @@ const Settings = () => {
   const handleRemoveImage = (e) => {
     e.preventDefault();
     setSelectedImage(null);
-    e.target.value = null;
+    e.target.value = prevPhotoSrc;
   };
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    if (e.target.files[0].type !== "png") {
-      alert("Error: filetype not png");
+    if (e.target.files[0].type !== "image/png" && e.target.files[0].type !== "image/jpeg") {
+      console.log(e.target.files[0].type);
       return;
     }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
+    setCurrentUploadedFile(e.target.files[0]);
+    console.log("Here");
   };
 
   const handleEdit = () => {
@@ -181,6 +194,7 @@ const Settings = () => {
           .then((res) => setEmailChangeSuccess(res))
           .catch((err) => console.log(err));
       }
+
 
       getToken().then((token) => {
         let url =
@@ -210,7 +224,19 @@ const Settings = () => {
             return res.json();
           })
           .then((data) => {
-            console.log(data);
+            if (data.status === '200') {
+              if (uploadedFile !== null) {
+                console.log("Here!!!")
+                let url = crypto.randomUUID();
+                const imageRef = ref(storage, 'images/' + url);
+                uploadBytes(imageRef, uploadedFile).then((e) => {
+                    console.log(e);
+                    getDownloadURL(e.ref).then((url) => {
+                      setCurrentPhoto(url);
+                    })
+                })
+              }
+            }
           });
       });
     }
@@ -499,7 +525,7 @@ const Settings = () => {
               {edit && (
                 <input
                   type="file"
-                  onChange={handleChangeImage}
+                  onChange={(e) => {handleChangeImage(e)}}
                   className="ps-5"
                 />
               )}
