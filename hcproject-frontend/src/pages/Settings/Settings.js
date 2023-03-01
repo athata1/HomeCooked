@@ -238,11 +238,12 @@ const Settings = () => {
                       setCurrentPhoto(url);
                       return url
                     }).then((link) => {
+                      console.log(link)
                       let url =
                       "http://localhost:8000/users/?type=Change&uname=" +
                       "&fid=" +
                       token +
-                      "&image=" + link;
+                      "&image=" + link + "&uname=" + username;
                       fetch(url, {
                         method: "POST", // *GET, POST, PUT, DELETE, etc.
                         // mode: "no-cors", // no-cors, *cors, same-origin
