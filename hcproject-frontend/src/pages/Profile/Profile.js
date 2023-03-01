@@ -9,16 +9,19 @@ import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
+import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
+import { useNavigate } from 'react-router-dom';
 
 function Profile() {
 
-
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const {getToken, getCurrentPhoto} = useAuth()
   const [about, setAbout] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [photoSource, setPhotoSource] = useState(null);
+  const [edit, setEdit] = useState(false);
 
   useEffect(() => {
 
@@ -55,11 +58,15 @@ function Profile() {
       })
   }, [])
 
+  useEffect(() => {
+    navigate("/profile")
+  }, [photoSource])
+
   return (
     <div>
       <Navbar part="Profile" mode="none"/>
       <span>&nbsp;&nbsp;</span>
-      <Container>
+      { !edit ? <Container>
         <Row>
           <Col md={3}>
             {photoSource ?
@@ -76,7 +83,7 @@ function Profile() {
             </h1>
             <h5>{selectedCity}, {selectedState}</h5>
             <h3>★★★★</h3>
-            <Button variant="danger"> Edit Profile</Button>
+            <Button variant="danger" onClick={() => {setEdit(true)}}> Edit Profile</Button>
           </Col>
         </Row>
         <Row>
@@ -169,7 +176,7 @@ function Profile() {
           </CardGroup>
         </Row>
         <span>&nbsp;&nbsp;</span>
-      </Container>
+      </Container> : <ProfileSettings callback={setEdit} photoCallback={setPhotoSource}/>}
     </div>
   );
 }
