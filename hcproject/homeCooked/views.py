@@ -236,6 +236,8 @@ def user_manager(request):
                 user.user_city = request.GET.get('city')
             if 'state' in request.GET:
                 user.user_state = request.GET.get('state')
+            if 'image' in request.GET:
+                user.image_text = request.GET.get('image')
             user.save()
 
             return JsonResponse(data={'status':'200', 'message':'Saved data'}, safe=False)
