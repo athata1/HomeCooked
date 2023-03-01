@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
+from .posts import *
 # import datetime
 # import sqlite3
 import json
@@ -86,63 +87,78 @@ def post_request(request):
     return render(request, "homeCooked\posts.html", context)
 
 
+@csrf_exempt
 def post_manager(request):
-    """
-    | = one or more of
-    GET
-        posts(producer) - posts produced by a user
-        posts(user) - posts including a user
-        posts(id) - a specific post with a specific id
-        posts() - all posts
-    POST:
-        posts(producer, recipe, title, desc) - creates a new post with the above description
-            TODO: make desc optional
-        posts(id, title|desc|producer|consumer|recipe) - updates an existing post
-            if the consumer is updated and post_available is true, marks post as non avialable and sets post_completed
-    Returns:
-        post[]: a list of posts found
-    """
+
     if request.method == 'GET':
-        posts = None
-        if 'producer' in request.GET:
-            producer = request.GET.get('producer')
-            posts = Post.objects.filter(post_producer__exact=producer)
-        elif 'userid' in request.GET:
-            user = request.GET.get('userid')
-            posts = Post.objects.filter(post_producer__exact=user) | Post.objects.filter(post_consumer__exact=user)
-        elif 'id' in request.GET:
-            postid = request.GET.get('id')
-            posts = Post.objects.filter(post_id__exact=postid)
+
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status':'400', 'message':'Error: no type provided'})
+
+        request_type = request.GET.get('type', 'no type')
+
+        if request_type == 'producer':
+            try:
+                posts = get_posts_by(int(request.GET.get('userid', '-1')))
+            except Exception as E:
+                return JsonResponse(data={'status':'500', 'message':str(E)})
+            return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
+
+        elif request_type == 'transactions':
+            try:
+                posts = get_posts_with(int(request.GET.get('userid', '-1')))
+                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
+            except Exception as E:
+                return JsonResponse(data={'status':'500', 'message':str(E)})
+            
+        elif request_type == 'single':
+            try:
+                posts = get_post(int(request.GET.get('userid', '-1')))
+                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
+            except Exception as E:
+                return JsonResponse(data={'status':'500', 'message':str(E)})
+
+        elif request_type == 'all': # TODO: remove on prod server
+            try:
+                posts = get_post(int(request.GET.get('postid', '-1')))
+                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
+            except Exception as E:
+                return JsonResponse(data={'status':'500', 'message':str(E)})
         else:
-            posts=Post.objects.all()
-        return JsonResponse(serializers.serialize('json', posts), safe=False)
+            return JsonResponse(data={'status':'400', 'message':'request type invalid'})
+
     elif request.method == 'POST':
-        post = None
-        if 'id' in request.POST:
-            postid = request.POST.get('id')
-            post = Post.objects.filter(post_id__exact=postid)
-            if 'title' in request.POST:
-                post.post_title = request.POST.get('title')
-            if 'desc' in request.POST:
-                post.post_desc = request.POST.get('desc')
-            if 'producer' in request.POST:
-                post.post_producer = request.POST.get('producer')
-            if 'consumer' in request.POST:
-                if not post.post_available:
-                    post.post_available = False
-                    post.post_completed = datetime.datetime.now()
-                post.post_consumer = request.POST.get('consumer')
-            if 'recipe' in request.POST:
-                post.post_recipe = request.POST.get('recipe')
-            post.save
-        elif ('producer' in request.POST) and ('recipe' in request.POST) and ('title' in request.POST) and ('desc' in request.POST):
-            producer = request.POST.get('producer')
-            recipe = request.POST.get('recipe')
-            title = request.POST.get('title')
-            desc = requests.POST.get('desc')
-            post = Post(post_producer=producer, post_recipe=recipe, post_created=datetime.datetime.now(), post_title=title, post_desc=desc)
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status':'400', 'message':'Error: no type provided'})
+
+        request_type = request.GET.get('type')
+
+        if request_type == 'new':
+            user_id = int(request.GET.get('user_id'))
+            recipe_id = int(request.GET.get('recipe_id'))
+            title = request.GET.get('title')
+            desc = request.GET.get('desc')
+
+            try:
+                post_id = create_post(user_id=user_id, recipe_id=recipe_id, title=title, desc=desc)
+                return JsonResponse(data={'status' : '200', 'post id' : post_id})
+            except Exception as E:
+                return JsonResponse(data={'status':'500', 'message':str(type(E)) + str(E),'args' : E.args})
+        elif request_type == 'update':
+            if 'id' not in request.GET:
+                return JsonResponse(data={'status':'400', 'message':'Error: no post id provided'})
+
+            post_id = request.GET.get('id')
+            title = request.GET.get('title', '')
+            desc = request.GET.get('desc', '')
+            consumer = int(request.GET.get('consumer_id', ''))
+
+            if post is None:
+                return JsonResponse(data={'status':'400', 'message':'Error: no post with that id'})
+        
             post.save()
-        return JsonResponse(serializers.serialize('json', post), safe=False)
+
+            return JsonResponse(data={'status' : '200', 'post' : serializers.serialize('json', post)})
 
 @csrf_exempt
 def user_by_uname(request):
