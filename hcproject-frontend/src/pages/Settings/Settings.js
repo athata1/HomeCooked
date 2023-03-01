@@ -6,8 +6,8 @@ import { states, stateCities } from "../../utils/stateCity";
 import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
-import {ref, uploadBytes} from 'firebase/storage'
-import {storage} from '../../Firebase/firebase'
+import { ref, uploadBytes } from "firebase/storage";
+import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 
 const Settings = () => {
@@ -29,7 +29,7 @@ const Settings = () => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
   const [deletedAccount, setDeletedAccount] = useState(true);
-  const [prevPhotoSrc, setPrevPhotoSrc] = useState('')
+  const [prevPhotoSrc, setPrevPhotoSrc] = useState("");
   const {
     deleteUser,
     currentUser,
@@ -39,7 +39,7 @@ const Settings = () => {
     creating,
     getToken,
     setCurrentPhoto,
-    getCurrentPhoto
+    getCurrentPhoto,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -74,9 +74,9 @@ const Settings = () => {
         });
     });
     getCurrentPhoto().then((url) => {
-      setSelectedImage(url)
+      setSelectedImage(url);
       setPrevPhotoSrc(url);
-    })
+    });
   }, []);
 
   useEffect(() => {
@@ -164,7 +164,10 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    if (e.target.files[0].type !== "image/png" && e.target.files[0].type !== "image/jpeg") {
+    if (
+      e.target.files[0].type !== "image/png" &&
+      e.target.files[0].type !== "image/jpeg"
+    ) {
       console.log(e.target.files[0].type);
       return;
     }
@@ -194,7 +197,6 @@ const Settings = () => {
           .catch((err) => console.log(err));
       }
 
-
       getToken().then((token) => {
         let url =
           "http://localhost:8000/users/?type=Change&uname=" +
@@ -223,17 +225,18 @@ const Settings = () => {
             return res.json();
           })
           .then((data) => {
-            if (data.status === '200') {
+            if (data.status === "200") {
               if (uploadedFile !== null) {
-                console.log("Here!!!")
+                console.log("Here!!!");
                 let url = crypto.randomUUID();
-                const imageRef = ref(storage, 'images/' + url);
+                const imageRef = ref(storage, "images/" + url);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
-                    console.log(e);
-                    getDownloadURL(e.ref).then((url) => {
-                      setCurrentPhoto(url);
-                    })
-                })
+                  console.log(e);
+                  getDownloadURL(e.ref).then((url) => {
+                    setCurrentPhoto(url);
+                    console.log("url", url);
+                  });
+                });
               }
             }
           });
@@ -517,7 +520,9 @@ const Settings = () => {
               {edit && (
                 <input
                   type="file"
-                  onChange={(e) => {handleChangeImage(e)}}
+                  onChange={(e) => {
+                    handleChangeImage(e);
+                  }}
                   className="ps-5"
                 />
               )}
