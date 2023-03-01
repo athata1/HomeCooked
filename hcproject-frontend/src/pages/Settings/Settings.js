@@ -17,7 +17,6 @@ const Settings = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Email@email.com");
-  const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
   const availableCities = stateCities.getCities(selectedState);
   const [validFields, setValidFields] = useState(true);
@@ -260,13 +259,6 @@ const Settings = () => {
     }
     if (username.length <= 6 || username.length >= 25) {
       setErrorField("username");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return false;
-    }
-    if (zipcode.length !== 5) {
-      setErrorField("zipcode");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
