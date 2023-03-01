@@ -12,7 +12,7 @@ const Settings = () => {
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [username, setUsername] = useState("Username");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Email@email.com");
   const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
@@ -26,6 +26,7 @@ const Settings = () => {
   const [emailChangePassword, setEmailChangePassword] = useState("");
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
+  const [deletedAccount, setDeletedAccount] = useState(true);
   const {
     deleteUser,
     currentUser,
@@ -33,53 +34,80 @@ const Settings = () => {
     setCurrentUsername,
     changePassword,
     creating,
-    getToken
+    getToken,
   } = useAuth();
-  const [deletedAccount, setDeletedAccount] = useState(true);
 
-  
   useEffect(() => {
     if (currentUser.email !== null) {
       setEmail(currentUser.email);
     }
     getToken().then((token) => {
-
-    let url = "http://localhost:8000/users/?type=Create&fid=" + token;
-    fetch(url, {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
-      // mode: "no-cors", // no-cors, *cors, same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "same-origin", // include, *same-origin, omit
-      headers: {
-        "Content-Type": "application/json",
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: "follow", // manual, *follow, error
-      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    }).then((res) => {
-      return res.json()
-    }).then((data) => {
-      let userData = JSON.parse(data.user)[0];
-      setUsername(userData.fields.user_uname);
-      console.log(userData.fields.user_city.toUpperCase());
-      setSelectedState(userData.fields.user_state.toUpperCase());
-      setSelectedCity(userData.fields.user_city.toUpperCase());
-      setAbout(userData.fields.user_bio)
-    })
-    })
+      let url = "http://localhost:8000/users/?type=Create&fid=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          let userData = JSON.parse(data.user)[0];
+          setUsername(userData.fields.user_uname);
+          console.log(userData.fields.user_city.toUpperCase());
+          setSelectedState(userData.fields.user_state.toUpperCase());
+          setSelectedCity(userData.fields.user_city.toUpperCase());
+          setAbout(userData.fields.user_bio);
+        });
+    });
   }, []);
-
 
   useEffect(() => {
     console.log("Selected state");
-  }, [selectedState])
+  }, [selectedState]);
 
   useEffect(() => {
     console.log("Selected city");
-  }, [selectedCity])
+  }, [selectedCity]);
 
   if (creating) {
-    return "";
+    return <h1>Loading...</h1>;
+  }
+
+  if (creating || username === "") {
+    getToken().then((token) => {
+      let url = "http://localhost:8000/users/?type=Create&fid=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          let userData = JSON.parse(data.user)[0];
+          setUsername(userData.fields.user_uname);
+          console.log(userData.fields.user_city.toUpperCase());
+          setSelectedState(userData.fields.user_state.toUpperCase());
+          setSelectedCity(userData.fields.user_city.toUpperCase());
+          setAbout(userData.fields.user_bio);
+        });
+    });
   }
 
   const handleDeleteAccount = (e) => {
@@ -89,7 +117,6 @@ const Settings = () => {
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
     getToken().then((token) => {
-
       let url = "http://localhost:8000/users/delete?fid=" + token;
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -102,18 +129,21 @@ const Settings = () => {
         },
         redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      }).then((res) => {
-        return res.json()
-      }).then((data) => {
-        console.log(data);
-        if (data.status == '200') {
-          deleteUser(deleteAccountPassword).then((res) => setDeletedAccount(res));
-        }
-        else {
-          alert("Error: Could not delete account")
-        }
       })
-      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          console.log(data);
+          if (data.status == "200") {
+            deleteUser(deleteAccountPassword).then((res) =>
+              setDeletedAccount(res)
+            );
+          } else {
+            alert("Error: Could not delete account");
+          }
+        });
+    });
   };
 
   const handleRemoveImage = (e) => {
@@ -124,8 +154,8 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    if (e.target.files[0].type !== 'png') {
-      alert("Error: filetype not png")
+    if (e.target.files[0].type !== "png") {
+      alert("Error: filetype not png");
       return;
     }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
@@ -137,7 +167,7 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    
+
     if (validationChecks()) {
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
@@ -153,8 +183,17 @@ const Settings = () => {
       }
 
       getToken().then((token) => {
-
-        let url = "http://localhost:8000/users/?type=Change&uname=" + username + "&fid=" + token + "&city=" + selectedCity + "&state=" + selectedState + "&bio=" + about 
+        let url =
+          "http://localhost:8000/users/?type=Change&uname=" +
+          username +
+          "&fid=" +
+          token +
+          "&city=" +
+          selectedCity +
+          "&state=" +
+          selectedState +
+          "&bio=" +
+          about;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -166,12 +205,14 @@ const Settings = () => {
           },
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        }).then((res) => {
-          return res.json()
-        }).then((data) => {
-          console.log(data);
         })
-        })
+          .then((res) => {
+            return res.json();
+          })
+          .then((data) => {
+            console.log(data);
+          });
+      });
     }
 
     setOldPassword("");
@@ -213,14 +254,14 @@ const Settings = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (selectedState === "--Choose State--") {
+    if (selectedState === "--Choose State--" || selectedState === "") {
       setErrorField("state");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (selectedCity === "--Choose City--") {
+    if (selectedCity === "--Choose City--" || selectedCity === "") {
       setErrorField("city");
       setEdit(true);
       setValidFields(false);
@@ -234,9 +275,6 @@ const Settings = () => {
     return true;
   };
 
-
-
-  
   const validateEmail = (email) => {
     return String(email)
       .toLowerCase()
@@ -288,59 +326,61 @@ const Settings = () => {
 
           <div className="row pt-3 pb-5">
             <div className="col pt-2">
-              { edit ? <select
-                placeholder="State"
-                className="form-select"
-                aria-label="Default select example"
-                value={selectedState}
-                onChange={(e) => {
-                  setSelectedState(e.target.value);
-                }}
-                disabled={!edit}
-              >
-                <option>--Choose State--</option>
-                {states?.map((e, key) => {
-                  return (
-                    <option value={e} key={key}>
-                      {e}
-                    </option>
-                  );
-                })}
-              </select> :
-              
-              <input
-                type="test"
-                className="form-control settings-input"
-                placeholder="--Select State--"
-                value={selectedState}
-                readOnly={!edit}
-              />}
+              {edit ? (
+                <select
+                  placeholder="State"
+                  className="form-select"
+                  aria-label="Default select example"
+                  value={selectedState}
+                  onChange={(e) => {
+                    setSelectedState(e.target.value);
+                  }}
+                  disabled={!edit}
+                >
+                  <option>--Choose State--</option>
+                  {states?.map((e, key) => {
+                    return (
+                      <option value={e} key={key}>
+                        {e}
+                      </option>
+                    );
+                  })}
+                </select>
+              ) : (
+                <input
+                  type="test"
+                  className="form-control settings-input"
+                  placeholder="--Choose State--"
+                  value={selectedState}
+                  readOnly={!edit}
+                />
+              )}
             </div>
             <div className="col pt-2">
-              {edit ? <select
-                className="form-select"
-                aria-label="Default select example"
-                disabled={!edit}
-                onChange={(e) => setSelectedCity(e.target.value)}
-              >
-                <option>--Choose City--</option>
-                {availableCities?.map((c) => (
-                  <option value={c} key={c}>
-                    {c}
-                  </option>
-                ))}
-              </select> : 
-              
-              <input
-                type="text"
-                className="form-control settings-input"
-                placeholder="--Change City--"
-                value={selectedCity}
-                onChange={(e) => setOldPassword(e.target.value)}
-                readOnly={!edit}
-              />
-
-              }
+              {edit ? (
+                <select
+                  className="form-select"
+                  aria-label="Default select example"
+                  disabled={!edit}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                >
+                  <option>--Choose City--</option>
+                  {availableCities?.map((c) => (
+                    <option value={c} key={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  className="form-control settings-input"
+                  placeholder="--Change City--"
+                  value={selectedCity}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  readOnly={!edit}
+                />
+              )}
             </div>
           </div>
           {newPassword !== confirmPassword && (

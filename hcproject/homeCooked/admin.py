@@ -31,9 +31,9 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('review_id', 'review_giver','review_receiver', 'review_recipe')
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available')
+    list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available', 'post_sys_tags', 'post_user_tags')
     list_display_links = ('post_id', 'post_desc')
-    list_filter = ('post_id', 'post_producer', 'post_consumer', 'post_available')
+    list_filter = ('post_id', 'post_producer', 'post_consumer', 'post_available', 'post_sys_tags', 'post_user_tags')
     search_fields = ('post_id', 'post_producer', 'post_consumer', 'post_available')
 
 class MessageAdmin(admin.ModelAdmin):

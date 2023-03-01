@@ -63,7 +63,7 @@ export default function Signup() {
       return;
     }
     
-    let url = "http://localhost:8000/users/uname?uname=" + usernameRef.current.value;
+    let url = "http://localhost:8000/users/?uname=" + usernameRef.current.value;
     fetch(url, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
       // mode: "no-cors", // no-cors, *cors, same-origin
