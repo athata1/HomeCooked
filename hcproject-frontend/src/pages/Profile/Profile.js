@@ -8,18 +8,26 @@ import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
+import { CgProfile } from "react-icons/cg";
 
 function Profile() {
 
 
   const [username, setUsername] = useState('');
-  const {getToken} = useAuth()
+  const {getToken, getCurrentPhoto} = useAuth()
   const [about, setAbout] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedState, setSelectedState] = useState('');
-
+  const [photoSource, setPhotoSource] = useState(null);
 
   useEffect(() => {
+
+    getCurrentPhoto().then((url) => {
+      if (url.length !== 0) {
+        setPhotoSource(url);
+      }
+    })
+
     getToken().then((token) => {
 
       let url = "http://localhost:8000/users/?type=Create&fid=" + token;
@@ -54,7 +62,10 @@ function Profile() {
       <Container>
         <Row>
           <Col md={3}>
-            <Image src="https://avatarfiles.alphacoders.com/101/thumb-101741.jpg" roundedCircle />
+            {photoSource ?
+              <Image src={photoSource} roundedCircle style={{width: "150px"}}/>
+              : <CgProfile size={150}/>
+            }
 
           </Col>
 

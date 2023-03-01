@@ -48,6 +48,7 @@ const Settings = () => {
     if (currentUser.email !== null) {
       setEmail(currentUser.email);
     }
+
     getToken().then((token) => {
       let url = "http://localhost:8000/users/?type=Create&fid=" + token;
       fetch(url, {
@@ -75,8 +76,10 @@ const Settings = () => {
         });
     });
     getCurrentPhoto().then((url) => {
-      setSelectedImage(url)
-      setPrevPhotoSrc(url);
+      if (url.length > 0) {
+        setSelectedImage(url)
+        setPrevPhotoSrc(url);
+      }
     })
   }, []);
 
