@@ -25,6 +25,7 @@ function Profile() {
   const [selectedState, setSelectedState] = useState('');
   const [photoSource, setPhotoSource] = useState(null);
   const [edit, setEdit] = useState(false);
+  const [rating, setRating] = useState(4);
   const ratingChanged = (newRating) => {
     console.log(newRating);
   };
@@ -107,10 +108,11 @@ function Profile() {
 
             <ReactStars
               count={5}
-              value={4}
+              value={rating}
               onChange={ratingChanged}
               size={24}
               isHalf={true}
+              edit={false}
               emptyIcon={<i className="far fa-star"></i>}
               halfIcon={<i className="fa fa-star-half-alt"></i>}
               fullIcon={<i className="fa fa-star"></i>}
@@ -130,7 +132,14 @@ function Profile() {
           </Card>
         </Row>
         <span>&nbsp;&nbsp;</span>
-      </Container> : <ProfileSettings callback={setEdit} photoCallback={setPhotoSource}/>}
+      </Container> : <ProfileSettings 
+                      callback={setEdit} 
+                      cityCallback={setSelectedCity}
+                      stateCallback={setSelectedState}
+                      usernameCallback={setUsername}
+                      photoCallback={setPhotoSource}
+                      aboutCallback={setAbout}
+                      />}
     </div>
   );
 }

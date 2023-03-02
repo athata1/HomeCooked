@@ -146,7 +146,9 @@ export function AuthProvider({ children }) {
         } catch (e) {
           console.log(e);
         }
-      });
+      }).catch(() => {
+        alert("Error: Email already Exists")
+      })
     setCreating(false);
   }
 

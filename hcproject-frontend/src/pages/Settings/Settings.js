@@ -66,6 +66,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
+          console.log(data)
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());

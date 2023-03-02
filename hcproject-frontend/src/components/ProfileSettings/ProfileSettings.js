@@ -9,7 +9,7 @@ import {ref, uploadBytes} from 'firebase/storage'
 import {storage} from '../../Firebase/firebase'
 import { getDownloadURL } from "firebase/storage";
 
-const ProfileSettings = ({callback, photoCallback}) => {
+const ProfileSettings = ({callback, photoCallback, cityCallback, stateCallback, usernameCallback, aboutCallback}) => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
   const [edit, setEdit] = useState(false);
@@ -67,6 +67,7 @@ const ProfileSettings = ({callback, photoCallback}) => {
         })
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
+
           setUsername(userData.fields.user_uname);
           console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
@@ -226,6 +227,10 @@ const ProfileSettings = ({callback, photoCallback}) => {
             return res.json();
           })
           .then((data) => {
+            cityCallback(selectedCity)
+            stateCallback(selectedState)
+            usernameCallback(username)
+            aboutCallback(about)
             if (data.status === '200') {
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
@@ -262,7 +267,9 @@ const ProfileSettings = ({callback, photoCallback}) => {
                 })
               }
             }
-          });
+          }).then(() => {
+            callback(false)
+        })
       });
     }
 
@@ -386,6 +393,7 @@ const ProfileSettings = ({callback, photoCallback}) => {
                   className="form-select"
                   aria-label="Default select example"
                   disabled={!edit}
+                  value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                 >
                   <option>--Choose City--</option>
