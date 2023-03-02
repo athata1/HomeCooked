@@ -17,4 +17,5 @@ urlpatterns = [
     path('recipe/delete', delete_recipe),
     path('recipe/get/id', get_recipes_by_id),
     path('reviews/', review_manager),
+    path('reviews/create', create_review)
 ]

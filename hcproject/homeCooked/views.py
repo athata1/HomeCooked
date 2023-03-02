@@ -84,7 +84,7 @@ def post_request(request):
 def review_manager(request):
     if request.method == 'GET':
         return JsonResponse({'status':'200', 'reviews':serializers.serialize('json', get_all_reviews())})
-    if review.method == 'POST':
+    if request.method == 'POST':
         user_id = request.GET['userid']
         post_id = request.GET['postid']
         rating = request.GET['rating']
@@ -93,10 +93,29 @@ def review_manager(request):
         review = None
         try:
             review = create_review(giver=user_id, post_id=post_id, rating=rating, desc=desc)
+            review.save()
+            return JsonResponse(data={'status': '200', 'response': 'Created review'})
         except ValueError:
             return JsonResponse(data={'status':'400', 'message':'Error: missing/invalid parameters'})
         except RuntimeError:
             return JsonResponse(data={'status':'500', 'message':'Error: review creation failed for unknown reason'})
+
+@csrf_exempt
+def create_review(request):
+    user_id = request.GET.get('userid')
+    post_id = request.GET.get('postid')
+    rating = request.GET.get('rating')
+    desc = request.GET.get('desc')
+
+    review = None
+    try:
+        review = Review(review_giver=user_id, review_post=post_id, review_rating=rating, review_desc=desc)
+        review.save()
+        return JsonResponse(data={'status': '200', 'response': 'Created review'})
+    except ValueError:
+        return JsonResponse(data={'status':'400', 'message':'Error: missing/invalid parameters'})
+    except RuntimeError:
+        return JsonResponse(data={'status':'500', 'message':'Error: review creation failed for unknown reason'})
 
 def allergens(food):
     url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
