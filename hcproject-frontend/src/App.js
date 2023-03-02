@@ -8,7 +8,7 @@ import { AuthProvider } from "./Firebase/AuthContext";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
 import Profile from "./pages/Profile/Profile";
-
+import OtherProfiles from "./pages/OtherProfiles/OtherProfiles";
 
 function App() {
   return (
@@ -17,7 +17,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path='/public/:uname' element={<OtherProfiles/>}/>
+          <Route exact path="/profile" element={<PrivateRoute element={<Profile/>}/>} />
           <Route path="/dashboard" element={
             <PrivateRoute element={<Dashboard/>}/> } />
           <Route path="/settings" element={

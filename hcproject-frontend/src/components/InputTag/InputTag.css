@@ -14,7 +14,7 @@
 	 border-radius: 6px;
 }
  .tags-input:focus-within {
-	 border: 1px solid #0052cc;
+	 border: 1px solid #002F2F;
 }
  .tags-input input {
 	 flex: 1;
@@ -44,7 +44,7 @@
 	 list-style: none;
 	 border-radius: 6px;
 	 margin: 0 8px 8px 0;
-	 background: #0052cc;
+	 background: #002F2F;
 }
  .tag .tag-title {
 	 margin-top: 3px;
