@@ -160,9 +160,7 @@ const Dashboard = () => {
                 }}>Archives</Button>
               </ButtonGroup>
             </Row> : ""}
-          <Row>
               {showArchived || showPosts || showRecipes ? <RecipeShow mode={userMode} isArchived={showArchived} isRecipe={showRecipes} isPost={showPosts} /> : ""}
-          </Row>
 
         </Container>
 

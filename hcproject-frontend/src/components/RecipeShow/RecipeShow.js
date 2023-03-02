@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../Firebase/AuthContext';
 import Recipes from '../Recipes/Recipes';
+import './RecipeShow.css'
 
 export default function RecipeShow({mode, isRecipe, isArchived, isPost}) {
   
@@ -67,10 +68,12 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost}) {
   }, [url])
   
   return (
-    <div className='recipe-show'>
-      {isRecipe && mode === 'producer' ? responses.map((response) => {
-        return <Recipes key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response}/>
-      }) : ""}
+    <div className="recipe-show-container">
+      <div className='recipe-show'>
+        {isRecipe && mode === 'producer' ? responses.map((response) => {
+          return <Recipes key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response}/>
+        }) : ""}
+      </div>
     </div>
   )
 }

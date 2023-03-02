@@ -1,6 +1,13 @@
 .recipe-show {
-  width: 75%;
+  column-count: 3;
+  column-gap: 20px;
+  column-fill: balance;
+  margin: 20px auto 0;
+  padding: 2rem;
+}
+
+.recipe-show-container {
   display: flex;
-  flex-wrap: wrap;
-  min-height: 100px;
+  justify-content: center;
+  align-items: center;
 }
