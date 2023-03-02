@@ -1,0 +1,6 @@
+.recipe-show {
+  width: 75%;
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 100px;
+}

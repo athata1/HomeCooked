@@ -12,6 +12,9 @@ import InputTag from '../../components/InputTag/InputTag';
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Button from 'react-bootstrap/Button';
+import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -23,6 +26,10 @@ const Dashboard = () => {
   const titleRef = useRef()
   const textRef = useRef()
   const [image, setImage] = useState(null);
+  const [showRecipes, setShowRecipes] = useState(false);
+  const [showPosts, setShowPosts] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
+
 
 
   const handleNewPost = (e) => {
@@ -54,17 +61,17 @@ const Dashboard = () => {
     }
 
 
-    let url = crypto.randomUUID();
-    let value = ''
-    const imageRef = ref(storage, "images/" + url);
-    uploadBytes(imageRef, image).then((e) => {
+    getToken().then((token) => {
+      let rand = crypto.randomUUID();
+      const imageRef = ref(storage, "images/" + rand);
+      uploadBytes(imageRef, image).then((e) => {
         getDownloadURL(e.ref).then((url) => {
-          value = url;
-          return url
-    })}).then(getToken().then((token) => {
-      let url = 'http://localhost:8000/recipe/create?token=' + token + '&title=' + titleRef.current.value + 
-                '&ingredients=' + JSON.stringify(ingredients) +'&tags=' + JSON.stringify(tags) + '&image=' + '' + '&desc=' + textRef.current.value
-      fetch(url, {
+          return [token, url]
+      }).then((tokenURL) => {
+        let fetchUrl = 'http://localhost:8000/recipe/create?' + 'title=' + titleRef.current.value + 
+        '&ingredients=' + JSON.stringify(ingredients) +'&tags=' + JSON.stringify(tags) + '&image=' + tokenURL[1] + '&desc=' + textRef.current.value + '&token=' + tokenURL[0]
+        console.log(fetchUrl);
+        fetch(fetchUrl, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -75,12 +82,25 @@ const Dashboard = () => {
         },
         redirect: "follow", // manual, *follow, error
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      }).then((res) => {
-        return res.json()
-      }).then((data) => {
-        console.log(data);
+        }).then((res) => {
+          return res.json()
+        }).then((data) => {
+          console.log(data);
+          titleRef.current.value = '';
+          textRef.current.value = '';
+          setTags([]);
+          setIngredients([]);
+          setImage(null);
+        })
       })
-      }))
+    })
+    })
+
+  };
+
+  const handleRecipes = (e) => {
+    e.preventDefault();
+    setShowRecipes(true);
   };
 
   useEffect(() => {
@@ -101,14 +121,59 @@ const Dashboard = () => {
     <div className="dashboard">
       <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
-      <div className="col mb-5 settings-save-div d-flex justify-content-center">
-        <button
-          className="btn btn-primary settings-button-remove settings-delete-account-button"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-        >
-          New Recipe
-        </button>
+      <div >
+        <Container>
+          {userMode == "producer" ?
+            <Row>
+              <ButtonGroup>
+                <Button
+                  variant="success"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exampleModal"
+                  onClick={() => {
+                    setShowRecipes(false);
+                    setShowArchived(false);
+                    setShowPosts(false);
+                  }}
+                 >New Recipe</Button>
+                <Button
+                  variant="warning"
+                  onClick={() => {
+                    setShowRecipes(true);
+                    setShowArchived(false);
+                    setShowPosts(false);
+                  }}
+                >
+                  Recipes</Button>
+                <Button
+                  onClick={() => {
+                    setShowRecipes(false);
+                    setShowArchived(false);
+                    setShowPosts(true);
+                  }}
+                >Posts</Button>
+                <Button variant="danger"
+                onClick={() => {
+                  setShowRecipes(false);
+                  setShowArchived(true);
+                  setShowPosts(false);
+                }}>Archives</Button>
+              </ButtonGroup>
+            </Row> : ""}
+          <Row>
+              {showArchived || showPosts || showRecipes ? <RecipeShow mode={userMode} isArchived={showArchived} isRecipe={showRecipes} isPost={showPosts} /> : ""}
+          </Row>
+
+        </Container>
+
+        {/* <button
+            className="btn btn-primary settings-button-remove settings-delete-account-button"
+            data-bs-toggle="modal"
+            data-bs-target="#exampleModal"
+            onClick={handleNewPost}
+          >
+            New Recipe
+          </button> */}
         <div
           className="modal fade"
           id="exampleModal"
@@ -194,7 +259,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <Container>
+      {/* <Container>
         <Row>
 
           <Col>
@@ -207,28 +272,11 @@ const Dashboard = () => {
             <Posts />
             <Posts />
           </Col>
-          {/* <Col>
-            <h2>Post Feed</h2>
-            <Card>
-              <Card.Img variant="top" src="holder.js/100px160" />
-              <Card.Body>
-                <Card.Title>Card title</Card.Title>
-                <Card.Text>
-                  This is a wider card with supporting text below as a natural lead-in
-                  to additional content. This content is a little bit longer.
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Last updated 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-          </Col> */}
+          
         </Row>
 
-      </Container>
+      </Container> */}
 
-      {/* Dashboard
-      {currentUser ? currentUser.email : ""} */}
     </div>
 
   )

@@ -1,4 +1,4 @@
-import React,{ useState, useEffect }  from 'react'
+import React, { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,11 +7,13 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
-import Posts from '../../components/Posts/Posts';
+import Recipes from '../../components/Recipes/Recipes';
+
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
 import { useNavigate } from 'react-router-dom';
+import ReactStars from "react-rating-stars-component";
 
 function Profile() {
 
@@ -23,6 +25,25 @@ function Profile() {
   const [selectedState, setSelectedState] = useState('');
   const [photoSource, setPhotoSource] = useState(null);
   const [edit, setEdit] = useState(false);
+  const ratingChanged = (newRating) => {
+    console.log(newRating);
+  };
+
+  const example = {
+    size: 50,
+    count: 5,
+    color: "black",
+    activeColor: "yellow",
+    value: 5,
+    a11y: true,
+    isHalf: true,
+    emptyIcon: <i className="far fa-star" />,
+    halfIcon: <i className="fa fa-star-half-alt" />,
+    filledIcon: <i className="fa fa-star" />,
+    onChange: newValue => {
+      console.log(`Example 2: new value is ${newValue}`);
+    }
+  };
 
   useEffect(() => {
 
@@ -56,7 +77,7 @@ function Profile() {
         setSelectedCity(userData.fields.user_city.toUpperCase());
         setAbout(userData.fields.user_bio)
       })
-      })
+    })
   }, [])
 
   useEffect(() => {
@@ -80,10 +101,24 @@ function Profile() {
           <Col>
             <div> </div>
             <h1>{username}
-              
+
             </h1>
             <h5>{selectedCity}, {selectedState}</h5>
-            <h3>★★★★</h3>
+
+            <ReactStars
+              count={5}
+              value={4}
+              onChange={ratingChanged}
+              size={24}
+              isHalf={true}
+              emptyIcon={<i className="far fa-star"></i>}
+              halfIcon={<i className="fa fa-star-half-alt"></i>}
+              fullIcon={<i className="fa fa-star"></i>}
+              activeColor="#ffd700"
+              
+            />
+
+
             <Button variant="danger" onClick={() => {setEdit(true)}}> Edit Profile</Button>
           </Col>
         </Row>
@@ -93,60 +128,6 @@ function Profile() {
               {about}
             </Card.Body>
           </Card>
-          <h3>Posts</h3>
-          <CardGroup>
-            
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            
-          </CardGroup>
-
-        </Row>
-        <Row>
-          <span>&nbsp;&nbsp;</span>
-          <h3> Recipes </h3>
-          <CardGroup>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-          </CardGroup>
         </Row>
         <span>&nbsp;&nbsp;</span>
       </Container> : <ProfileSettings callback={setEdit} photoCallback={setPhotoSource}/>}
