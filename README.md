@@ -64,15 +64,14 @@
 ## Urls:
 ```
 /posts/      gives a list of all posts
-/posts/db
     GET Request:
-        [producer] - posts producer by a user
-        [userid] - posts including a user
-        [id] - a specific post with a specific id
-        [] - all posts
+        get open posts from a user - ?type=open&token=<user token>
+        get closed posts from a user - ?type=producer_closed&token=<user token>
+        get posts bought by a user - ?type=consumer_closed&token=<user token>
     POST Request:
-        [producer, recipe, title(str), desc(str)] - creates a new post
-        [id(int), title|desc|producer|consumer|recipe] - updates an existing post
+        create a new post - ?type=create&token=<user token>&title=<title>&desc=<desc>&recipe=<recipe id>
+        update a post - ?type=update&post-id=<post_id>&title=<title>&desc=<title>&user-token=<user token>&recipe-id=<recipe id>
+            note, title, desc, user-token and recipe-id are all optional arguments
 /users/
     GET Request:
         [email|uname] - finds a user by email or username

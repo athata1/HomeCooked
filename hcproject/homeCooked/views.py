@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-from .posts import *
 # import datetime
 # import sqlite3
 import json
@@ -204,7 +203,6 @@ def delete_post(request):
 
 @csrf_exempt
 def post_manager(request):
-
     if request.method == 'GET':
         if 'token' not in request.GET:
             return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
@@ -214,9 +212,9 @@ def post_manager(request):
         request_type = request.GET.get('type', 'none')
 
         try:
-            if request_type == 'all':
+            '''if request_type == 'all':
                 posts = Post.objects.all()
-                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
+                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})'''
 
             fid = validate_token(request.GET.get('token'))
 
@@ -245,7 +243,7 @@ def post_manager(request):
     elif request.method == 'POST':        
         try:
             request_type = request.GET.get('type')
-            if request_type == 'Create':
+            if request_type == 'create':
                 if 'token' not in request.GET:
                     return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
 
@@ -287,16 +285,8 @@ def post_manager(request):
 
                 title = request.GET.get('title', '')
                 desc = request.GET.get('desc', '')
-                consumer_id = request.GET.get('user-id', '-1')
+                consumer_token = request.GET.get('user-token', '')
                 recipe_id = request.GET.get('request-id', '-1')
-
-                if consumer_id is None:
-                    return JsonResponse(data={'status':'404', 'response':'invalid consumer id'})
-                if int(consumer_id) == post.post_producer.user_id:
-                    return JsonResponse(data={'status':'404', 'response':'consumer can not be same as producer'})
-
-                if recipe_id is None:
-                    return JsonResponse(data={'status':'404', 'response':'invalid recipe id'})
 
                 if title != "":
                     post.post_title = title
@@ -304,8 +294,8 @@ def post_manager(request):
                 if desc != "":
                     post.post_desc = desc
                 
-                if int(consumer_id) > 0:
-                    consumer = User.objects.get(user_id=int(consumer_id))
+                if consumer_token != '':
+                    consumer = User.objects.get(user_fid=validate_token(consumer_token))
 
                     if consumer is None:
                         return JsonResponse(data={'status':'404', 'resposne':'unable to find user with matching id'})
