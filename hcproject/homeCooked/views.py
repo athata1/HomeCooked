@@ -203,128 +203,133 @@ def delete_post(request):
         return JsonResponse(data={'status': '404', 'response': 'Could not delete post'})
 
 @csrf_exempt
-@csrf_exempt
 def post_manager(request):
 
     if request.method == 'GET':
-        posts = None
         if 'token' not in request.GET:
             return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
-        fid = validate_token(request.GET.get('token'))
-        if fid is None:
+        if 'fid' not in request.GET or request.GET.get('token') is None:
             return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
-        if 'type' not in request.GET:
-            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+        request_type = request.GET.get('type', 'none')
 
-        user = User.objects.get(user_fid=fid)
+        try:
+            if request_type == 'all':
+                posts = Post.objects.all()
+                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
 
-        if request.GET.get('type') == 'open':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
-            return JsonResponse(serializers.serialize('json', posts), safe=False)
-        elif request.GET.get('type') == 'producer_closed':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
-            return JsonResponse(serializers.serialize('json', posts), safe=False)
-        elif request.GET.get('type') == 'consumer_closed':
-            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False)
-            return JsonResponse(serializers.serialize('json', posts), safe=False)
+            fid = validate_token(request.GET.get('token'))
 
-        if 'type' not in request.GET:
-            return JsonResponse(data={'status':'400', 'message':'Error: no type provided'})
+            if fid is None:
+                return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
-        request_type = request.GET.get('type', 'no type')
+            user = User.objects.get(user_fid=fid)
 
-        if request_type == 'producer':
-            try:
-                posts = get_posts_by(int(request.GET.get('userid', '-1')))
-            except Exception as E:
-                return JsonResponse(data={'status':'500', 'message':str(E)})
-            return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
+            if user is None:
+                return JsonResponse(data={'status':'400', 'response':'invalid token'})
 
-        elif request_type == 'transactions':
-            try:
-                posts = get_posts_with(int(request.GET.get('userid', '-1')))
-                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
-            except Exception as E:
-                return JsonResponse(data={'status':'500', 'message':str(E)})
-            
-        elif request_type == 'single':
-            try:
-                posts = get_post(int(request.GET.get('userid', '-1')))
-                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
-            except Exception as E:
-                return JsonResponse(data={'status':'500', 'message':str(E)})
+            if request_type == 'open':
+                posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
+                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
+            elif request_type == 'producer_closed':
+                posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
+                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
+            elif request_type == 'consumer_closed':
+                posts = Post.objects.filter(post_consumer=user.user_id, post_available=False)
+                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
+            else:
+                return JsonResponse(data={'status': '404', 'response': 'ValueError: request type ("type") missing or invalid'})
+        except Exception as E:
+            print("exception Caught!" + str(E) + str(type(E)))
+            return JsonResponse(data={'status':'500', 'response' : str(E)})
+    elif request.method == 'POST':        
+        try:
+            request_type = request.GET.get('type')
+            if request_type == 'Create':
+                if 'token' not in request.GET:
+                    return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
 
-        elif request_type == 'all': # TODO: remove on prod server
-            try:
-                posts = get_post(int(request.GET.get('postid', '-1')))
-                return JsonResponse({'status' : '200', 'posts' : serializers.serialize('json', posts)})
-            except Exception as E:
-                return JsonResponse(data={'status':'500', 'message':str(E)})
-        else:
-            return JsonResponse({'status': '404', 'message': 'Error: Invalid type'}, safe=False)
+                fid = validate_token(request.GET.get('token'))
+                request_type = request.GET.get('type', 'none')
 
-            return JsonResponse(data={'status':'400', 'message':'request type invalid'})
+                if fid is None:
+                    return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
-    elif request.method == 'POST':
-        post = None
+                user = User.objects.get(user_fid=fid)
 
-        if 'token' not in request.GET:
-            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
-        fid = validate_token(request.GET.get('token'))
-        if fid is None:
-            return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+                if user is None:
+                    return JsonResponse(data={'status':'400', 'response':'invalid token'})
 
-        if 'type' not in request.GET:
-            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+                #seperating into diff lines so bugfixing (finding what is where) is easier
 
-        user = User.objects.get(user_fid=fid)
+                title = request.GET.get('title')
+                desc = request.GET.get('desc')
+                created = datetime.now()
 
-        if request.GET.get('type') == 'Create':
-            post_title = ''
-            post_desc = ''
-            post_producer = user
-            post_created = datetime.now()
-            recipe = Recipe.objects.get(recipe_id=request.GET.get('recipe'))
-            post_recipe = recipe
-            post_available = True
-            post = Post(post_title=post_title, post_desc=post_desc,
-                        post_producer=post_producer, post_created=post_created,
-                        post_recipe=post_recipe, post_available=post_available, post_consumer=None)
-        if 'type' not in request.GET:
-            return JsonResponse(data={'status':'400', 'message':'Error: no type provided'})
+                recipe = Recipe.objects.get(recipe_id=request.GET.get('recipe'))
+                
+                if recipe is None:
+                    return JsonResponse(data={'status':'400', 'response':'invalid recipe id'})
 
-        request_type = request.GET.get('type')
+                post = Post(post_title=title, post_desc=desc,
+                            post_producer=producer, post_created=created,
+                            post_recipe=recipe, post_available=True, post_consumer=None)
+            elif request_type == 'update':
+                post_id = request.GET.get('post-id')
 
-        if request_type == 'new':
-            user_id = int(request.GET.get('user_id'))
-            recipe_id = int(request.GET.get('recipe_id'))
-            title = request.GET.get('title')
-            desc = request.GET.get('desc')
+                if post_id is None:
+                    return JsonResponse(data={'status':'405', 'response':'missing post id'})
 
-            try:
-                post_id = create_post(user_id=user_id, recipe_id=recipe_id, title=title, desc=desc)
-                return JsonResponse(data={'status' : '200', 'post id' : post_id})
-            except Exception as E:
-                return JsonResponse(data={'status':'500', 'message':str(type(E)) + str(E),'args' : E.args})
-        elif request_type == 'update':
-            if 'id' not in request.GET:
-                return JsonResponse(data={'status':'400', 'message':'Error: no post id provided'})
+                post = Post.objects.get(post_id = int(post_id))
 
-            post_id = request.GET.get('id')
-            title = request.GET.get('title', '')
-            desc = request.GET.get('desc', '')
-            consumer = int(request.GET.get('consumer_id', ''))
+                if post is None:
+                    return JsonResponse(data={'status':'404', 'response':'unable to find post with matching id'})
 
-            if post is None:
-                return JsonResponse(data={'status':'400', 'message':'Error: no post with that id'})
-        
-            post.save()
-            return JsonResponse(data={'status': '200', 'response': 'Post created for user'})
-        return JsonResponse(data={'status': '404', 'response': 'type does not exist'})
+                title = request.GET.get('title', '')
+                desc = request.GET.get('desc', '')
+                consumer_id = request.GET.get('user-id', '-1')
+                recipe_id = request.GET.get('request-id', '-1')
 
+                if consumer_id is None:
+                    return JsonResponse(data={'status':'404', 'response':'invalid consumer id'})
+                if int(consumer_id) == post.post_producer.user_id:
+                    return JsonResponse(data={'status':'404', 'response':'consumer can not be same as producer'})
 
-            return JsonResponse(data={'status' : '200', 'post' : serializers.serialize('json', post)})
+                if recipe_id is None:
+                    return JsonResponse(data={'status':'404', 'response':'invalid recipe id'})
+
+                if title != "":
+                    post.post_title = title
+
+                if desc != "":
+                    post.post_desc = desc
+                
+                if int(consumer_id) > 0:
+                    consumer = User.objects.get(user_id=int(consumer_id))
+
+                    if consumer is None:
+                        return JsonResponse(data={'status':'404', 'resposne':'unable to find user with matching id'})
+
+                    if not post.post_available:
+                        post.post_available = False
+                        post.post_completed = datetime.datetime.now()
+                    post.post_consumer = consumer
+                
+                if int(recipe_id) > 0:
+                    recipe = Recipe.objects.get(recipe_id = int(recipe_id))
+
+                    if recipe is None:
+                        return JsonResponse(data={'status':'404','response':'unable to find recipe with matching id'})
+                    
+                    post.post_recipe = recipe
+                
+                post.save()
+
+                return JsonResponse(data={'status': '200', 'response': 'Post updated'})
+            else:
+                return JsonResponse(data={'status': '404', 'response': 'request type missing or invalid'})
+        except Exception as E:
+            return JsonResponse(data={'status':'500', 'response' : str(E)})
 
 @csrf_exempt
 def user_by_uname(request):
