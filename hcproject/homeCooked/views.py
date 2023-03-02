@@ -99,9 +99,10 @@ def create_recipe(request):
         return JsonResponse(data={'status': '404', 'response': 'Not post request'})
     #return JsonResponse(serializers.serialize('json', Recipe.objects.all()), safe=False)
 
-    if 'token' not in request.GET:
+    if 'fid' not in request.GET:
             return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
-    fid = validate_token(request.GET.get('token'))
+    fid = validate_token(request.GET.get('fid'))
+
     if fid is None:
         return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
@@ -114,7 +115,8 @@ def create_recipe(request):
     ingredients = ast.literal_eval(request.GET.get('ingredients'))
     recipe_sys_tags = allergens(str(ingredients))
     recipe_tags = request.GET.get('tags')
-    recipe_img = request.GET.get('image')
+    vals = request.GET.get('image').split('/o/images/')
+    recipe_img = vals[0] + "/o/images%2F" + vals[1]
     recipe = Recipe(recipe_desc=recipe_desc, recipe_user=recipe_user,
                     recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                     recipe_sys_tags=recipe_sys_tags, recipe_tags=recipe_tags, recipe_img=recipe_img)
@@ -146,12 +148,14 @@ def get_recipes(request):
         return JsonResponse(data={'status': '404', 'response': 'not GET request'})
     if 'token' not in request.GET:
         return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+
     fid = validate_token(request.GET.get('token'))
     if fid is None:
         return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
     user = User.objects.get(user_fid=fid)
     recipes = Recipe.objects.filter(recipe_user=user.user_id)
+
     return JsonResponse(serializers.serialize('json', recipes), safe=False)
 
 @csrf_exempt
@@ -285,6 +289,18 @@ def user_by_uname(request):
         return JsonResponse(data={'status': '404', 'response': 'uname does not exist'})
     return JsonResponse(data={'status': '405', 'response': 'Not Get request'})
 
+@csrf_exempt
+def user_by_id(request):
+    if request.method == 'GET':
+        if 'id' not in request.GET:
+            return JsonResponse(data={'status': '405', 'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_id=request.GET.get('id'))
+        if len(list(user)) != 0:
+            return JsonResponse({'status': '200', 'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(data={'status': '404', 'response': 'id does not exist'})
+    return JsonResponse(data={'status': '405', 'response': 'Not Get request'})
+
 
 @csrf_exempt
 def user_manager(request):
@@ -368,7 +384,9 @@ def user_manager(request):
             if 'state' in request.GET:
                 user.user_state = request.GET.get('state')
             if 'image' in request.GET:
-                user.image_text = request.GET.get('image')
+                vals = request.GET.get('image').split('/o/images/')
+                user.image_text = vals[0] + "/o/images%2F" + vals[1]
+
             user.save()
 
             return JsonResponse(data={'status': '200', 'message': 'Saved data'}, safe=False)
