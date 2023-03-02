@@ -121,7 +121,7 @@ function Profile() {
           </CardGroup>
 
         </Row>
-        <Row>
+        {/* <Row>
           <span>&nbsp;&nbsp;</span>
           <h3> Recipes </h3>
           <CardGroup>
@@ -162,7 +162,7 @@ function Profile() {
               </Card.Footer>
             </Card>
           </CardGroup>
-        </Row>
+        </Row> */}
         <span>&nbsp;&nbsp;</span>
       </Container>
     </div>
