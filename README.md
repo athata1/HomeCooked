@@ -72,6 +72,7 @@
         create a new post - ?type=create&token=<user token>&title=<title>&desc=<desc>&recipe=<recipe id>
         update a post - ?type=update&post-id=<post_id>&title=<title>&desc=<title>&user-token=<user token>&recipe-id=<recipe id>
             note, title, desc, user-token and recipe-id are all optional arguments
+        delete a post - ?type=delete&post-id=<post-id>
 /users/
     GET Request:
         [email|uname] - finds a user by email or username

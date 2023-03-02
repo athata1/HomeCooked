@@ -177,45 +177,16 @@ def delete_recipe(request):
 
     return JsonResponse(data={'status': '200', 'response': 'Recipe deleted'})
 
-
-@csrf_exempt
-def delete_post(request):
-    if request.method != 'POST':
-        return JsonResponse(data={'status': '404', 'response': 'Not Post request'})
-
-    if 'token' not in request.GET:
-        return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
-    fid = validate_token(request.GET.get('token'))
-    if fid is None:
-        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
-
-    user = User.objects.get(user_fid=fid)
-    if 'post_id' not in request.GET:
-        return JsonResponse(data={'status': '404', 'response': 'No post_id in parameters'})
-    try:
-        post = Post.objects.get(post_id=request.GET.get('post_id'))
-        post.delete()
-        if post.post_producer != user.user_id:
-            return JsonResponse(data={'status': '404', 'response': 'You do not have permission to delete this post'})
-    except Exception as e:
-        print(e)
-        return JsonResponse(data={'status': '404', 'response': 'Could not delete post'})
-
 @csrf_exempt
 def post_manager(request):
-    if request.method == 'GET':
-        if 'token' not in request.GET:
-            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
-        if 'fid' not in request.GET or request.GET.get('token') is None:
-            return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+    try:
+        if request.method == 'GET':
+            if 'token' not in request.GET:
+                return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+            if 'fid' not in request.GET or request.GET.get('token') is None:
+                return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
-        request_type = request.GET.get('type', 'none')
-
-        try:
-            '''if request_type == 'all':
-                posts = Post.objects.all()
-                return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})'''
-
+            request_type = request.GET.get('type', 'none')
             fid = validate_token(request.GET.get('token'))
 
             if fid is None:
@@ -237,11 +208,7 @@ def post_manager(request):
                 return JsonResponse(data={'status':'200', 'response':serializers.serialize('json', posts)})
             else:
                 return JsonResponse(data={'status': '404', 'response': 'ValueError: request type ("type") missing or invalid'})
-        except Exception as E:
-            print("exception Caught!" + str(E) + str(type(E)))
-            return JsonResponse(data={'status':'500', 'response' : str(E)})
-    elif request.method == 'POST':        
-        try:
+        elif request.method == 'POST':        
             request_type = request.GET.get('type')
             if request_type == 'create':
                 if 'token' not in request.GET:
@@ -316,10 +283,24 @@ def post_manager(request):
                 post.save()
 
                 return JsonResponse(data={'status': '200', 'response': 'Post updated'})
+            elif request_type == 'delete':
+                post_id = request.GET.get('post-id')
+
+                if post_id is None:
+                    return JsonResponse(data={'status':'404', 'response':'post id is missing or invalid'})
+
+                post = Post.objects.get(post_id=post_id)
+
+                if post is None:
+                    return JsonResponse(data={'status':'404', 'response':'no post matching that post id'})
+
+                post.delete()
+
+                return JsonResponse(data={'status':'200', 'response':'post deleted'})
             else:
                 return JsonResponse(data={'status': '404', 'response': 'request type missing or invalid'})
-        except Exception as E:
-            return JsonResponse(data={'status':'500', 'response' : str(E)})
+    except Exception as E:
+        return JsonResponse(data={'status':'500', 'response' : str(E)})
 
 @csrf_exempt
 def user_by_uname(request):
