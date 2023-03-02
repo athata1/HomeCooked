@@ -66,7 +66,6 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data)
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
@@ -219,14 +218,14 @@ const Settings = () => {
           .then((data) => {
             if (data.status === "200") {
               if (uploadedFile !== null) {
-                let url = crypto.randomUUID();
-                const imageRef = ref(storage, "images/" + url);
+                let rand = crypto.randomUUID();
+                const imageRef = ref(storage, "images/" + rand);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
                     getDownloadURL(e.ref).then((url) => {
                       setCurrentPhoto(url);
                       return url
                     }).then((link) => {
-                      link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + url + "?alt=media"
+                      link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + rand + "?alt=media"
                       let url =
                       "http://localhost:8000/users/?type=Change&uname=" +
                       "&fid=" +

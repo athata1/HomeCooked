@@ -1,30 +1,43 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './Posts.css'
 import Card from 'react-bootstrap/Card';
 
 import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { Switch } from "./../Switch/Switch"
+import Recipes from "../Recipes/Recipes";
 
-function Posts({ part, mode }) {
+function Posts({mode, isArchived, isRecipe, isPost, response, removeCallback}) {
 
-  const [postTitle, setPostTitle] = useState('Post Title TEST')
-  const [postTime, setPostTime] = useState('3 days')
+  const [recipeResponse, setRecipeResponse] = useState(null)
 
-  return <div className="Posts">
-    <Card>
-      <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-      <Card.Body>
-        <Card.Title>{postTitle}</Card.Title>
-        <Card.Text>
-          Post Text
-        </Card.Text>
-      </Card.Body>
-      <Card.Footer>
-        <small className="text-muted">Posted {postTime} ago</small>
-      </Card.Footer>
-    </Card>
-  </div>
+  useEffect(() => {
+    if (mode === 'producer' && isPost) {
+      fetch("http://localhost:8000/recipe/get/id?recipe_id=" + response.fields.post_recipe,
+      {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }
+      ).then((res) => {
+        return res.json();
+      }).then((data) => {
+        setRecipeResponse(JSON.parse(data.response)[0]);
+      })
+    }
+  }, [])
+
+  return (
+  <div className="Posts">
+    {recipeResponse ? <Recipes removeCallback={removeCallback} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} postIndex={response.pk} response={recipeResponse}/> : ""}
+  </div>)
 };
 
 export default Posts;

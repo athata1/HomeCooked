@@ -29,16 +29,12 @@ const Dashboard = () => {
   const [showRecipes, setShowRecipes] = useState(false);
   const [showPosts, setShowPosts] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
+  const [responses, setResponses] = useState([]);
 
 
 
   const handleNewPost = (e) => {
     e.preventDefault();
-    console.log(titleRef.current.value);
-    console.log(textRef.current.value);
-    console.log(image);
-    console.log(JSON.stringify(tags))
-    console.log(JSON.stringify(ingredients))
     if (image === null) {
       alert("Error: Please add image")
       return;
@@ -70,7 +66,6 @@ const Dashboard = () => {
       }).then((tokenURL) => {
         let fetchUrl = 'http://localhost:8000/recipe/create?' + 'title=' + titleRef.current.value + 
         '&ingredients=' + JSON.stringify(ingredients) +'&tags=' + JSON.stringify(tags) + '&image=' + tokenURL[1] + '&desc=' + textRef.current.value + '&fid=' + tokenURL[0]
-        console.log(fetchUrl);
         fetch(fetchUrl, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -85,7 +80,6 @@ const Dashboard = () => {
         }).then((res) => {
           return res.json()
         }).then((data) => {
-          console.log(data);
           titleRef.current.value = '';
           textRef.current.value = '';
           setTags([]);
@@ -131,6 +125,7 @@ const Dashboard = () => {
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
                   onClick={() => {
+                    setResponses([])
                     setShowRecipes(false);
                     setShowArchived(false);
                     setShowPosts(false);
@@ -138,7 +133,9 @@ const Dashboard = () => {
                  >New Recipe</Button>
                 <Button
                   variant="warning"
+                  disabled={showRecipes}
                   onClick={() => {
+                    setResponses([])
                     setShowRecipes(true);
                     setShowArchived(false);
                     setShowPosts(false);
@@ -146,21 +143,25 @@ const Dashboard = () => {
                 >
                   Recipes</Button>
                 <Button
+                  disabled={showPosts}
                   onClick={() => {
+                    setResponses([])
                     setShowRecipes(false);
                     setShowArchived(false);
                     setShowPosts(true);
                   }}
                 >Posts</Button>
                 <Button variant="danger"
+                disabled={showArchived}
                 onClick={() => {
+                  setResponses([])
                   setShowRecipes(false);
                   setShowArchived(true);
                   setShowPosts(false);
                 }}>Archives</Button>
               </ButtonGroup>
             </Row> : ""}
-              {showArchived || showPosts || showRecipes ? <RecipeShow mode={userMode} isArchived={showArchived} isRecipe={showRecipes} isPost={showPosts} /> : ""}
+              {showArchived || showPosts || showRecipes ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} isArchived={showArchived} isRecipe={showRecipes} isPost={showPosts} /> : ""}
 
         </Container>
 
@@ -222,8 +223,8 @@ const Dashboard = () => {
                 <span>&nbsp;&nbsp;</span>
 
                 <div>
-                  <label for="formFileLg" class="form-label">Input Image</label>
-                  <input onChange={(e) => {handleChangeImage(e);}}class="form-control form-control-md" id="formFileLg" type="file" />
+                  <label for="#formFileLg" className="form-label">Input Image</label>
+                  <input onChange={(e) => {handleChangeImage(e);}}className="form-control form-control-md" id="formFileLg" type="file" />
                 </div>
 
                 <span>&nbsp;&nbsp;</span>

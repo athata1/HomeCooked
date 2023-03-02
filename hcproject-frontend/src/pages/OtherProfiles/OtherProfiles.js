@@ -7,7 +7,6 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
-import Posts from '../../components/Posts/Posts';
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
@@ -71,6 +70,7 @@ function OtherProfiles() {
         return res.json()
       }).then((data) => {
         let userData = JSON.parse(data.data)[0];
+        console.log(userData)
         setUsername(userData.fields.user_uname);
         setSelectedState(userData.fields.user_state.toUpperCase());
         setSelectedCity(userData.fields.user_city.toUpperCase());
@@ -124,62 +124,7 @@ function OtherProfiles() {
               {about}
             </Card.Body>
           </Card>
-          <h3>Posts</h3>
-          <CardGroup>
-            
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            
-          </CardGroup>
-
         </Row>
-        <Row>
-          <span>&nbsp;&nbsp;</span>
-          <h3> Recipes </h3>
-          <CardGroup>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-            <Card>
-              <Card.Img variant="top" src="https://developers.elementor.com/docs/assets/img/elementor-placeholder-image.png" />
-              <Card.Body>
-                <Card.Title>Recipe title</Card.Title>
-                <Card.Text>
-                  Recipe Text
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Posted 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-          </CardGroup>
-        </Row>
-        <span>&nbsp;&nbsp;</span>
       </Container> : <ProfileSettings callback={setEdit} photoCallback={setPhotoSource}/>}
     </div>
   );

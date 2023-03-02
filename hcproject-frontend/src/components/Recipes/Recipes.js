@@ -9,8 +9,9 @@ import { useState } from 'react';
 import { Link } from "react-router-dom";
 import { Switch } from "./../Switch/Switch"
 import { ListGroup } from "react-bootstrap";
+import { useAuth } from "../../Firebase/AuthContext";
 
-function Recipes({mode, isArchived, isRecipe, isPost, response}) {
+function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, postIndex}) {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -21,6 +22,7 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [ingredients, setIngredients] = useState([])
+  const {getToken} = useAuth();
 
   useEffect(() => {
     setTitle(response.fields.recipe_name)
@@ -42,7 +44,6 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
     if (json.includes("PORK_FREE")) {
       res.push("Pork free");
     }
-    console.log(res);
     setSysTags(res);
     setRecipeURL(response.fields.recipe_img)
 
@@ -68,6 +69,79 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
   }, [])
 
 
+  function handleDelete() {
+    if (mode === 'producer' && isRecipe) {
+      let decision = window.confirm("Are you sure you want to delete this recipe?");
+      if (!decision)
+        return;
+      getToken().then((token) => {
+        fetch("http://localhost:8000/recipe/delete?token=" + token + "&recipe_id=" + response.pk, {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then((data) => {
+          console.log(data);
+          alert("Deleted Recipe");
+          removeCallback(response.pk);
+        })
+      })
+    }
+    if (mode === 'producer' && isPost) {
+      getToken().then((token) => {
+        console.log(postIndex + " " + response.pk)
+        fetch("http://localhost:8000/posts/delete?token=" + token + "&post_id=" + postIndex, {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then((data) => {
+          console.log(data);
+          alert("Deleted Post");
+          removeCallback(postIndex);
+        })
+      })
+    }
+  }
+
+  function handlePost() {
+    getToken().then((token) => {
+      fetch("http://localhost:8000/posts/?token=" + token  + "&type=Create&recipe=" + response.pk, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json();
+      }).then((data) => {
+        alert("Created Post");
+      })
+    })
+  }
+
+
   return <div className="posts mb-3">
   <Card>
     <Card.Img variant="top" src={recipeURL} />
@@ -76,15 +150,6 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
       <Card.Text>
         {description}
       </Card.Text>
-      {/*<Badge bg="primary">
-        {postTag}
-      </Badge>{' '}
-      <Badge bg="success">
-        {ingredientsTag}
-      </Badge>{' '}
-      <Badge bg="danger">
-        {systemTag}
-      </Badge>*/}
       <Card.Subtitle>Ingredients</Card.Subtitle>
       <ListGroup className="mb-3">
         {ingredients.map((ingredient) => {
@@ -97,7 +162,6 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
         <div className="mb-3">
           <Card.Subtitle>Systems Tags</Card.Subtitle>
           {sysTags.map((tag) => {
-              console.log(tag)
               return <div style={{marginRight: "2px", display: "inline-block"}}><Badge bg="danger">
                 {tag}
               </Badge></div>
@@ -106,7 +170,6 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
         <div className="mb-3">
           <Card.Subtitle>User Tags</Card.Subtitle>
           {tags.map((tag) => {
-              console.log(tag)
               return <div style={{marginRight: "2px", display: "inline-block"}}><Badge bg="primary">
                 {tag}
               </Badge></div>
@@ -115,8 +178,10 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
       </div>
 
       <ButtonGroup style={{ float: 'right' }}>
-        <Button variant="success">Post</Button>
-        <Button variant="danger">Delete</Button>
+        {isRecipe  && mode==="producer"?
+        <Button onClick={handlePost} variant="success">Post</Button> : "" }
+        {(isRecipe && mode==="producer") || (isPost && mode==="producer")?
+        <Button onClick={handleDelete} variant="danger">Delete</Button> : ""}
       </ButtonGroup>
     </Card.Body>
   </Card>
