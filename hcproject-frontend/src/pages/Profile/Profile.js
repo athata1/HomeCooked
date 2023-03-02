@@ -1,4 +1,4 @@
-import React,{ useState, useEffect }  from 'react'
+import React, { useState, useEffect } from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,19 +7,40 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
-import Posts from '../../components/Posts/Posts';
+import Recipes from '../../components/Recipes/Recipes';
+
 import { useAuth } from '../../Firebase/AuthContext';
+import ReactStars from "react-rating-stars-component";
 
 function Profile() {
 
 
   const [username, setUsername] = useState('');
   const [pf, setPf] = useState('https://avatarfiles.alphacoders.com/101/thumb-101741.jpg')
-  const {getToken} = useAuth()
+  const { getToken } = useAuth()
   const [about, setAbout] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedState, setSelectedState] = useState('');
 
+  const ratingChanged = (newRating) => {
+    console.log(newRating);
+  };
+
+  const example = {
+    size: 50,
+    count: 5,
+    color: "black",
+    activeColor: "yellow",
+    value: 5,
+    a11y: true,
+    isHalf: true,
+    emptyIcon: <i className="far fa-star" />,
+    halfIcon: <i className="fa fa-star-half-alt" />,
+    filledIcon: <i className="fa fa-star" />,
+    onChange: newValue => {
+      console.log(`Example 2: new value is ${newValue}`);
+    }
+  };
 
   useEffect(() => {
     getToken().then((token) => {
@@ -46,7 +67,7 @@ function Profile() {
         setSelectedCity(userData.fields.user_city.toUpperCase());
         setAbout(userData.fields.user_bio)
       })
-      })
+    })
   }, [])
 
   return (
@@ -63,10 +84,24 @@ function Profile() {
           <Col>
             <div> </div>
             <h1>{username}
-              
+
             </h1>
             <h5>{selectedCity}, {selectedState}</h5>
-            <h3>★★★★</h3>
+
+            <ReactStars
+              count={5}
+              value={4}
+              onChange={ratingChanged}
+              size={24}
+              isHalf={true}
+              emptyIcon={<i className="far fa-star"></i>}
+              halfIcon={<i className="fa fa-star-half-alt"></i>}
+              fullIcon={<i className="fa fa-star"></i>}
+              activeColor="#ffd700"
+              
+            />
+
+
             <Button variant="danger"> Edit Profile</Button>
           </Col>
         </Row>
@@ -76,16 +111,13 @@ function Profile() {
               {about}
             </Card.Body>
           </Card>
-          <h3>Posts</h3>
+          <h3>Recipes</h3>
           <CardGroup>
+
+            <Recipes />
+            <Recipes />
             
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            <Posts />
-            
+
           </CardGroup>
 
         </Row>

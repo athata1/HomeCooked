@@ -9,6 +9,8 @@ import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
 import Posts from '../../components/Posts/Posts';
 import InputTag from '../../components/InputTag/InputTag';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Button from 'react-bootstrap/Button';
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -16,8 +18,16 @@ const Dashboard = () => {
   const [tags, setTags] = useState([])
   const [ingredients, setIngredients] = useState([]);
 
+  const showRecipes = false;
+
+
   const handleNewPost = (e) => {
     e.preventDefault();
+  };
+
+  const handleRecipes = (e) => {
+    e.preventDefault();
+    this.setState({showRecipes: true});
   };
 
   useEffect(() => {
@@ -30,15 +40,41 @@ const Dashboard = () => {
     <div className="dashboard">
       <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
-      <div className="col mb-5 settings-save-div d-flex justify-content-center">
-        <button
-          className="btn btn-primary settings-button-remove settings-delete-account-button"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-          onClick={handleNewPost}
-        >
-          New Recipe
-        </button>
+      <div >
+        <Container>
+          {userMode == "producer" ?
+            <Row>
+              <ButtonGroup>
+                <Button
+                  variant="success"
+                  data-bs-toggle="modal"
+                  data-bs-target="#exampleModal"
+                  onClick={handleNewPost}>New Recipe</Button>
+                <Button
+                  variant="warning"
+                  onClick={handleRecipes}
+                >
+                  Recipes</Button>
+                <Button>Posts</Button>
+                <Button variant="danger">Archives</Button>
+              </ButtonGroup>
+            </Row> : ""}
+          <Row>
+              {showRecipes == true ?
+                <div>test</div>
+              : ""}
+          </Row>
+
+        </Container>
+
+        {/* <button
+            className="btn btn-primary settings-button-remove settings-delete-account-button"
+            data-bs-toggle="modal"
+            data-bs-target="#exampleModal"
+            onClick={handleNewPost}
+          >
+            New Recipe
+          </button> */}
         <div
           className="modal fade"
           id="exampleModal"
@@ -122,7 +158,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <Container>
+      {/* <Container>
         <Row>
 
           <Col>
@@ -135,28 +171,11 @@ const Dashboard = () => {
             <Posts />
             <Posts />
           </Col>
-          {/* <Col>
-            <h2>Post Feed</h2>
-            <Card>
-              <Card.Img variant="top" src="holder.js/100px160" />
-              <Card.Body>
-                <Card.Title>Card title</Card.Title>
-                <Card.Text>
-                  This is a wider card with supporting text below as a natural lead-in
-                  to additional content. This content is a little bit longer.
-                </Card.Text>
-              </Card.Body>
-              <Card.Footer>
-                <small className="text-muted">Last updated 3 mins ago</small>
-              </Card.Footer>
-            </Card>
-          </Col> */}
+          
         </Row>
 
-      </Container>
+      </Container> */}
 
-      {/* Dashboard
-      {currentUser ? currentUser.email : ""} */}
     </div>
 
   )
