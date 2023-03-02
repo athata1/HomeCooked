@@ -228,9 +228,8 @@ const ProfileSettings = ({callback, photoCallback}) => {
           .then((data) => {
             if (data.status === '200') {
               if (uploadedFile !== null) {
-                console.log("Here!!!")
-                let url = crypto.randomUUID();
-                const imageRef = ref(storage, 'images/' + url);
+                let rand = crypto.randomUUID();
+                const imageRef = ref(storage, 'images/' + rand);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
                     console.log(e);
                     getDownloadURL(e.ref).then((url) => {
@@ -238,7 +237,8 @@ const ProfileSettings = ({callback, photoCallback}) => {
                       photoCallback(url);
                       return url
                     }).then((link) => {
-                      console.log(link)
+                      link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + rand + "?alt=media"
+                      console.log(link);
                       let url =
                       "http://localhost:8000/users/?type=Change&uname=" +
                       "&fid=" +

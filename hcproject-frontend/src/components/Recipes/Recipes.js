@@ -14,6 +14,8 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
   const [sysTags, setSysTags] = useState([]);
   const [index, setIndex] = useState(-1);
   const [recipeURL, setRecipeURL] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
 
 
   useEffect(() => {
@@ -40,6 +42,25 @@ function Recipes({mode, isArchived, isRecipe, isPost, response}) {
     setSysTags(res);
     console.log(JSON.parse(response.fields.recipe_tags));
     setRecipeURL(response.fields.recipe_img)
+
+    fetch("http://localhost:8000/users/get/id?id="+response.fields.recipe_user, {
+      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      // mode: "no-cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    }).then(res => {
+      return res.json();
+    }).then(response =>  {
+      response = JSON.parse(response.data)[0];
+      setCity(response.fields.user_city)
+      setState(response.fields.user_state)
+    })
 
   }, [])
 

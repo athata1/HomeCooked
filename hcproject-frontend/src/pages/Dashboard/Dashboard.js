@@ -69,7 +69,7 @@ const Dashboard = () => {
           return [token, url]
       }).then((tokenURL) => {
         let fetchUrl = 'http://localhost:8000/recipe/create?' + 'title=' + titleRef.current.value + 
-        '&ingredients=' + JSON.stringify(ingredients) +'&tags=' + JSON.stringify(tags) + '&image=' + tokenURL[1] + '&desc=' + textRef.current.value + '&token=' + tokenURL[0]
+        '&ingredients=' + JSON.stringify(ingredients) +'&tags=' + JSON.stringify(tags) + '&image=' + tokenURL[1] + '&desc=' + textRef.current.value + '&fid=' + tokenURL[0]
         console.log(fetchUrl);
         fetch(fetchUrl, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.

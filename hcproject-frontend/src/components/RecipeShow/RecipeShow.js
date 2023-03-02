@@ -14,6 +14,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost}) {
     console.log(isPost)
     if (isRecipe && mode === 'producer') {
       getToken().then((token) => {
+        console.log(token)
         setUrl(`http://localhost:8000/recipe/get?token=${token}`)
       })
     }

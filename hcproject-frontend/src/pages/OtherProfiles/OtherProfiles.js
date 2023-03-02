@@ -53,6 +53,7 @@ function OtherProfiles() {
         setSelectedCity(userData.fields.user_city.toUpperCase());
         setAbout(userData.fields.user_bio)
         setPhotoSource(userData.fields.image_text)
+        console.log(userData.field.image_text)
       })
       })
   }, [])
@@ -64,8 +65,8 @@ function OtherProfiles() {
       { !edit ? <Container>
         <Row>
           <Col md={3}>
-            {profilePhoto ?
-              <Image src={profilePhoto} roundedCircle style={{width: "150px", height: "150px"}}/>
+            {photoSource ?
+              <Image src={photoSource} roundedCircle style={{width: "150px", height: "150px"}}/>
               : <CgProfile size={150}/>
             }
 

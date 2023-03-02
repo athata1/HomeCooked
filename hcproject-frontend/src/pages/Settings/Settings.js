@@ -225,6 +225,7 @@ const Settings = () => {
                       setCurrentPhoto(url);
                       return url
                     }).then((link) => {
+                      link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + url + "?alt=media"
                       let url =
                       "http://localhost:8000/users/?type=Change&uname=" +
                       "&fid=" +
