@@ -13,6 +13,7 @@ import { getDownloadURL } from "firebase/storage";
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
+  const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
@@ -394,6 +395,21 @@ const Settings = () => {
                   readOnly={!edit}
                 />
               )}
+            </div>
+          </div>
+          <div className="Address">
+            <div className="col">
+              <h3 className="settings-label">Address</h3>
+            </div>
+          </div>
+          <div className="row mb-5">
+            <div className="col">
+              <textarea
+                className="settings-textarea-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                readOnly={!edit}
+              ></textarea>
             </div>
           </div>
           {newPassword !== confirmPassword && (
