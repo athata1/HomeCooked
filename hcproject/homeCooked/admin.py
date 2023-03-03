@@ -19,8 +19,8 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_host')
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img')
-    list_display_links = ('recipe_id', 'recipe_name')
+    list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img', 'recipe_sys_tags', 'recipe_tags')
+    list_display_links = ('recipe_id', 'recipe_name', 'recipe_sys_tags', 'recipe_tags' )
     list_filter = ('recipe_id', 'recipe_user', 'recipe_name')
     search_fields = ('recipe_id', 'recipe_name', 'recipe_user')
 
