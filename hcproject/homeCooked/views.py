@@ -9,6 +9,7 @@ import json
 import requests
 from firebase_admin import credentials, auth
 import ast
+from django.db.models import Sum
 
 
 def validate_token(token):
@@ -130,17 +131,12 @@ def get_recipes_by_id(request):
 
     if 'recipe_id' not in request.GET:
         return JsonResponse(data={'status': '404', 'response': 'No recipe_ud in parameters'})
-
     try:
         recipe = Recipe.objects.filter(recipe_id=int(request.GET.get('recipe_id')))
-        if (len(list(recipe)) != 1):
-            return JsonResponse(data={'status': '404', 'response': 'Could not find recipe'})
         return JsonResponse(data={'status':200, 'response':serializers.serialize('json', recipe)}, safe=False)
     except Exception as e:
         print(e)
-
-
-
+    return JsonResponse(data={'status': '404', 'response': 'Error Occured'})
 
 @csrf_exempt
 def get_recipes(request):
@@ -197,13 +193,93 @@ def delete_post(request):
     if 'post_id' not in request.GET:
         return JsonResponse(data={'status': '404', 'response': 'No post_id in parameters'})
     try:
-        post = Post.objects.get(post_id=request.GET.get('post_id'))
+        post = Post.objects.get(post_id=int(request.GET.get('post_id')))
         post.delete()
-        if post.post_producer != user.user_id:
+
+        if post.post_producer.user_id != user.user_id:
             return JsonResponse(data={'status': '404', 'response': 'You do not have permission to delete this post'})
+        else:
+            return JsonResponse(data={'status': '200', 'response': 'Deleted Post'})
     except Exception as e:
         print(e)
         return JsonResponse(data={'status': '404', 'response': 'Could not delete post'})
+
+@csrf_exempt
+def get_average_review(request):
+    if request.method != 'GET':
+        return JsonResponse(data={'status': '404', 'response': 'Not POST request'})
+
+    if 'fid' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No fid in params'})
+
+    fid = validate_token(request.GET.get('fid'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    review = Review.objects.filter(review_receiver=user)
+    count = len(list(review))
+    sum_reviews = review.aggregate(Sum('review_rating'))
+    avg = sum_reviews['review_rating__sum']/count
+
+    return JsonResponse(data={'status': '200', 'response': avg})
+
+@csrf_exempt
+def create_review(request):
+    if request.method != 'POST':
+        return JsonResponse(data={'status': '404', 'response': 'Not POST request'})
+
+    if 'fid' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No fid in params'})
+
+    fid = validate_token(request.GET.get('fid'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    if 'description' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No description in params'})
+
+    if 'rating' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No rating in params'})
+
+    if 'post_id' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No rating in params'})
+
+    post=Post.objects.get(post_id=int(request.GET.get('post_id')))
+    review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
+
+    review = Review(review_desc=request.GET.get('description'), review_giver=user,
+                    review_receiver=review_receiver, review_recipe=Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe,
+                    review_rating=request.GET.get('rating'), review_post=post)
+    review.save()
+    return JsonResponse(data={'status': '200', 'response': 'Saved review'})
+
+
+@csrf_exempt
+def change_post_to_close(request):
+
+    if request.method != 'POST':
+        return JsonResponse(data={'status': '404', 'response': 'Not POST request'})
+
+    if 'fid' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No token'})
+
+    fid = validate_token(request.GET.get('fid'))
+    if fid is None:
+        return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+    if 'post_id' not in request.GET:
+        return JsonResponse(data={'status': '404', 'response': 'No post_id'})
+
+    post = Post.objects.get(post_id=int(request.GET.get('post_id')))
+    user = User.objects.get(user_fid=fid)
+    if post.post_producer.user_id != user.user_id:
+        return JsonResponse(data={'status': '404', 'response': 'You do not have permission to do this'})
+    post.post_available = False;
+    post.save()
+    return JsonResponse(data={'status': '404', 'response': 'Post set to closed'})
+
 
 @csrf_exempt
 def post_manager(request):
@@ -222,6 +298,7 @@ def post_manager(request):
     Returns:
         post[]: a list of posts found
     """
+
     if request.method == 'GET':
         posts = None
         if 'token' not in request.GET:
@@ -234,7 +311,7 @@ def post_manager(request):
             return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
 
         user = User.objects.get(user_fid=fid)
-
+        print(user.user_id)
         if request.GET.get('type') == 'open':
             posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
             return JsonResponse(serializers.serialize('json', posts), safe=False)
@@ -375,6 +452,7 @@ def user_manager(request):
                         user.user_uname = request.GET.get('uname')
                     elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
                         return JsonResponse(data={'status': '404', 'message': "Error: username already taken"})
+
             if 'address' in request.GET:
                 user.user_address = request.GET.get('address')
             if 'bio' in request.GET:
@@ -386,7 +464,6 @@ def user_manager(request):
             if 'image' in request.GET:
                 vals = request.GET.get('image').split('/o/images/')
                 user.image_text = vals[0] + "/o/images%2F" + vals[1]
-
             user.save()
 
             return JsonResponse(data={'status': '200', 'message': 'Saved data'}, safe=False)
