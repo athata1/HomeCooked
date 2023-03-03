@@ -41,6 +41,7 @@ const Settings = () => {
     getToken,
     setCurrentPhoto,
     getCurrentPhoto,
+    loginWithoutEmail
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -108,6 +109,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
+          console.log(data)
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
@@ -123,7 +125,10 @@ const Settings = () => {
 
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    getToken().then((token) => {
+    loginWithoutEmail(deleteAccountPassword)
+    .then(() => {
+      console.log("Here")
+      getToken().then((token) => {
       let url = "http://localhost:8000/users/delete?fid=" + token;
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -141,6 +146,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
+          console.log(data)
           if (data.status == "200") {
             deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
@@ -149,7 +155,10 @@ const Settings = () => {
             alert("Error: Could not delete account");
           }
         });
-    });
+    })}
+    ).catch((e) => {
+      alert("Error: Invalid password")
+    })
   };
 
   const handleRemoveImage = (e) => {
@@ -177,6 +186,13 @@ const Settings = () => {
   const handleSave = (e) => {
     e.preventDefault();
     if (validationChecks()) {
+
+      if (emailChangePassword !== "") {
+        changeEmail(email, emailChangePassword)
+          .then((res) => setEmailChangeSuccess(res))
+          .catch((err) => console.log(err));
+      }
+
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
@@ -185,12 +201,6 @@ const Settings = () => {
             window.screenTo(0, 0);
           }
         });
-      }
-
-      if (emailChangePassword !== "") {
-        changeEmail(email, emailChangePassword)
-          .then((res) => setEmailChangeSuccess(res))
-          .catch((err) => console.log(err));
       }
 
       getToken().then((token) => {

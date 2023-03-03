@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { Switch } from "./../Switch/Switch"
 import { ListGroup } from "react-bootstrap";
 import { useAuth } from "../../Firebase/AuthContext";
+import { filterBad } from "../../utils/badwords";
 
 function Recipes({mode, response, removeCallback, postIndex, showMode}) {
 
@@ -43,6 +44,9 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
 
     if (json.includes("PORK_FREE")) {
       res.push("Pork free");
+    }
+    if (json.includes("TREE_NUT_FREE")) {
+      res.push("Tree Nut Free")
     }
     setSysTags(res);
     setRecipeURL(response.fields.recipe_img)
@@ -142,9 +146,9 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
   <Card>
     <Card.Img variant="top" src={recipeURL} />
     <Card.Body>
-      <Card.Title >{title} - {city}, {state}</Card.Title>
+      <Card.Title >{filterBad(title)} - {city}, {state}</Card.Title>
       <Card.Text>
-        {description}
+        {filterBad(description)}
       </Card.Text>
       <Card.Subtitle>Ingredients</Card.Subtitle>
       <ListGroup className="mb-3">

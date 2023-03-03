@@ -14,7 +14,7 @@ export default function Signup() {
 
   let location = useLocation();
   if (currentUser !== null && !loading) {
-    return <Navigate to="/settings" state={{ from: location }} replace />;
+    return <Navigate to="/dashboard" state={{ from: location }} replace />;
   }
 
   const validateEmail = (email) => {

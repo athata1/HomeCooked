@@ -17,7 +17,7 @@ export default function ProfileDropdown() {
 
   useEffect(() => {
     getCurrentPhoto().then((link) => {
-      if (link.length !== 0) {
+      if (link && link.length !== 0) {
         setPhoto(link);
       }
     })
