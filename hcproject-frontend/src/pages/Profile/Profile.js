@@ -25,7 +25,8 @@ function Profile() {
   const [selectedState, setSelectedState] = useState('');
   const [photoSource, setPhotoSource] = useState(null);
   const [edit, setEdit] = useState(false);
-  const [rating, setRating] = useState(4);
+  const [rating, setRating] = useState(3);
+  const [a, b] = useState(3);
   const ratingChanged = (newRating) => {
     console.log(newRating);
   };
@@ -53,6 +54,28 @@ function Profile() {
         setPhotoSource(url);
       }
     })
+
+    getToken().then((token) => {
+      let url = "http://localhost:8000/review/average?fid=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json()
+      }).then((data) => {
+        console.log(typeof data.response)
+        setRating(data.response);
+      })
+    })
+
 
     getToken().then((token) => {
 
@@ -106,10 +129,9 @@ function Profile() {
             </h1>
             <h5>{selectedCity}, {selectedState}</h5>
 
-            <ReactStars
+            {/*<ReactStars
               count={5}
               value={rating}
-              onChange={ratingChanged}
               size={24}
               isHalf={true}
               edit={false}
@@ -118,7 +140,8 @@ function Profile() {
               fullIcon={<i className="fa fa-star"></i>}
               activeColor="#ffd700"
               
-            />
+          />*/}
+            <h5>Average review score: {rating}/5</h5>
 
 
             <Button variant="danger" onClick={() => {setEdit(true)}}> Edit Profile</Button>

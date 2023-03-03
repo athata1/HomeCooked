@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -13,6 +13,7 @@ import { getDownloadURL } from "firebase/storage";
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
+  const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
@@ -71,6 +72,7 @@ const Settings = () => {
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
+          setAddress(userData.fields.user_address)
         });
     });
     getCurrentPhoto().then((url) => {
@@ -174,11 +176,14 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-
     if (validationChecks()) {
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
+          setEdit(!res);
+          if (passwordChangeSuccess === false) {
+            window.screenTo(0, 0);
+          }
         });
       }
 
@@ -199,7 +204,8 @@ const Settings = () => {
           "&state=" +
           selectedState +
           "&bio=" +
-          about;
+          about + 
+          "&address=" + address;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -391,6 +397,7 @@ const Settings = () => {
                   className="form-select"
                   aria-label="Default select example"
                   disabled={!edit}
+                  value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
                 >
                   <option>--Choose City--</option>
@@ -410,6 +417,21 @@ const Settings = () => {
                   readOnly={!edit}
                 />
               )}
+            </div>
+          </div>
+          <div className="Address">
+            <div className="col">
+              <h3 className="settings-label">Address</h3>
+            </div>
+          </div>
+          <div className="row mb-5">
+            <div className="col">
+              <textarea
+                className="settings-textarea-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                readOnly={!edit}
+              ></textarea>
             </div>
           </div>
           {newPassword !== confirmPassword && (

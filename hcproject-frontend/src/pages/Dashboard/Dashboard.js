@@ -26,9 +26,7 @@ const Dashboard = () => {
   const titleRef = useRef()
   const textRef = useRef()
   const [image, setImage] = useState(null);
-  const [showRecipes, setShowRecipes] = useState(false);
-  const [showPosts, setShowPosts] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [showMode, setShowMode] = useState(0);
   const [responses, setResponses] = useState([]);
 
 
@@ -94,7 +92,6 @@ const Dashboard = () => {
 
   const handleRecipes = (e) => {
     e.preventDefault();
-    setShowRecipes(true);
   };
 
   useEffect(() => {
@@ -126,42 +123,34 @@ const Dashboard = () => {
                   data-bs-target="#exampleModal"
                   onClick={() => {
                     setResponses([])
-                    setShowRecipes(false);
-                    setShowArchived(false);
-                    setShowPosts(false);
+                    setShowMode(0);
                   }}
                  >New Recipe</Button>
                 <Button
                   variant="warning"
-                  disabled={showRecipes}
+                  disabled={showMode === 1}
                   onClick={() => {
                     setResponses([])
-                    setShowRecipes(true);
-                    setShowArchived(false);
-                    setShowPosts(false);
+                    setShowMode(1);
                   }}
                 >
                   Recipes</Button>
                 <Button
-                  disabled={showPosts}
+                  disabled={showMode === 2}
                   onClick={() => {
                     setResponses([])
-                    setShowRecipes(false);
-                    setShowArchived(false);
-                    setShowPosts(true);
+                    setShowMode(2)
                   }}
                 >Posts</Button>
                 <Button variant="danger"
-                disabled={showArchived}
+                disabled={showMode === 3}
                 onClick={() => {
                   setResponses([])
-                  setShowRecipes(false);
-                  setShowArchived(true);
-                  setShowPosts(false);
+                  setShowMode(3);
                 }}>Archives</Button>
               </ButtonGroup>
             </Row> : ""}
-              {showArchived || showPosts || showRecipes ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} isArchived={showArchived} isRecipe={showRecipes} isPost={showPosts} /> : ""}
+              {showMode === 1 || showMode === 2|| showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
 
         </Container>
 

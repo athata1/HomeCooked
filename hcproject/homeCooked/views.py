@@ -3,7 +3,6 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-from .posts import *
 # import datetime
 # import sqlite3
 import json
@@ -80,6 +79,23 @@ def post_request(request):
     }
     return render(request, "homeCooked\posts.html", context)
 
+@csrf_exempt
+def review_manager(request):
+    if review.method == 'GET':
+        return JsonResponse({'status':'200', 'reviews':serializers.serialize(get_all_reviews())})
+    if review.method == 'POST':
+        user_id = review.GET['userid']
+        post_id = review.GET['postid']
+        rating = reviews.GET['rating']
+        desc = reviews.GET['desc']
+
+        review = None
+        try:
+            review = create_review(giver=user_id, post_id=post_id, rating=rating, desc=desc)
+        except ValueError:
+            return JsonResponse(data={'status':'400', 'message':'Error: missing/invalid parameters'})
+        except RuntimeError:
+            return JsonResponse(data={'status':'500', 'message':'Error: review creation failed for unknown reason'})
 
 def allergens(food):
     url = "https://edamam-edamam-nutrition-analysis.p.rapidapi.com/api/nutrition-data"
@@ -204,13 +220,28 @@ def delete_post(request):
 
 @csrf_exempt
 def post_manager(request):
-
+    """
+    | = one or more of
+    GET
+        posts(producer) - posts produced by a user
+        posts(user) - posts including a user
+        posts(id) - a specific post with a specific id
+        posts() - all posts
+    POST:
+        posts(producer, recipe, title, desc) - creates a new post with the above description
+            TODO: make desc optional
+        posts(id, title|desc|producer|consumer|recipe) - updates an existing post
+            if the consumer is updated and post_available is true, marks post as non avialable and sets post_completed
+    Returns:
+        post[]: a list of posts found
+    """
     if request.method == 'GET':
         if 'token' not in request.GET:
             return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
         if 'fid' not in request.GET or request.GET.get('token') is None:
             return JsonResponse(data={'status': '404', 'response': 'invalid token'})
 
+<<<<<<< HEAD
         request_type = request.GET.get('type', 'none')
 
         try:
@@ -330,6 +361,54 @@ def post_manager(request):
                 return JsonResponse(data={'status': '404', 'response': 'request type missing or invalid'})
         except Exception as E:
             return JsonResponse(data={'status':'500', 'response' : str(E)})
+=======
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+
+        user = User.objects.get(user_fid=fid)
+
+        if request.GET.get('type') == 'open':
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
+        elif request.GET.get('type') == 'producer_closed':
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
+        elif request.GET.get('type') == 'consumer_closed':
+            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False)
+            return JsonResponse(serializers.serialize('json', posts), safe=False)
+        else:
+            return JsonResponse({'status': '404', 'message': 'Error: Invalid type'}, safe=False)
+
+    elif request.method == 'POST':
+        post = None
+
+        if 'token' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'token not in parameters'})
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(data={'status': '404', 'response': 'invalid token'})
+
+        if 'type' not in request.GET:
+            return JsonResponse(data={'status': '404', 'response': 'type not in parameters'})
+
+        user = User.objects.get(user_fid=fid)
+
+        if request.GET.get('type') == 'Create':
+            post_title = ''
+            post_desc = ''
+            post_producer = user
+            post_created = datetime.now()
+            recipe = Recipe.objects.get(recipe_id=request.GET.get('recipe'))
+            post_recipe = recipe
+            post_available = True
+            post = Post(post_title=post_title, post_desc=post_desc,
+                        post_producer=post_producer, post_created=post_created,
+                        post_recipe=post_recipe, post_available=post_available, post_consumer=None)
+            post.save()
+            return JsonResponse(data={'status': '200', 'response': 'Post created for user'})
+        return JsonResponse(data={'status': '404', 'response': 'type does not exist'})
+
+>>>>>>> 83c7df9e804441aa73cfc5d5a8f89ce0f6fba301
 
 @csrf_exempt
 def user_by_uname(request):

@@ -4,7 +4,7 @@ import Recipes from '../Recipes/Recipes';
 import Posts from '../Posts/Posts';
 import './RecipeShow.css'
 
-export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses}) {
+export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode}) {
   
   const [url, setUrl] = useState('');
   const {getToken} = useAuth();
@@ -21,7 +21,6 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
 
 
   function recipeProducer() {
-    setResponses([])
     getToken().then((token) => {
     fetch("http://localhost:8000/recipe/get?token=" + token, {
       method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -44,30 +43,6 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
   }
 
   function postProducer() {
-    setResponses([])
-    getToken().then((token) => {
-      let url = "http://localhost:8000/posts/?token=" + token  + "&type=open"
-      fetch(url, {
-        method: "GET", // *GET, POST, PUT, DELETE, etc.
-        // mode: "no-cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      }).then((res) => {
-        return res.json()
-      }).then((data) => {
-        setResponses(JSON.parse(data))
-      })
-    })
-  }
-
-  function postProducer() {
-    setResponses([])
     getToken().then((token) => {
       let url = "http://localhost:8000/posts/?token=" + token  + "&type=open"
       fetch(url, {
@@ -90,7 +65,6 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
   }
 
   function archiveProducer() {
-    setResponses([])
     getToken().then((token) => {
       let url = "http://localhost:8000/posts/?token=" + token  + "&type=producer_closed"
       fetch(url, {
@@ -114,28 +88,37 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
 
 
   useEffect(() => {
-    if (isRecipe && mode === 'producer') {
+    if (showMode === 1 && mode === 'producer') {
       getToken().then((token) => {
         setUrl(`http://localhost:8000/recipe/get?token=${token}`)
       })
     }
-    else if (isPost && mode === 'producer') {
+    else if (showMode === 2 && mode === 'producer') {
       getToken().then((token) => {
         setUrl("http://localhost:8000/posts?token=" + token + "&type=open")
       })
     }
-  }, [isRecipe, isPost, isArchived, mode])
+    else if (showMode === 3 && mode === 'producer') {
+      getToken().then((token) => {
+        setUrl("http://localhost:8000/posts?token=" + token + "&type=producer_closed")
+      })
+    }
+  }, [isRecipe, showMode])
 
   useEffect(() => {
     if (url === '')
       return;
     
-    if (isRecipe && mode === 'producer') {
+    if (showMode === 1 && mode === 'producer') {
       recipeProducer();
     }
 
-    if (isPost && mode === 'producer') {
+    if (showMode === 2 && mode === 'producer') {
       postProducer();
+    }
+
+    if (showMode === 3 && mode === 'producer') {
+      archiveProducer();
     }
 
   }, [url])
@@ -143,11 +126,11 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
   return (
     <div className="recipe-show-container">
       <div className='recipe-show'>
-        {isRecipe && mode === 'producer' ? responses.map((response) => {
-          return <Recipes removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response}/>
+        {showMode === 1 && mode === 'producer' ? responses.map((response) => {
+          return <Recipes removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response} showMode={showMode}/>
         }) : ""}
-        {(isPost || isArchived) && mode === 'producer' ? responses.map((response) => {
-          return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} />
+        {(showMode === 2 || showMode === 3) && mode === 'producer' ? responses.map((response) => {
+          return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode}/>
         }) : ""}
       </div>
     </div>

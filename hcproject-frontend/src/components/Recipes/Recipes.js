@@ -11,7 +11,7 @@ import { Switch } from "./../Switch/Switch"
 import { ListGroup } from "react-bootstrap";
 import { useAuth } from "../../Firebase/AuthContext";
 
-function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, postIndex}) {
+function Recipes({mode, response, removeCallback, postIndex, showMode}) {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -70,7 +70,7 @@ function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, 
 
 
   function handleDelete() {
-    if (mode === 'producer' && isRecipe) {
+    if (mode === 'producer' && showMode === 1) {
       let decision = window.confirm("Are you sure you want to delete this recipe?");
       if (!decision)
         return;
@@ -89,15 +89,12 @@ function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, 
         }).then((res) => {
           return res.json();
         }).then((data) => {
-          console.log(data);
           alert("Deleted Recipe");
-          removeCallback(response.pk);
         })
       })
     }
-    if (mode === 'producer' && isPost) {
+    if (mode === 'producer' && showMode === 2) {
       getToken().then((token) => {
-        console.log(postIndex + " " + response.pk)
         fetch("http://localhost:8000/posts/delete?token=" + token + "&post_id=" + postIndex, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -112,7 +109,6 @@ function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, 
         }).then((res) => {
           return res.json();
         }).then((data) => {
-          console.log(data);
           alert("Deleted Post");
           removeCallback(postIndex);
         })
@@ -178,9 +174,9 @@ function Recipes({mode, isArchived, isRecipe, isPost, response, removeCallback, 
       </div>
 
       <ButtonGroup style={{ float: 'right' }}>
-        {isRecipe  && mode==="producer"?
+        {showMode === 1  && mode==="producer"?
         <Button onClick={handlePost} variant="success">Post</Button> : "" }
-        {(isRecipe && mode==="producer") || (isPost && mode==="producer")?
+        {(showMode === 1 && mode==="producer") || (showMode === 2 && mode==="producer")?
         <Button onClick={handleDelete} variant="danger">Delete</Button> : ""}
       </ButtonGroup>
     </Card.Body>

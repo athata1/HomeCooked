@@ -7,12 +7,12 @@ import { Link } from "react-router-dom";
 import { Switch } from "./../Switch/Switch"
 import Recipes from "../Recipes/Recipes";
 
-function Posts({mode, isArchived, isRecipe, isPost, response, removeCallback}) {
+function Posts({mode, response, removeCallback, showMode}) {
 
   const [recipeResponse, setRecipeResponse] = useState(null)
 
   useEffect(() => {
-    if (mode === 'producer' && isPost) {
+    if (mode === 'producer' && (showMode === 2 || showMode === 3)) {
       fetch("http://localhost:8000/recipe/get/id?recipe_id=" + response.fields.post_recipe,
       {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -36,7 +36,7 @@ function Posts({mode, isArchived, isRecipe, isPost, response, removeCallback}) {
 
   return (
   <div className="Posts">
-    {recipeResponse ? <Recipes removeCallback={removeCallback} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} postIndex={response.pk} response={recipeResponse}/> : ""}
+    {recipeResponse ? <Recipes showMode={showMode} removeCallback={removeCallback} key={response.pk} mode={mode} postIndex={response.pk} response={recipeResponse}/> : ""}
   </div>)
 };
 
