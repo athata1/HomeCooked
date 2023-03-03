@@ -19,8 +19,8 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_host')
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img', 'recipe_sys_tags', 'recipe_tags')
-    list_display_links = ('recipe_id', 'recipe_name', 'recipe_sys_tags', 'recipe_tags' )
+    list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img')
+    list_display_links = ('recipe_id', 'recipe_name')
     list_filter = ('recipe_id', 'recipe_user', 'recipe_name')
     search_fields = ('recipe_id', 'recipe_name', 'recipe_user')
 
@@ -31,9 +31,9 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('review_id', 'review_giver','review_receiver', 'review_recipe')
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available', 'post_sys_tags', 'post_user_tags')
+    list_display = ('post_id', 'post_recipe', 'post_desc', 'post_producer', 'post_consumer', 'post_created', 'post_completed', 'post_title', 'post_available')
     list_display_links = ('post_id', 'post_desc')
-    list_filter = ('post_id', 'post_producer', 'post_consumer', 'post_available', 'post_sys_tags', 'post_user_tags')
+    list_filter = ('post_id', 'post_producer', 'post_consumer', 'post_available')
     search_fields = ('post_id', 'post_producer', 'post_consumer', 'post_available')
 
 class MessageAdmin(admin.ModelAdmin):

@@ -57,8 +57,6 @@ class Post (models.Model):
     post_completed = models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')
     post_recipe = models.ForeignKey(Recipe, null=True, on_delete=models.CASCADE, related_name='RecipeID', verbose_name='Recipe')
     post_available = models.BooleanField(default=True)
-    post_sys_tags = models.CharField(max_length=200, verbose_name='system tags', default="")
-    post_user_tags = models.CharField(max_length=200, verbose_name='user tags', default="")
 
     def __str__(self):
         return self.post_desc
