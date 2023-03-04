@@ -220,8 +220,10 @@ def get_average_review(request):
     review = Review.objects.filter(review_receiver=user)
     count = len(list(review))
     sum_reviews = review.aggregate(Sum('review_rating'))
+    if count == 0:
+        return JsonResponse(data={'status': '200', 'response': 5})
     avg = sum_reviews['review_rating__sum']/count
-
+    print(avg)
     return JsonResponse(data={'status': '200', 'response': avg})
 
 @csrf_exempt
