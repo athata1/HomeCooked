@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React,{ useState, useEffect }  from 'react'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,15 +7,14 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
-import Recipes from '../../components/Recipes/Recipes';
-
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
 
-function Profile() {
+
+function OtherProfiles() {
 
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
@@ -25,8 +24,10 @@ function Profile() {
   const [selectedState, setSelectedState] = useState('');
   const [photoSource, setPhotoSource] = useState(null);
   const [edit, setEdit] = useState(false);
-  const [rating, setRating] = useState(3);
-  const [a, b] = useState(3);
+  const params = useParams()
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [rating, setRating] = useState(4);
+
   const ratingChanged = (newRating) => {
     console.log(newRating);
   };
@@ -48,15 +49,12 @@ function Profile() {
   };
 
   useEffect(() => {
-
-    getCurrentPhoto().then((url) => {
-      if (url.length !== 0) {
-        setPhotoSource(url);
-      }
+    getCurrentPhoto().then((link) => {
+      setProfilePhoto(link);
     })
-
     getToken().then((token) => {
-      let url = "http://localhost:8000/review/average?fid=" + token;
+
+      let url = "http://localhost:8000/users/uname?type=Create&uname=" + params.uname;
       fetch(url, {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -71,42 +69,17 @@ function Profile() {
       }).then((res) => {
         return res.json()
       }).then((data) => {
-        console.log(typeof data.response)
-        setRating(data.response);
-      })
-    })
-
-
-    getToken().then((token) => {
-
-      let url = "http://localhost:8000/users/?type=Create&fid=" + token;
-      fetch(url, {
-        method: "GET", // *GET, POST, PUT, DELETE, etc.
-        // mode: "no-cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      }).then((res) => {
-        return res.json()
-      }).then((data) => {
-        let userData = JSON.parse(data.user)[0];
+        let userData = JSON.parse(data.data)[0];
         console.log(userData)
         setUsername(userData.fields.user_uname);
         setSelectedState(userData.fields.user_state.toUpperCase());
         setSelectedCity(userData.fields.user_city.toUpperCase());
         setAbout(userData.fields.user_bio)
+        setPhotoSource(userData.fields.image_text)
+        console.log(userData.field.image_text)
       })
-    })
+      })
   }, [])
-
-  useEffect(() => {
-    navigate("/profile")
-  }, [photoSource])
 
   return (
     <div>
@@ -125,26 +98,24 @@ function Profile() {
           <Col>
             <div> </div>
             <h1>{username}
-
+              
             </h1>
             <h5>{selectedCity}, {selectedState}</h5>
-
-            {/*<ReactStars
+            <h3>
+            <ReactStars
               count={5}
               value={rating}
+              onChange={ratingChanged}
+              edit={false}
               size={24}
               isHalf={true}
-              edit={false}
               emptyIcon={<i className="far fa-star"></i>}
               halfIcon={<i className="fa fa-star-half-alt"></i>}
               fullIcon={<i className="fa fa-star"></i>}
               activeColor="#ffd700"
               
-          />*/}
-            <h5>Average review score: {rating}/5</h5>
-
-
-            <Button variant="danger" onClick={() => {setEdit(true)}}> Edit Profile</Button>
+            />
+            </h3>
           </Col>
         </Row>
         <Row>
@@ -154,17 +125,9 @@ function Profile() {
             </Card.Body>
           </Card>
         </Row>
-        <span>&nbsp;&nbsp;</span>
-      </Container> : <ProfileSettings 
-                      callback={setEdit} 
-                      cityCallback={setSelectedCity}
-                      stateCallback={setSelectedState}
-                      usernameCallback={setUsername}
-                      photoCallback={setPhotoSource}
-                      aboutCallback={setAbout}
-                      />}
+      </Container> : <ProfileSettings callback={setEdit} photoCallback={setPhotoSource}/>}
     </div>
   );
 }
 
-export default Profile;
+export default OtherProfiles;

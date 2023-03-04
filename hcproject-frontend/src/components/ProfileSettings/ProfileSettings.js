@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from "react";
-import "./Settings.css";
+import React, { useEffect, useRef, useState } from "react";
+import "./ProfileSettings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
 import { states, stateCities } from "../../utils/stateCity";
 import { useAuth } from "../../Firebase/AuthContext";
-import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
-import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
+import {ref, uploadBytes} from 'firebase/storage'
+import {storage} from '../../Firebase/firebase'
 import { getDownloadURL } from "firebase/storage";
 
-const Settings = () => {
+const ProfileSettings = ({callback, photoCallback, cityCallback, stateCallback, usernameCallback, aboutCallback}) => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
-  const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("Email@email.com");
+  const [zipcode, setZipcode] = useState("00000");
   const [about, setAbout] = useState("Aboutajsdlfkasdlkjfaksldjflkasjdlfk");
   const availableCities = stateCities.getCities(selectedState);
   const [validFields, setValidFields] = useState(true);
@@ -30,7 +29,7 @@ const Settings = () => {
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(true);
   const [emailChangeSuccess, setEmailChangeSuccess] = useState(true);
   const [deletedAccount, setDeletedAccount] = useState(true);
-  const [prevPhotoSrc, setPrevPhotoSrc] = useState("");
+  const [prevPhotoSrc, setPrevPhotoSrc] = useState('')
   const {
     deleteUser,
     currentUser,
@@ -40,8 +39,7 @@ const Settings = () => {
     creating,
     getToken,
     setCurrentPhoto,
-    getCurrentPhoto,
-    loginWithoutEmail
+    getCurrentPhoto
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -69,22 +67,29 @@ const Settings = () => {
         })
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
+
           setUsername(userData.fields.user_uname);
+          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
-          setAddress(userData.fields.user_address)
         });
     });
     getCurrentPhoto().then((url) => {
-      setSelectedImage(url);
-      setPrevPhotoSrc(url);
-    });
+      if (url.length > 0) {
+        setSelectedImage(url)
+        setPrevPhotoSrc(url);
+      }
+    })
   }, []);
 
-  useEffect(() => {}, [selectedState]);
+  useEffect(() => {
+    console.log("Selected state");
+  }, [selectedState]);
 
-  useEffect(() => {}, [selectedCity]);
+  useEffect(() => {
+    console.log("Selected city");
+  }, [selectedCity]);
 
   if (creating) {
     return <h1>Loading...</h1>;
@@ -109,9 +114,9 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data)
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
+          console.log(userData.fields.user_city.toUpperCase());
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
@@ -125,10 +130,7 @@ const Settings = () => {
 
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    loginWithoutEmail(deleteAccountPassword)
-    .then(() => {
-      console.log("Here")
-      getToken().then((token) => {
+    getToken().then((token) => {
       let url = "http://localhost:8000/users/delete?fid=" + token;
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -146,7 +148,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data)
+          console.log(data);
           if (data.status == "200") {
             deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
@@ -155,10 +157,7 @@ const Settings = () => {
             alert("Error: Could not delete account");
           }
         });
-    })}
-    ).catch((e) => {
-      alert("Error: Invalid password")
-    })
+    });
   };
 
   const handleRemoveImage = (e) => {
@@ -169,14 +168,13 @@ const Settings = () => {
 
   const handleChangeImage = (e) => {
     e.preventDefault();
-    if (
-      e.target.files[0].type !== "image/png" &&
-      e.target.files[0].type !== "image/jpeg"
-    ) {
+    if (e.target.files[0].type !== "image/png" && e.target.files[0].type !== "image/jpeg") {
+      console.log(e.target.files[0].type);
       return;
     }
     setSelectedImage(URL.createObjectURL(e.target.files[0]));
     setCurrentUploadedFile(e.target.files[0]);
+    console.log("Here");
   };
 
   const handleEdit = () => {
@@ -185,7 +183,14 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
+
     if (validationChecks()) {
+      if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
+        changePassword(oldPassword, newPassword).then((res) => {
+          setPasswordChangeSuccess(res);
+          console.log(res);
+        });
+      }
 
       if (emailChangePassword !== "") {
         changeEmail(email, emailChangePassword)
@@ -193,15 +198,6 @@ const Settings = () => {
           .catch((err) => console.log(err));
       }
 
-      if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
-        changePassword(oldPassword, newPassword).then((res) => {
-          setPasswordChangeSuccess(res);
-          setEdit(!res);
-          if (passwordChangeSuccess === false) {
-            window.screenTo(0, 0);
-          }
-        });
-      }
 
       getToken().then((token) => {
         let url =
@@ -214,8 +210,7 @@ const Settings = () => {
           "&state=" +
           selectedState +
           "&bio=" +
-          about + 
-          "&address=" + address;
+          about;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -232,16 +227,23 @@ const Settings = () => {
             return res.json();
           })
           .then((data) => {
-            if (data.status === "200") {
+            cityCallback(selectedCity)
+            stateCallback(selectedState)
+            usernameCallback(username)
+            aboutCallback(about)
+            if (data.status === '200') {
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
-                const imageRef = ref(storage, "images/" + rand);
+                const imageRef = ref(storage, 'images/' + rand);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
+                    console.log(e);
                     getDownloadURL(e.ref).then((url) => {
                       setCurrentPhoto(url);
+                      photoCallback(url);
                       return url
                     }).then((link) => {
                       link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + rand + "?alt=media"
+                      console.log(link);
                       let url =
                       "http://localhost:8000/users/?type=Change&uname=" +
                       "&fid=" +
@@ -258,12 +260,16 @@ const Settings = () => {
                         },
                         redirect: "follow", // manual, *follow, error
                         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                      }).then(() => {
+                          callback(false)
                       })
                     })
                 })
               }
             }
-          });
+          }).then(() => {
+            callback(false)
+        })
       });
     }
 
@@ -277,13 +283,6 @@ const Settings = () => {
     setValidFields(true);
     setEdit(false);
     setDeletedAccount(true);
-    if (!validateEmail(email)) {
-      setErrorField("email");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return false;
-    }
     if (username.length <= 6 || username.length >= 25) {
       setErrorField("username");
       setEdit(true);
@@ -313,24 +312,11 @@ const Settings = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (!passwordChangeSuccess) {
-      setEdit(true);
-      return false;
-    }
     return true;
-  };
-
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
   };
 
   return (
     <div>
-      <Navbar part="Settings" mode="none" />
       <div className="px-5">
         <div>
           <h1 className="settings-title pt-3">
@@ -423,118 +409,9 @@ const Settings = () => {
                   className="form-control settings-input"
                   placeholder="--Change City--"
                   value={selectedCity}
-                  onChange={(e) => setOldPassword(e.target.value)}
                   readOnly={!edit}
                 />
               )}
-            </div>
-          </div>
-          <div className="Address">
-            <div className="col">
-              <h3 className="settings-label">Address</h3>
-            </div>
-          </div>
-          <div className="row mb-5">
-            <div className="col">
-              <textarea
-                className="settings-textarea-address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                readOnly={!edit}
-              ></textarea>
-            </div>
-          </div>
-          {newPassword !== confirmPassword && (
-            <div className="align-items-center">
-              <Alert
-                variant="danger"
-                className="settings-delete-banner"
-                onClick={() => setDeletedAccount(true)}
-              >
-                <Alert.Heading>Passwords Do Not Match</Alert.Heading>
-              </Alert>
-            </div>
-          )}
-          {!passwordChangeSuccess && (
-            <Alert
-              variant="danger"
-              onClick={() => setPasswordChangeSuccess(true)}
-              dismissible
-            >
-              <Alert.Heading>Unable to change password</Alert.Heading>
-            </Alert>
-          )}
-          <div className="row">
-            <div className="col">
-              <h3 className="settings-label mb-4">Change Password</h3>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              <input
-                type="password"
-                className="form-control settings-input"
-                placeholder="Old Password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-            <div className="col">
-              <input
-                type="password"
-                className="form-control settings-input"
-                placeholder="New Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-            <div className="col">
-              <input
-                type="password"
-                className="form-control settings-input"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-          </div>
-          {!emailChangeSuccess && (
-            <Alert
-              variant="danger"
-              onClick={() => setEmailChangeSuccess(true)}
-              dismissible
-            >
-              <Alert.Heading>Unable to change email</Alert.Heading>
-            </Alert>
-          )}
-          <div className="row mt-3">
-            <div className="col">
-              <h3 className="settings-label mb-4">Change Email</h3>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col">
-              <input
-                type="text"
-                className="form-control settings-input"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                readOnly={!edit}
-              />
-            </div>
-            <div className="col">
-              <input
-                type="password"
-                className="form-control settings-input"
-                placeholder="Current Password"
-                value={emailChangePassword}
-                onChange={(e) => setEmailChangePassword(e.target.value)}
-                readOnly={!edit}
-              />
             </div>
           </div>
 
@@ -560,9 +437,7 @@ const Settings = () => {
               {edit && (
                 <input
                   type="file"
-                  onChange={(e) => {
-                    handleChangeImage(e);
-                  }}
+                  onChange={(e) => {handleChangeImage(e)}}
                   className="ps-5"
                 />
               )}
@@ -591,100 +466,18 @@ const Settings = () => {
               ></textarea>
             </div>
           </div>
-          {deletedAccount === false && (
-            <div className="align-items-center">
-              <Alert
-                variant="danger"
-                className="settings-delete-banner"
-                dismissible
-                onClick={() => setDeletedAccount(true)}
-              >
-                <Alert.Heading>Unable to delete account.</Alert.Heading>
-              </Alert>
-            </div>
-          )}
-          {edit && (
-            <div className="col mb-3 settings-save-div d-flex justify-content-center">
+          <div className="col mb-3 settings-save-div d-flex justify-content-center">
               <button
                 className="mx-5 btn settings-button settings-save-button"
                 onClick={handleSave}
-                disabled={newPassword !== confirmPassword}
               >
                 Save
               </button>
             </div>
-          )}
-          <div className="col mb-5 settings-save-div d-flex justify-content-center">
-            <button
-              className="btn btn-danger settings-button-remove settings-delete-account-button"
-              data-bs-toggle="modal"
-              data-bs-target="#exampleModal"
-              onClick={handleDeleteAccount}
-            >
-              Delete Account
-            </button>
-            <div
-              className="modal fade"
-              id="exampleModal"
-              tabIndex="-1"
-              aria-labelledby="exampleModalLabel"
-              aria-hidden="true"
-            >
-              <div className="modal-dialog">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title" id="exampleModalLabel">
-                      Are You Sure You Want To Delete Your Account?
-                    </h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-                    ></button>
-                  </div>
-                  <div className="modal-body">
-                    <p>
-                      All your data will be deleted. We will not store any
-                      credentials, email included. If you want to use the
-                      platfrom again you may do so with the same email. However,
-                      all the data related to your previous account will be
-                      deleted.
-                    </p>
-
-                    <input
-                      type="password"
-                      className="form-control settings-input pt-2"
-                      placeholder="Confirm Password"
-                      value={deleteAccountPassword}
-                      onChange={(e) => setDeleteAccountPassword(e.target.value)}
-                    />
-                  </div>
-                  <div className="modal-footer">
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                    >
-                      Close
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-danger"
-                      data-bs-dismiss="modal"
-                      onClick={confirmDeleteAccount}
-                    >
-                      Delete Account
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </form>
       </div>
     </div>
   );
 };
 
-export default Settings;
+export default ProfileSettings;
