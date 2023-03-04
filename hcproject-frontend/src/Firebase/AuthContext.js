@@ -40,6 +40,7 @@ export function AuthProvider({ children }) {
     return true;
   }
 
+  
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setLoading(true);
@@ -58,6 +59,10 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     await auth.signInWithEmailAndPassword(email, password);
+  }
+
+  async function loginWithoutEmail(password) {
+    await auth.signInWithEmailAndPassword(auth.currentUser.email, password)
   }
 
   async function changePassword(oldPassword, newPassword) {
@@ -146,7 +151,9 @@ export function AuthProvider({ children }) {
         } catch (e) {
           console.log(e);
         }
-      });
+      }).catch(() => {
+        alert("Error: Email already Exists")
+      })
     setCreating(false);
   }
 
@@ -166,7 +173,8 @@ export function AuthProvider({ children }) {
     loading,
     creating,
     setCurrentPhoto,
-    getCurrentPhoto
+    getCurrentPhoto,
+    loginWithoutEmail
   };
 
   return (
