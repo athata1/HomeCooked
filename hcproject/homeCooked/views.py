@@ -24,8 +24,6 @@ def validate_token(token):
 def create_ical(request):
     if request.method == 'POST':
         id = request.POST.get('event_id')
-        if not id:
-            return HttpResponse("Event ID is required.", status=400)
         event = Events.objects.get(event_id=id)
         event_name = event.event_name
         event_time = event.event_time
