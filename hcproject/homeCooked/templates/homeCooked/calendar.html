@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Create iCal</title>
+</head>
+<body>
+    <form method="POST" action="{% url 'HomeCooked:create_ical' %}">
+        {% csrf_token %}
+        <select name="event_id">
+            {% for event in events %}
+                <option value="{{ event.id }}">{{ event.event_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Create iCal file</button>
+    </form>
+</body>
+</html>

@@ -7,10 +7,11 @@ from .models import *
 # import sqlite3
 import json
 import requests
-from firebase_admin import credentials, auth
+# from firebase_admin import credentials, auth
+from ics import Calendar, Event
+from datetime import datetime, timedelta
 import ast
 from django.db.models import Sum
-
 
 def validate_token(token):
     try:
@@ -20,6 +21,25 @@ def validate_token(token):
     uid = decoded_token["uid"]
     return uid
 
+def create_ical(request):
+    if request.method == 'POST':
+        id = request.POST.get('event_id')
+        if not id:
+            return HttpResponse("Event ID is required.", status=400)
+        event = Events.objects.get(event_id=id)
+        event_name = event.event_name
+        event_time = event.event_time
+        c = Calendar()
+        e = Event()
+        e.name = event_name
+        e.begin = event_time
+        c.events.add(e)
+        response = HttpResponse(str(c), content_type='text/calendar')
+        response['Content-Disposition'] = 'attachment; filename="event.ics"'
+        return response
+    else:
+        events = Events.objects.all()
+        return render(request, 'homeCooked/calendar.html', {'events': events})
 
 def allergy_request(request):
     if request.method == 'POST':

@@ -21,7 +21,7 @@ class User (models.Model):
     def __str__(self):
         return self.user_uname
 
-class Event (models.Model):
+class Events (models.Model):
     event_id = models.AutoField(primary_key=True, verbose_name='Event ID')
     event_name = models.CharField(max_length=200, verbose_name='Name')
     event_desc = models.CharField(max_length=200, verbose_name='Description')
@@ -87,7 +87,7 @@ class DiscussionBoard (models.Model):
     discussion_id = models.AutoField(primary_key=True, verbose_name='Discussion ID')
     discussion_desc = models.CharField(max_length=200, verbose_name='Description')
     discussion_sender = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Sender')
-    discussion_event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name='Event')
+    discussion_event = models.ForeignKey(Events, on_delete=models.CASCADE, verbose_name='Event')
     discussion_data = models.DateField(verbose_name='Date')
 
     def __str__(self):

@@ -6,6 +6,7 @@ from .views import *
 
 app_name = 'HomeCooked'
 urlpatterns = [
+    path('calendar/', create_ical, name='create_ical'),
     path('posts/', post_manager),
     path('users/', user_manager),
     path('posts/delete', delete_post),

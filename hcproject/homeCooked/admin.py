@@ -12,7 +12,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
     search_fields = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
 
-class EventAdmin(admin.ModelAdmin):
+class EventsAdmin(admin.ModelAdmin):
     list_display = ('event_id', 'event_name', 'event_desc', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
     list_display_links = ('event_id', 'event_name')
     list_filter = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
@@ -51,7 +51,7 @@ class DiscussionBoardAdmin(admin.ModelAdmin):
 # Register your models here.
 admin.site.register(Allergy, AllergyAdmin)
 admin.site.register(User, UserAdmin)
-admin.site.register(Event, EventAdmin)
+admin.site.register(Events, EventsAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Post, PostAdmin)
