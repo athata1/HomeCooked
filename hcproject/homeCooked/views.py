@@ -25,18 +25,16 @@ def validate_token(token):
 def create_ical(request):
     if request.method == 'POST':
         id = request.POST.get('event-id', None)
-        logging.basicConfig(level=logging.DEBUG)
-        logging.debug(id)
         event = Events.objects.get(event_id=id)
         event_name = event.event_name
         event_time = event.event_time
         c = Calendar()
-        e = Events()
-        logging.debug(event_name)
-        logging.debug(event_time)
+        e = Event()
         e.name = event_name
-        e.begin = event_time
+        e.begin = '2023-03-03 00:00:00'
+        # e.begin = event_time
         c.events.add(e)
+        c.events
         response = HttpResponse(str(c), content_type='text/calendar')
         response['Content-Disposition'] = 'attachment; filename="event.ics"'
         return response
