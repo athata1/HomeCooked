@@ -19,6 +19,7 @@
     "react-router": "^6.8.1",
     "react-router-dom": "^6.8.1",
     "react-scripts": "5.0.1",
+    "react-star-ratings": "^2.3.0",
     "stars-rating": "^1.1.0",
     "state-cities": "^1.0.6",
     "unirest": "^0.6.0",
