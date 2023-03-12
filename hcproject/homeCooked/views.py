@@ -308,7 +308,7 @@ def post_update(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if post_id not in request.GET:
+        if 'post-id' not in request.GET:
             return JsonResponse(status=405, data={'response':'request parameter "post-id" is missing'})
 
         post_id = request.GET.get('post-id')
@@ -364,10 +364,10 @@ def post_close(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if 'fid' not in request.GET:
+        if 'token' not in request.GET:
             return JsonResponse(status=404, data={'response': 'No token'})
 
-        fid = validate_token(request.GET.get('fid'))
+        fid = validate_token(request.GET.get('token'))
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
@@ -403,10 +403,10 @@ def post_delete(request):
 
         user = User.objects.get(user_fid=fid)
         
-        if 'post_id' not in request.GET:
+        if 'post-id' not in request.GET:
             return JsonResponse(status=404, data={'response': 'No post_id in parameters'})
         
-        post = Post.objects.get(post_id=int(request.GET.get('post_id')))
+        post = Post.objects.get(post_id=int(request.GET.get('post-id')))
         post.delete()
 
         if post.post_producer.user_id != user.user_id:
