@@ -12,6 +12,8 @@ urlpatterns = [
     path('posts/close', post_close),
     path('posts/delete', post_delete),
     path('users/', user_manager),
+    path('users/create', user_create),
+    path('users/update', user_update),
     path('users/delete', delete_user),
     path('users/uname', user_by_uname),
     path('allergy/', allergy_request, name='allergy_request'),
