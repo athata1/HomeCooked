@@ -63,19 +63,22 @@
 
 ## Urls:
 ```
-/posts/      gives a list of all posts
-    GET Request:
-        get open posts from a user - ?type=open&token=<user token>
-        get closed posts from a user - ?type=producer_closed&token=<user token>
-        get posts bought by a user - ?type=consumer_closed&token=<user token>
-    POST Request:
-        create a new post - ?type=create&token=<user token>&title=<title>&desc=<desc>&recipe=<recipe id>
-        update a post - ?type=update&post-id=<post_id>
-            &title=<title>&desc=<title>&user-token=<user token>
-            &recipe-id=<recipe id>
-                note, title, desc, user-token and recipe-id are all optional arguments
-        mark a post closed - ?type=close&post-id=<post_id>&token=<token>
-        delete a post - ?type=delete&post-id=<post-id>
+/posts      gives a list of all posts
+    /sort (GET) ?token=token or ?fid=fid
+        ?filter=open - show currently open posts authored by the user
+        ?filter=producer-closed - show currently closed posts authored by the user
+        ?filter=consumer-closed - show currently posts bought by the user
+    
+    /create ?token=<token> &title=<title> &desc=<desc> &recipe=<recipe>
+        create a new post
+        required: token, recipe
+    /update ?post-id=<post-id> &title=<title> &desc=<desc> &user-token=<consumer-token> &recipe-id=<recipe-id>
+        update a post
+        required: post-id
+    /close ?token=<token> &post-id=<post-id>
+        close a post
+    /delete ?token=<token> &post-id=<post-id>
+        delete a post
 /users/
     GET Request:
         [email|uname] - finds a user by email or username
