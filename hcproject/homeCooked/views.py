@@ -46,14 +46,15 @@ def allergy_request(request):
     # Deletes a post upon user request
 
 
+
 @csrf_exempt
 def delete_user(request):
     if request.method == 'POST':
 
+        if 'fid' not in request.GET:
+            return JsonResponse(status=404, data={'response': 'token not in parameters'})
         uid = validate_token(request.GET.get('fid'))
-
-        if uid is None:
-            return JsonResponse(status=400, data={'response':'Error invalid token'})
+        print(uid)
 
         user = User.objects.filter(user_fid=uid)
         if len(list(user)) == 0:
@@ -144,7 +145,7 @@ def get_recipes(request):
     user = User.objects.get(user_fid=fid)
     recipes = Recipe.objects.filter(recipe_user=user.user_id)
 
-    return JsonResponse(status=404, data={'response':serializers.serialize('json', recipes)})
+    return JsonResponse(status=200, data={'response':serializers.serialize('json', recipes)})
 
 
 @csrf_exempt
@@ -490,9 +491,9 @@ def user_create(request):
 
         username = request.GET.get('uname')
         
-        if uname is None:
+        if username is None:
             return JsonResponse(status=400, data={'response':'invalid username'})
-        if User.objects.filter(user_uname=uname).exists():
+        if User.objects.filter(user_uname=username).exists():
             return JsonResponse(status=404, data={'response': 'username already in use'})
 
         user = User(user_fid=fid, user_uname=username)
