@@ -87,3 +87,10 @@ class PostTestCase(TestCase):
         print('new post is:')
         print(c.get('/posts/sort', {'filter':'producer-closed', 'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83"}).json()['response'])
     
+        print('\ndeleting post')
+        response = c.post('/posts/delete', {'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83", 'post-id':1})
+        if response.status_code != 200:
+            print("error with fetching post, test failed")
+        else:
+            print("Success! got response:")
+        print(response.json())

@@ -275,17 +275,21 @@ def post_create(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        
+
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
+
         # TODO: THIS IS TEST CODE!! 
         # TODO: IT IS NOT TO MAKE IT TO THE MAIN BRANCH!
         # TODO: IF THIS IS IN MAIN, DELETE ANY MENTION OF fid BEFORE fid=validate_token... (and the else statment that's in)
         
-        fid = request.POST.get('fid')
-        if 'token' not in request.POST:
+        fid = parameters.get('fid')
+        if 'token' not in parameters:
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'token/fid not in parameters'})
         else:
-            fid = validate_token(request.GET.get('token'))
+            fid = validate_token(parameters.get('token'))
 
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
@@ -297,11 +301,12 @@ def post_create(request):
 
         #seperating into diff lines so bugfixing (finding what is where) is easier
 
-        title = request.POST.get('title', 'none')
-        desc = request.POST.get('desc', 'none')
+        title = parameters.get('title', 'none')
+        desc = parameters.get('desc', 'none')
         created = timezone.now()
 
-        recipe = Recipe.objects.get(recipe_id=int(request.POST.get('recipe')))
+
+        recipe = Recipe.objects.get(recipe_id=int(parameters.get('recipe', '-1')))
         
         if recipe is None:
             return JsonResponse(status=400, data={'response':'invalid recipe id'})
@@ -321,17 +326,22 @@ def post_update(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if 'post-id' not in request.POST:
+        
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
+
+        if 'post-id' not in parameters:
             return JsonResponse(status=405, data={'response':'request parameter "post-id" is missing'})
         
-        fid = request.POST.get('fid')
-        if 'token' not in request.POST:
+        fid = parameters.get('fid')
+        if 'token' not in parameters:
             if fid is None:
                 return JsonResponse(status=405, data={'response':'error, token required to update post'})
         else:
-            fid=validate_token(request.POST['token'])
+            fid=validate_token(parameters['token'])
 
-        post_id = request.POST.get('post-id')
+        post_id = parameters.get('post-id')
 
         if post_id is None:
             return JsonResponse(status=405, data={'response':'missing post id'})        
@@ -344,9 +354,9 @@ def post_update(request):
         if fid != post.post_producer.user_fid:
             return JsonResponse(status=404, data={'response':'unauthorized: invalid fid'})
 
-        title = request.POST.get('title', '')
-        desc = request.POST.get('desc', '')
-        recipe_id = request.POST.get('recipe', '-1')
+        title = parameters.get('title', '')
+        desc = parameters.get('desc', '')
+        recipe_id = parameters.get('recipe', '-1')
 
         if title != "":
             post.post_title = title
@@ -375,13 +385,17 @@ def post_close(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
+
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
         
         # TODO: HEY!!! THIS SHOULD NOT BE ON MAIN BRANCH!!! IT'S ONLY FOR TESTING!!
         # TODO: DELETE ANY MENTION OF FID BEFORE fid=validate_token()
         # TODO: AND REMOVE THE ELSE LOOP CONTAINING IT
         
-        fid = request.POST.get('fid')
-        if 'token' not in request.GET:
+        fid = parameters.get('fid')
+        if 'token' not in parameters:
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'No token'})
         else:
@@ -390,10 +404,10 @@ def post_close(request):
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
-        if 'post-id' not in request.POST:
+        if 'post-id' not in parameters:
             return JsonResponse(status=404, data={'response': 'No post id'})
 
-        post = Post.objects.get(post_id=int(request.POST.get('post-id')))
+        post = Post.objects.get(post_id=int(parameters.get('post-id', '-1')))
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
         user = User.objects.get(user_fid=fid)
@@ -421,20 +435,30 @@ def post_delete(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
+        
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
+
+        # TODO: HEY! THIS IS TEST CODE! THIS IS NOT FOR THE MAIN BRANCH,
+        # TODO: IF YOU SEE THIS, DELETE ALL MENTIONS OF FID before fid=validate_token AND THE ELSE STATMENT
+        
+        fid = parameters['fid']
         if 'token' not in request.GET:
-            return JsonResponse(status=404, data={'response': 'token not in parameters'})
-                
-        fid = validate_token(request.GET.get('token'))
+            if fid is None:
+                return JsonResponse(status=404, data={'response': 'token not in parameters'})
+        else:        
+            fid = validate_token(request.GET.get('token'))
         
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
         user = User.objects.get(user_fid=fid)
         
-        if 'post-id' not in request.GET:
+        if 'post-id' not in parameters:
             return JsonResponse(status=404, data={'response': 'No post_id in parameters'})
         
-        post = Post.objects.get(post_id=int(request.GET.get('post-id')))
+        post = Post.objects.get(post_id=int(parameters.get('post-id')))
         post.delete()
 
         if post.post_producer.user_id != user.user_id:
