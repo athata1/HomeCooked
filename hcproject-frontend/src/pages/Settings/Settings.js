@@ -41,7 +41,7 @@ const Settings = () => {
     getToken,
     setCurrentPhoto,
     getCurrentPhoto,
-    loginWithoutEmail
+    loginWithoutEmail,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -73,7 +73,7 @@ const Settings = () => {
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
-          setAddress(userData.fields.user_address)
+          setAddress(userData.fields.user_address);
         });
     });
     getCurrentPhoto().then((url) => {
@@ -109,7 +109,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data)
+          console.log(data);
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
@@ -126,39 +126,40 @@ const Settings = () => {
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
     loginWithoutEmail(deleteAccountPassword)
-    .then(() => {
-      console.log("Here")
-      getToken().then((token) => {
-      let url = "http://localhost:8000/users/delete?fid=" + token;
-      fetch(url, {
-        method: "POST", // *GET, POST, PUT, DELETE, etc.
-        // mode: "no-cors", // no-cors, *cors, same-origin
-        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: "same-origin", // include, *same-origin, omit
-        headers: {
-          "Content-Type": "application/json",
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        redirect: "follow", // manual, *follow, error
-        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          console.log(data)
-          if (data.status == "200") {
-            deleteUser(deleteAccountPassword).then((res) =>
-              setDeletedAccount(res)
-            );
-          } else {
-            alert("Error: Could not delete account");
-          }
+      .then(() => {
+        console.log("Here");
+        getToken().then((token) => {
+          let url = "http://localhost:8000/users/delete?fid=" + token;
+          fetch(url, {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          })
+            .then((res) => {
+              return res.json();
+            })
+            .then((data) => {
+              console.log(data);
+              if (data.status == "200") {
+                deleteUser(deleteAccountPassword).then((res) =>
+                  setDeletedAccount(res)
+                );
+              } else {
+                alert("Error: Could not delete account");
+              }
+            });
         });
-    })}
-    ).catch((e) => {
-      alert("Error: Invalid password")
-    })
+      })
+      .catch((e) => {
+        alert("Error: Invalid password");
+      });
   };
 
   const handleRemoveImage = (e) => {
@@ -186,7 +187,6 @@ const Settings = () => {
   const handleSave = (e) => {
     e.preventDefault();
     if (validationChecks()) {
-
       if (emailChangePassword !== "") {
         changeEmail(email, emailChangePassword)
           .then((res) => setEmailChangeSuccess(res))
@@ -214,8 +214,9 @@ const Settings = () => {
           "&state=" +
           selectedState +
           "&bio=" +
-          about + 
-          "&address=" + address;
+          about +
+          "&address=" +
+          address;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -237,16 +238,24 @@ const Settings = () => {
                 let rand = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + rand);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
-                    getDownloadURL(e.ref).then((url) => {
+                  getDownloadURL(e.ref)
+                    .then((url) => {
                       setCurrentPhoto(url);
-                      return url
-                    }).then((link) => {
-                      link = "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" + rand + "?alt=media"
+                      return url;
+                    })
+                    .then((link) => {
+                      link =
+                        "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" +
+                        rand +
+                        "?alt=media";
                       let url =
-                      "http://localhost:8000/users/?type=Change&uname=" +
-                      "&fid=" +
-                      token +
-                      "&image=" + link + "&uname=" + username;
+                        "http://localhost:8000/users/?type=Change&uname=" +
+                        "&fid=" +
+                        token +
+                        "&image=" +
+                        link +
+                        "&uname=" +
+                        username;
                       fetch(url, {
                         method: "POST", // *GET, POST, PUT, DELETE, etc.
                         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -258,9 +267,9 @@ const Settings = () => {
                         },
                         redirect: "follow", // manual, *follow, error
                         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-                      })
-                    })
-                })
+                      });
+                    });
+                });
               }
             }
           });
