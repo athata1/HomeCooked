@@ -76,28 +76,30 @@ export default function Signup() {
       redirect: "follow", // manual, *follow, error
       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     }).then((res) => {
-      return res.json()
-    }).then((data) => {
-      if (data.status == '404') {
-        try {
-          setIsLoading(true);
-          console.log(process.env.REACT_APP_FIREBASE_API_KEY);
-          signup(
-            emailRef.current.value,
-            passwordRef.current.value,
-            usernameRef.current.value
-          );
-          console.log("Success!");
-        } catch (e) {
-          alert("Failed to create an account");
-          console.log(e);
-        }
-        setIsLoading(false);
+      if (res.status === 200) {
+        alert('Error: username already exists');
       }
       else {
-        alert('Error: username already exists');
-        return;
+        res.json().then((data) => {
+          try {
+            setIsLoading(true);
+            console.log(process.env.REACT_APP_FIREBASE_API_KEY);
+            signup(
+              emailRef.current.value,
+              passwordRef.current.value,
+              usernameRef.current.value
+            );
+            console.log("Success!");
+          } catch (e) {
+            alert("Failed to create an account");
+            console.log(e);
+          }
+          setIsLoading(false);
+        })
       }
+      return res.json()
+    }).catch((res) => {
+      console.log(res);
     })
   }
 

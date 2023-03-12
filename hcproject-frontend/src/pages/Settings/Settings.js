@@ -129,7 +129,7 @@ const Settings = () => {
     .then(() => {
       console.log("Here")
       getToken().then((token) => {
-      let url = "http://localhost:8000/users/delete?fid=" + token;
+      let url = "http://localhost:8000/users/deleted?fid=" + token;
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -143,18 +143,17 @@ const Settings = () => {
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       })
         .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          console.log(data)
-          if (data.status == "200") {
-            deleteUser(deleteAccountPassword).then((res) =>
+          if (res.status === 200) {
+            res.json().then((data) => {
+              deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
             );
-          } else {
+            })
+          }
+          else {
             alert("Error: Could not delete account");
           }
-        });
+        })
     })}
     ).catch((e) => {
       alert("Error: Invalid password")
@@ -229,10 +228,7 @@ const Settings = () => {
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         })
           .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            if (data.status === "200") {
+            if (res.status === 200) {
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + rand);
@@ -263,7 +259,8 @@ const Settings = () => {
                 })
               }
             }
-          });
+            return res.json();
+          })
       });
     }
 

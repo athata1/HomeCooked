@@ -14,6 +14,8 @@ import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
 import Profile from "./pages/Profile/Profile";
 import OtherProfiles from "./pages/OtherProfiles/OtherProfiles";
+import ChangePassword from "./pages/ChangePassword/ChangePassword";
+import ResetPassword from "./pages/ResetPassword/ResetPassword";
 
 function App() {
   return (
@@ -23,6 +25,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/public/:uname" element={<OtherProfiles/>} />
+          <Route
+            path="/reset"
+            element={<ChangePassword/>}
+          />
+          <Route path="/change" element={<ResetPassword/>} />
           <Route
             path="/dashboard"
             element={<PrivateRoute element={<Dashboard />} />}
