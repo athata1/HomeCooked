@@ -63,17 +63,25 @@
 
 ## Urls:
 ```
-/posts/      gives a list of all posts
-/posts/db
-    GET Request:
-        [producer] - posts producer by a user
-        [userid] - posts including a user
-        [id] - a specific post with a specific id
-        [] - all posts
-    POST Request:
-        [producer, recipe, title(str), desc(str)] - creates a new post
-        [id(int), title|desc|producer|consumer|recipe] - updates an existing post
+/posts      gives a list of all posts
+    /sort (GET) ?token=token or ?fid=fid    (GET)
+        
+        ?filter=open - show currently open posts authored by the user
+        ?filter=producer-closed - show currently closed posts authored by the user
+        ?filter=consumer-closed - show currently posts bought by the user
+    
+    /create ?token=<token> &title=<title> &desc=<desc> &recipe=<recipe>     (GET)
+        create a new post
+        required: token, recipe
+    /update ?post-id=<post-id> &title=<title> &desc=<desc> &user-token=<consumer-token> &recipe-id=<recipe-id>
+        update a post
+        required: post-id
+    /close ?token=<token> &post-id=<post-id>    (GET)
+        close a post
+    /delete ?token=<token> &post-id=<post-id>   (GET)
+        delete a post
 /users/
+    /delete
     GET Request:
         [email|uname] - finds a user by email or username
         [id] - finds the coresponding user
