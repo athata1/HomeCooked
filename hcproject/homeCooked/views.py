@@ -50,10 +50,10 @@ def allergy_request(request):
 def delete_user(request):
     if request.method == 'POST':
 
+        if 'fid' not in request.GET:
+            return JsonResponse(status=404, data={'response': 'token not in parameters'})
         uid = validate_token(request.GET.get('fid'))
-
-        if uid is None:
-            return JsonResponse(status=400, data={'response':'Error invalid token'})
+        print(uid)
 
         user = User.objects.filter(user_fid=uid)
         if len(list(user)) == 0:
@@ -115,6 +115,7 @@ def create_recipe(request):
     recipe.save()
     return JsonResponse(status=200, data={'response':'Created recipe'})
 
+
 @csrf_exempt
 def get_recipes_by_id(request):
     if request.method != 'GET':
@@ -144,7 +145,7 @@ def get_recipes(request):
     user = User.objects.get(user_fid=fid)
     recipes = Recipe.objects.filter(recipe_user=user.user_id)
 
-    return JsonResponse(status=404, data={'response':serializers.serialize('json', recipes)})
+    return JsonResponse(status=200, data={'response':serializers.serialize('json', recipes)})
 
 
 @csrf_exempt
@@ -232,11 +233,10 @@ def post_sort(request):
         if request.method != 'GET':
             return JsonResponse(status=404, data={'request':'request method is not GET'})
 
-        fid=None
+        fid = request.GET.get('fid')
         if 'token' not in request.GET:
-            if 'fid' not in request.GET:
+            if fid is None:
                 return JsonResponse(status=404, data={'response': 'token/fid not in parameters'})
-            fid = request.GET.get('fid')
         else:
             fid = validate_token(request.GET.get('token'))
 
@@ -252,7 +252,6 @@ def post_sort(request):
 
         if user is None:
             return JsonResponse(status=404, data={'response':'invalid token'})
-
 
         if post_filter == 'open':
             posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
@@ -299,6 +298,7 @@ def post_create(request):
         if user is None:
             return JsonResponse(status=400, data={'response':'invalid token'})
 
+
         #seperating into diff lines so bugfixing (finding what is where) is easier
 
         title = parameters.get('title', 'none')
@@ -333,23 +333,26 @@ def post_update(request):
 
         if 'post-id' not in parameters:
             return JsonResponse(status=405, data={'response':'request parameter "post-id" is missing'})
-        
-        fid = parameters.get('fid')
-        if 'token' not in parameters:
-            if fid is None:
-                return JsonResponse(status=405, data={'response':'error, token required to update post'})
-        else:
-            fid=validate_token(parameters['token'])
 
-        post_id = parameters.get('post-id')
+        post_id = request.GET.get('post-id')
 
-        if post_id is None:
-            return JsonResponse(status=405, data={'response':'missing post id'})        
+        if post_id < 0:
+            return JsonResponse(status=404, data={'response':'missing/invalid post id'})        
 
-        post = Post.objects.get(post_id = int(post_id))
+        post = Post.objects.get(post_id = post_id)
 
         if post is None:
             return JsonResponse(status=404, data={'response':'unable to find post with matching id'})
+
+        fid = parameters.get('fid')
+        if 'token' not in parameters:
+            if fid is None:
+                return JsonResponse(status=405, data={'response':'request parameter "token" is missing'})
+        else:
+            fid = validate_token(token);
+
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'invalid token'})
 
         if fid != post.post_producer.user_fid:
             return JsonResponse(status=404, data={'response':'unauthorized: invalid fid'})
@@ -385,21 +388,17 @@ def post_close(request):
     try:
         if request.method != 'POST':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-
+        
         parameters = request.POST
         if len(request.POST) == 0:
             parameters = request.GET
-        
-        # TODO: HEY!!! THIS SHOULD NOT BE ON MAIN BRANCH!!! IT'S ONLY FOR TESTING!!
-        # TODO: DELETE ANY MENTION OF FID BEFORE fid=validate_token()
-        # TODO: AND REMOVE THE ELSE LOOP CONTAINING IT
-        
+
         fid = parameters.get('fid')
         if 'token' not in parameters:
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'No token'})
         else:
-            fid = validate_token(request.GET.get('token'))
+            fid = validate_token(parameters.get('token'))
 
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
@@ -411,10 +410,8 @@ def post_close(request):
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
         user = User.objects.get(user_fid=fid)
-        
-        # TODO: ERROR THE FOLLOWING LINES SHOULD NOT BE COMMENTED OUT ON MAIN BRANCH -- FOR TESTING PURPOSES ONLY!!!
-        # if post.post_producer.user_id != user.user_id:
-        #     return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
+        if post.post_producer.user_id != user.user_id:
+            return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
         
         if user is None:
             return JsonResponse(status=404, data={'response': 'no user with that fid'})
@@ -439,15 +436,12 @@ def post_delete(request):
         parameters = request.POST
         if len(request.POST) == 0:
             parameters = request.GET
-
-        # TODO: HEY! THIS IS TEST CODE! THIS IS NOT FOR THE MAIN BRANCH,
-        # TODO: IF YOU SEE THIS, DELETE ALL MENTIONS OF FID before fid=validate_token AND THE ELSE STATMENT
         
-        fid = parameters['fid']
-        if 'token' not in request.GET:
+        fid = parameters.get('fid')
+        if 'token' not in parameters:
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'token not in parameters'})
-        else:        
+        else:
             fid = validate_token(request.GET.get('token'))
         
         if fid is None:
@@ -494,79 +488,6 @@ def user_by_id(request):
             return JsonResponse(status=200, data={'data': serializers.serialize('json', user)}, safe=False)
         return JsonResponse(status=404, data={'response': 'id does not exist'})
     return JsonResponse(status=405, data={'response': 'Not Get request'})
-
-
-@csrf_exempt
-def user_create(request):
-    try:
-        if request.method != 'POST':
-            return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if 'token' not in request.GET:
-            return JsonResponse(status=405, data={'response': 'missing parameter: token'})
-
-        fid = validate_token(request.GET.get('token'))
-
-        if fid is None:
-            return JsonResponse(status=404, data={'response': 'invalid token'})
-
-        if User.objects.filter(user_fid=fid).exists():
-            return JsonResponse(status=404, data={'response': 'fid already in use'})
-
-
-        username = request.GET.get('uname')
-        
-        if uname is None:
-            return JsonResponse(status=400, data={'response':'invalid username'})
-        if User.objects.filter(user_uname=uname).exists():
-            return JsonResponse(status=404, data={'response': 'username already in use'})
-
-        user = User(user_fid=fid, user_uname=username)
-        user.save()
-
-        return JsonResponse(status=200, data={'response': 'User created'})
-    except Exception as E:
-        print(E)
-        return JsonResponse(status=500, data={'response' : 'could not create user ' + str(E)})    
-
-
-@csrf_exempt
-def user_update(request):
-    try:
-        if request.method != 'POST':
-            return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if 'token' not in request.GET:
-            return JsonResponse(status=405, data={'response': 'missing parameter: token'})
-
-        fid = validate_token(request.GET.get('token'))
-
-        if fid is None:
-            return JsonResponse(status=404, data={'response': 'invalid token'})
-
-        user = User.objects.get(user_fid=fid)
-
-        if user is None:
-            return JsonResponse(status=404, data={'response': 'no user with that fid'})
-
-        #username, address, city, state, bio, image_text
-        if 'uname' in request.GET:
-            user.user_uname=request.GET.get('uname')
-        if 'address' in request.GET:
-            user.user_address=request.GET.get('address')
-        if 'city' in request.GET:
-            user.user_city=request.GET.get('city')
-        if 'state' in request.GET:
-            user.user_state=request.GET.get('state')
-        if 'bio' in request.GET:
-            user.user_bio=request.GET.get('bio')
-        if 'image' in request.GET:
-            user.image_text=request.GET.get('image')
-
-        user.save()
-
-        return JsonResponse(status=200, data={'response': 'User updated'})
-    except Exception as E:
-        print(E)
-        return JsonResponse(status=500, data={'response' : 'could not create user ' + str(E)})  
 
 
 @csrf_exempt

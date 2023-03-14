@@ -99,7 +99,7 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
     }
     if (mode === 'producer' && showMode === 2) {
       getToken().then((token) => {
-        fetch("http://localhost:8000/posts/delete?token=" + token + "&post_id=" + postIndex, {
+        fetch("http://localhost:8000/posts/delete?token=" + token + "&post-id=" + postIndex, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
           cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -122,7 +122,7 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
 
   function handlePost() {
     getToken().then((token) => {
-      fetch("http://localhost:8000/posts/?token=" + token  + "&type=Create&recipe=" + response.pk, {
+      fetch("http://localhost:8000/posts/create?token=" + token  + "&recipe=" + response.pk, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

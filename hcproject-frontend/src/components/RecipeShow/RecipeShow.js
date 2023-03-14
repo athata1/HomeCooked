@@ -36,7 +36,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     }).then((res) => {
       return res.json();
     }).then((data) => {
-      data = JSON.parse(data);
+      data = JSON.parse(data.response);
       setResponses(data);
     })
   })
@@ -44,7 +44,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
 
   function postProducer() {
     getToken().then((token) => {
-      let url = "http://localhost:8000/posts/?token=" + token  + "&type=open"
+      let url = "http://localhost:8000/posts/sort?token=" + token  + "&filter=open"
       fetch(url, {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -59,14 +59,14 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
       }).then((res) => {
         return res.json()
       }).then((data) => {
-        setResponses(JSON.parse(data))
+        setResponses(JSON.parse(data.response))
       })
     })
   }
 
   function archiveProducer() {
     getToken().then((token) => {
-      let url = "http://localhost:8000/posts/?token=" + token  + "&type=producer_closed"
+      let url = "http://localhost:8000/posts/sort?token=" + token  + "&filter=producer-closed"
       fetch(url, {
         method: "GET", // *GET, POST, PUT, DELETE, etc.
         // mode: "no-cors", // no-cors, *cors, same-origin
@@ -81,7 +81,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
       }).then((res) => {
         return res.json()
       }).then((data) => {
-        setResponses(JSON.parse(data))
+        setResponses(JSON.parse(data.response))
       })
     })
   }
