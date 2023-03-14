@@ -334,7 +334,7 @@ def post_update(request):
         if 'post-id' not in parameters:
             return JsonResponse(status=405, data={'response':'request parameter "post-id" is missing'})
 
-        post_id = request.GET.get('post-id')
+        post_id = int(parameters.get('post-id', '-1'))
 
         if post_id < 0:
             return JsonResponse(status=404, data={'response':'missing/invalid post id'})        
@@ -359,7 +359,9 @@ def post_update(request):
 
         title = parameters.get('title', '')
         desc = parameters.get('desc', '')
-        recipe_id = parameters.get('recipe', '-1')
+        recipe_id = int(parameters.get('recipe', '-1'))
+
+        print('recipe id = ' + str(recipe_id))
 
         if title != "":
             post.post_title = title
@@ -367,8 +369,8 @@ def post_update(request):
         if desc != "":
             post.post_desc = desc
 
-        if int(recipe_id) > 0:
-            recipe = Recipe.objects.get(recipe_id = int(recipe_id))
+        if recipe_id > 0:
+            recipe = Recipe.objects.get(recipe_id = recipe_id)
 
             if recipe is None:
                 return JsonResponse(status=404, data={'response':'unable to find recipe with matching id'})
@@ -376,6 +378,8 @@ def post_update(request):
             post.post_recipe = recipe
 
         post.save()
+
+        print(post)
 
         return JsonResponse(status=200, data={'response': 'Post updated'})
     except Exception as E:

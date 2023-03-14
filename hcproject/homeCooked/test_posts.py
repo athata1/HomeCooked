@@ -1,33 +1,26 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, RequestFactory
 from django.core import serializers
 from django.utils import timezone
 from .models import *
 
 class PostTestCase(TestCase):
-    def test_post(self):
-        print("\ntesting json responses searching for posts\n")
-        user = User.objects.filter(user_fid="k4zYLfDW2dROxxgRF0FvsJXWXU83").first()
-        if user is None:
-            user = User(user_fid="k4zYLfDW2dROxxgRF0FvsJXWXU83", user_uname="sampleUser", 
+    def setUp(self):
+        self.user = User(user_fid="k4zYLfDW2dROxxgRF0FvsJXWXU83", user_uname="sampleUser", 
             user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
             user_bio="a fake person")
-            user.save()
-        
-        recipe = Recipe.objects.filter(recipe_user=user).first()
-        if recipe is None:
-            recipe = Recipe.objects.create(recipe_user=user, recipe_name="a recipe", recipe_ingredients="stuff and things",
+        self.user.save()
+
+        self.recipe = Recipe.objects.create(recipe_user=self.user, recipe_name="a recipe", recipe_ingredients="stuff and things",
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
-            recipe.save()
-
-        print("setup done, user, recipe, post all found or created")
+        self.recipe.save()
         
-        #post = Post.objects.filter(post_producer=user, post_available=True).first()
-        #if post is None:
-        #    post = Post.objects.create(post_producer=user, post_consumer=user, post_recipe=recipe, post_title="a new available sample post", post_desc="a random description", post_available=True)
-        #    post.save()
-        c = Client()
+        self.c = Client()
+        self.factory = RequestFactory()
 
-        response = c.post('/posts/create', {'fid':'k4zYLfDW2dROxxgRF0FvsJXWXU83', 'recipe':recipe.recipe_id,
+    def test_001_post_a_create_post(self):
+        print("\ncreating a new post")
+
+        response = self.c.post('/posts/create', {'fid':'k4zYLfDW2dROxxgRF0FvsJXWXU83', 'recipe':self.recipe.recipe_id,
                                             'title':'a sample post', 'desc':'a random description'})
         if response.status_code != 200:
             print("error with fetching post, test failed")
@@ -35,11 +28,15 @@ class PostTestCase(TestCase):
             print("Success! got response:")
 
         print(response.json())
-        
+
+
+    def test_002_post_sort_open(self):
         print("\nfinding open posts from sampleuser:")
 
-       
-        response = c.get('/posts/sort', {'filter':'open', 'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83"})
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        response = self.c.get('/posts/sort', {'filter':'open', 'fid':self.user.user_fid})
         if response.status_code != 200:
             print("error with fetching post, test failed")
         else:
@@ -47,8 +44,13 @@ class PostTestCase(TestCase):
 
         print(response.json())
         
+    def test_003_post_close_post(self):
         print("\nclosing post")
-        response = c.post('/posts/close', {'fid':'k4zYLfDW2dROxxgRF0FvsJXWXU83', 'post-id':1})
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        response = self.c.post('/posts/close', {'fid':self.user.user_fid, 'post-id':1})
         if response.status_code != 200:
             print("error with fetching post, test failed")
         else:
@@ -56,8 +58,13 @@ class PostTestCase(TestCase):
 
         print(response.json())
 
+    def test_004_post_d_sort_closed(self):
         print("\nfinding closed posts bought by sample user")
-        response = c.get('/posts/sort', {'filter':'consumer-closed', 'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83"})
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title", post_consumer=self.user, post_available=False)
+        post.save()
+
+        response = self.c.get('/posts/sort', {'filter':'consumer-closed', 'fid':self.user.user_fid})
         if response.status_code != 200:
             print("error with fetching post, test failed")
         else:
@@ -65,30 +72,43 @@ class PostTestCase(TestCase):
         print(response.json())
 
         print("\nfinding closed posts produced by sample user")
-        response = c.get('/posts/sort', {'filter':'producer-closed', 'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83"})
+        response = self.c.get('/posts/sort', {'filter':'producer-closed', 'fid':self.user.user_fid})
         if response.status_code != 200:
             print("error with fetching post, test failed")
         else:
             print("Success! got response:")
         print(response.json())
     
-        new_recipe = Recipe.objects.create(recipe_user=user, recipe_name="a recipe", recipe_ingredients="stuff and things",
+    def test_005_post_update(self):
+        print("\nupdating post")
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        new_recipe = Recipe.objects.create(recipe_user=self.user, recipe_name="a recipe", recipe_ingredients="stuff and things",
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         new_recipe.save()
+
         print("\nnew recipe created: id = " + str(new_recipe.recipe_id))
 
-        print("\nupdating post")
-        response = c.post('/posts/update', {'fid':user.user_fid, 'post-id':1, 'title':'new title', 'desc':'a new description', 'recipe':new_recipe.recipe_id})
+        response = self.c.post('/posts/update', {'fid':self.user.user_fid, 'post-id':str(post.post_id), 'title':'new title', 'desc':'a new description', 'recipe':new_recipe.recipe_id})
         if response.status_code != 200:
             print("error with updating post, test failed")
         else:
             print("Success! got response:")
         print(response.json())
+
         print('new post is:')
-        print(c.get('/posts/sort', {'filter':'producer-closed', 'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83"}).json()['response'])
+        print(self.c.get('/posts/sort', {'filter':'open', 'fid':self.user.user_fid}).json()['response'])
     
+
+    def test_006_post_delete(self):
         print('\ndeleting post')
-        response = c.post('/posts/delete', {'fid':"k4zYLfDW2dROxxgRF0FvsJXWXU83", 'post-id':1})
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        response = self.c.post('/posts/delete', {'fid':self.user.user_fid, 'post-id':1})
         if response.status_code != 200:
             print("error with fetching post, test failed")
         else:
