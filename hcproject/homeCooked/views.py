@@ -325,10 +325,6 @@ def post_update(request):
         if 'post-id' not in parameters:
             return JsonResponse(status=405, data={'response':'request parameter "post-id" is missing'})
 
-        if 'token' not in parameters:
-            return JsonResponse(status=405, data={'response':'error, token required to update post'})
-
-        fid=validate_token(parameters['token'])
         post_id = int(parameters.get('post-id', '-1'))
 
         if post_id < 0:
@@ -338,6 +334,14 @@ def post_update(request):
 
         if post is None:
             return JsonResponse(status=404, data={'response':'unable to find post with matching id'})
+
+        if 'token' not in parameters:
+            return JsonResponse(status=405, data={'response':'error, token required to update post'})
+
+        fid=validate_token(parameters['token'])
+
+        if fid is None:
+            return JsonResponse(status=404, data={'response':'invalid token'})
 
         if fid != post.post_producer.user_fid:
             return JsonResponse(status=404, data={'response':'unauthorized: invalid fid'})
@@ -390,11 +394,12 @@ def post_close(request):
             return JsonResponse(status=404, data={'response': 'No post id'})
 
         post = Post.objects.get(post_id=int(parameters.get('post-id', '-1')))
+        
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
-        user = User.objects.get(user_fid=fid)
         
-        if post.post_producer.user_id != user.user_id:
+        
+        if post.post_producer.user_fid != fid:
             return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
         
         if user is None:
@@ -428,18 +433,16 @@ def post_delete(request):
         
         if fid is None:
             return JsonResponse(status=404, data={'response': 'invalid token'})
-
-        user = User.objects.get(user_fid=fid)
         
         if 'post-id' not in parameters:
             return JsonResponse(status=404, data={'response': 'No post_id in parameters'})
         
         post = Post.objects.get(post_id=int(parameters.get('post-id')))
-        post.delete()
 
-        if post.post_producer.user_id != user.user_id:
+        if post.post_producer.user_fid != fid:
             return JsonResponse(status=404, data={'response': 'You do not have permission to delete this post'})
         else:
+            post.delete()
             return JsonResponse(status=200, data={'response': 'Deleted Post'})
     except Exception as E:
         print(E)
