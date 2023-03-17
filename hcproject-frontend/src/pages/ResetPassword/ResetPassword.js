@@ -1,15 +1,17 @@
 import React, {useRef, useState} from 'react'
 import "./ResetPassword.css"
 import { useAuth } from '../../Firebase/AuthContext'
-import { useLocation, Navigate } from "react-router-dom";
+import { useLocation, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 
 export default function ResetPassword() {
 
   const confirmPasswordRef = useRef()
   const passwordRef = useRef()
+  const [queryParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const {currentUser, login} = useAuth();
+  const {currentUser, changeResetPassword} = useAuth();
   let location = useLocation()
   if (currentUser !== null) {
     return <Navigate to="/dashboard" state={{ from: location }} replace />
@@ -27,6 +29,20 @@ export default function ResetPassword() {
       alert("Error: Passwords do not match")
       return;
     }
+
+    setIsLoading(true);
+    console.log(queryParams.get("oobCode"));
+    changeResetPassword(queryParams.get("oobCode"), passwordRef.current.value).then(() => {
+      console.log("Changed Password");
+      setIsLoading(false);
+      navigate("/login");
+
+    }).catch(() => {
+      console.log("Error while changing password")
+    }).finally(() => {
+      setIsLoading(false);
+    })
+    
   }
 
   return (
