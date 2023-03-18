@@ -300,8 +300,7 @@ def post_create(request):
 
 
         #seperating into diff lines so bugfixing (finding what is where) is easier
-
-        title = parameters.get('title', 'none')
+        title = parameters.get('title', 'untitled')
         desc = parameters.get('desc', 'none')
         created = timezone.now()
 

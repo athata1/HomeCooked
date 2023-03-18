@@ -3,7 +3,7 @@ from django.core import serializers
 from django.utils import timezone
 from .models import *
 
-class PostTestCase(TestCase):
+class PostTestCase(TestCase):   
     def setUp(self):
         self.user = User(user_fid="k4zYLfDW2dROxxgRF0FvsJXWXU83", user_uname="sampleUser", 
             user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
@@ -20,12 +20,17 @@ class PostTestCase(TestCase):
     def test_001_post_a_create_post(self):
         print("\ncreating a new post")
 
-        response = self.c.post('/posts/create', {'fid':'k4zYLfDW2dROxxgRF0FvsJXWXU83', 'recipe':self.recipe.recipe_id,
-                                            'title':'a sample post', 'desc':'a random description'})
+        response = self.c.post('/posts/create', {
+            'fid':self.user.user_fid,
+            'recipe':self.recipe.recipe_id,
+            'title':'a sample post',
+            'desc':'a random description'
+            })
+
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! got response:")
 
         print(response.json())
 
@@ -38,12 +43,13 @@ class PostTestCase(TestCase):
 
         response = self.c.get('/posts/sort', {'filter':'open', 'fid':self.user.user_fid})
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! got response:")
 
         print(response.json())
-        
+
+  
     def test_003_post_close_post(self):
         print("\nclosing post")
 
@@ -52,11 +58,12 @@ class PostTestCase(TestCase):
 
         response = self.c.post('/posts/close', {'fid':self.user.user_fid, 'post-id':1})
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! got response:")
 
         print(response.json())
+
 
     def test_004_post_d_sort_closed(self):
         print("\nfinding closed posts bought by sample user")
@@ -66,19 +73,20 @@ class PostTestCase(TestCase):
 
         response = self.c.get('/posts/sort', {'filter':'consumer-closed', 'fid':self.user.user_fid})
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! Got response:")
         print(response.json())
 
         print("\nfinding closed posts produced by sample user")
         response = self.c.get('/posts/sort', {'filter':'producer-closed', 'fid':self.user.user_fid})
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! got response:")
         print(response.json())
-    
+
+
     def test_005_post_update(self):
         print("\nupdating post")
 
@@ -95,7 +103,7 @@ class PostTestCase(TestCase):
         if response.status_code != 200:
             print("error with updating post, test failed")
         else:
-            print("Success! got response:")
+            print("Success! Got response:")
         print(response.json())
 
         print('new post is:')
@@ -110,7 +118,23 @@ class PostTestCase(TestCase):
 
         response = self.c.post('/posts/delete', {'fid':self.user.user_fid, 'post-id':1})
         if response.status_code != 200:
-            print("error with fetching post, test failed")
+            print(" error with fetching post, test failed")
         else:
-            print("Success! got response:")
+            print(" Success! Got response:")
+        print(response.json())
+
+
+    def test_007_post_create_empty_fields(self):
+        print('\ncreating post with empty fields')
+
+        response = self.c.post('/posts/create', {
+            'fid':self.user.user_fid,
+            'recipe':self.recipe.recipe_id,
+        })
+
+        if response.status_code != 200:
+            print(" error with creating post with empty title and description")
+        else:
+            print(" Success! Got response")
+
         print(response.json())
