@@ -11,6 +11,7 @@ urlpatterns = [
     path('posts/update', post_update),
     path('posts/close', post_close),
     path('posts/delete', post_delete),
+    path('posts/all', post_get_all),
     path('users/create', user_create),
     path('users/update', user_update),
     path('users/delete', delete_user),
