@@ -228,6 +228,21 @@ def create_review(request):
 
 
 @csrf_exempt
+def get_reviews(request):
+    try:
+        if request.method != 'POST':
+            return JsonResponse(status=404, data={'response': 'Not POST request'})
+        
+        if 'post-id' not in request.GET:
+            return JsonResponse(status=404, data={'response': 'Not post id'})
+        
+        reviews = Review.objects.filter(review_post=request.GET.get('post-id'));
+        return JsonResponse(status=200, data={'response':serializers.serialize('json', reviews)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response':'could not get post(s) ' + str(E)})
+
+@csrf_exempt
 def post_sort(request):
     try:
         if request.method != 'GET':
@@ -412,9 +427,10 @@ def post_close(request):
         post = Post.objects.get(post_id=int(parameters.get('post-id', '-1')))
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
+        
         user = User.objects.get(user_fid=fid)
-        if post.post_producer.user_id != user.user_id:
-            return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
+        if post.post_producer.user_id == user.user_id:
+            return JsonResponse(status=404, data={'response': "You can't buy an item you sold"})
         
         if user is None:
             return JsonResponse(status=404, data={'response': 'no user with that fid'})

@@ -5,7 +5,7 @@ from .models import *
 
 class PostTestCase(TestCase):   
     def setUp(self):
-        self.user = User(user_fid="k4zYLfDW2dROxxgRF0FvsJXWXU83", user_uname="sampleUser", 
+        self.user = User(user_fid="user1", user_uname="sampleUser", 
             user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
             user_bio="a fake person")
         self.user.save()
@@ -56,7 +56,12 @@ class PostTestCase(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
 
-        response = self.c.post('/posts/close', {'fid':self.user.user_fid, 'post-id':1})
+        user2 = User(user_fid="user2", user_uname='sampleUser2',
+        user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
+        user_bio="a fake person")
+        user2.save()
+
+        response = self.c.post('/posts/close', {'fid':user2.user_fid, 'post-id':1})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
