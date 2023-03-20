@@ -30,7 +30,9 @@ export default function ChangePassword() {
         <div className="change-password-background"></div>
         <div className="change-password">
           <div className="change-password-changepasswordform">
-            We sent an email to the provided email address. From there, you will be able to reset your password. If you did not receive the email, please click <span onClick={(e) => {handleSubmit(e)}} style={{display: "inline-block", textDecoration: "underline"}}>Here</span>to receive another one.
+            <div>
+            We sent an email to the provided email address. From there, you will be able to reset your password. If you did not receive the email, please click <span onClick={(e) => {handleSubmit(e)}} style={{display: "inline-block", textDecoration: "underline", cursor: "pointer"}}>Here</span>&nbsp; to receive another one.
+            </div>
           </div>
         </div>
       </>
