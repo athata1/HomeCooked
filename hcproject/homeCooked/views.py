@@ -375,8 +375,6 @@ def post_update(request):
         desc = parameters.get('desc', '')
         recipe_id = int(parameters.get('recipe', '-1'))
 
-        print('recipe id = ' + str(recipe_id))
-
         if title != "":
             post.post_title = title
 
@@ -392,8 +390,6 @@ def post_update(request):
             post.post_recipe = recipe
 
         post.save()
-
-        print(post)
 
         return JsonResponse(status=200, data={'response': 'Post updated'})
     except Exception as E:
