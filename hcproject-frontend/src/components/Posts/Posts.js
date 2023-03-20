@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { Switch } from "./../Switch/Switch"
 import Recipes from "../Recipes/Recipes";
 
-function Posts({mode, response, removeCallback, showMode}) {
+function Posts({mode, response, removeCallback, showMode, profileMode}) {
 
   const [recipeResponse, setRecipeResponse] = useState(null)
 
@@ -36,7 +36,7 @@ function Posts({mode, response, removeCallback, showMode}) {
 
   return (
   <div className="Posts">
-    {recipeResponse ? <Recipes showMode={showMode} removeCallback={removeCallback} key={response.pk} mode={mode} postIndex={response.pk} response={recipeResponse} post_id={response.pk}/> : ""}
+    {recipeResponse ? <Recipes showMode={showMode} removeCallback={removeCallback} key={response.pk} mode={mode} postIndex={response.pk} response={recipeResponse} post_id={response.pk} profileMode={profileMode} /> : ""}
   </div>)
 };
 

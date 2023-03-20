@@ -1,4 +1,10 @@
 .header {
     text-align: center;
   }
-  
+.profile-line {
+    display: block;
+    width: auto;
+    height: 1px;
+    background: black;
+    margin: 20px auto;
+}

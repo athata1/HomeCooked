@@ -12,7 +12,7 @@ import { ListGroup } from "react-bootstrap";
 import { useAuth } from "../../Firebase/AuthContext";
 import { filterBad } from "../../utils/badwords";
 
-function Recipes({mode, response, removeCallback, postIndex, showMode, post_id}) {
+function Recipes({mode, response, removeCallback, postIndex, showMode, post_id, profileMode}) {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -194,7 +194,7 @@ function Recipes({mode, response, removeCallback, postIndex, showMode, post_id})
           })}
         </div>
       </div>
-
+        {!profileMode ?
       <ButtonGroup style={{ float: 'right' }}>
         {showMode === 1  && mode==="producer"?
         <Button onClick={handlePost} variant="success">Post</Button> : "" }
@@ -203,6 +203,7 @@ function Recipes({mode, response, removeCallback, postIndex, showMode, post_id})
         {(showMode === 1 && mode==="producer") || (showMode === 2 && mode==="producer")?
         <Button onClick={handleDelete} variant="danger">Delete</Button> : ""}
       </ButtonGroup>
+      : ""}
     </Card.Body>
   </Card>
 </div>
