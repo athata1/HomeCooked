@@ -229,7 +229,7 @@ def create_review(request):
 @csrf_exempt
 def post_get_all(request):
     try:
-        if request.methos != 'GET':
+        if request.method != 'GET':
             return JsonResponse(status=404, data={'response':'request method is not GET'})
         
         posts = Post.objects.all()
