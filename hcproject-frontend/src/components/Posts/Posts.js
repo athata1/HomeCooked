@@ -36,7 +36,7 @@ function Posts({mode, response, removeCallback, showMode}) {
 
   return (
   <div className="Posts">
-    {recipeResponse ? <Recipes showMode={showMode} removeCallback={removeCallback} key={response.pk} mode={mode} postIndex={response.pk} response={recipeResponse}/> : ""}
+    {recipeResponse ? <Recipes showMode={showMode} removeCallback={removeCallback} key={response.pk} mode={mode} postIndex={response.pk} response={recipeResponse} post_id={response.pk}/> : ""}
   </div>)
 };
 
