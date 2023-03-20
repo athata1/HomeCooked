@@ -399,8 +399,8 @@ def post_close(request):
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
         
         
-        if post.post_producer.user_fid != fid:
-            return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
+        if post.post_producer.user_fid == fid:
+            return JsonResponse(status=404, data={'response': "You can't buy an item you sold"});
         
         if user is None:
             return JsonResponse(status=404, data={'response': 'no user with that fid'})
