@@ -12,7 +12,7 @@ import { ListGroup } from "react-bootstrap";
 import { useAuth } from "../../Firebase/AuthContext";
 import { filterBad } from "../../utils/badwords";
 
-function Recipes({mode, response, removeCallback, postIndex, showMode}) {
+function Recipes({mode, response, removeCallback, postIndex, showMode, post_id}) {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -120,6 +120,24 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
     }
   }
 
+  function handleClose() {
+    let uname = prompt("Enter username of user:");
+    getToken().then((token) => {fetch("http://localhost:8000/posts/close?token=" + token  + "&post-id=" + post_id + "&uname=" + uname, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      })
+    })
+
+  }
+
   function handlePost() {
     getToken().then((token) => {
       fetch("http://localhost:8000/posts/create?token=" + token  + "&recipe=" + response.pk, {
@@ -180,6 +198,8 @@ function Recipes({mode, response, removeCallback, postIndex, showMode}) {
       <ButtonGroup style={{ float: 'right' }}>
         {showMode === 1  && mode==="producer"?
         <Button onClick={handlePost} variant="success">Post</Button> : "" }
+        {showMode === 2 && mode==="producer"?
+        <Button onClick={handleClose} variant="success"> Give to Consumer</Button> : "" }
         {(showMode === 1 && mode==="producer") || (showMode === 2 && mode==="producer")?
         <Button onClick={handleDelete} variant="danger">Delete</Button> : ""}
       </ButtonGroup>
