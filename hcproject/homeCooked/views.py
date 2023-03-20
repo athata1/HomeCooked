@@ -227,12 +227,23 @@ def create_review(request):
     review.save()
     return JsonResponse(status=200, data={'response': 'Saved review'})
 
+@csrf_exempt
+def post_get_all(request):
+    try:
+        if request.method != 'GET':
+            return JsonResponse(status=404, data={'response':'request method is not GET'})
+        
+        posts = Post.objects.all()
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response':'could not get post(s) ' + str(E)})
 
 @csrf_exempt
 def post_sort(request):
     try:
         if request.method != 'GET':
-            return JsonResponse(status=404, data={'request': 'request method is not GET'})
+            return JsonResponse(status=404, data={'response':'request method is not GET'})
 
         if 'token' not in request.GET:
             return JsonResponse(status=404, data={'response': 'token/fid not in parameters'})
@@ -392,11 +403,12 @@ def post_close(request):
 
         if 'post-id' not in parameters:
             return JsonResponse(status=404, data={'response': 'No post id'})
-
-        post = Post.objects.get(post_id=int(parameters.get('post-id', '-1')))
+        print(parameters.get('post-id'))
+        post = Post.objects.get(pk=int(parameters.get('post-id')))
 
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'Error: post already closed'})
+
 
         if post.post_producer.user_fid != fid:
             return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})

@@ -6,11 +6,11 @@ import { useLocation, Navigate } from "react-router-dom";
 
 export default function ChangePassword() {
 
-  const emailRef = useRef()
-  const passwordRef = useRef()
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [succes, setSuccess] = useState(false);
 
-  const {currentUser, login} = useAuth();
+  const {currentUser, resetPassword} = useAuth();
   let location = useLocation()
   if (currentUser !== null) {
     return <Navigate to="/dashboard" state={{ from: location }} replace />
@@ -24,25 +24,35 @@ export default function ChangePassword() {
       );
   };
 
+  if (succes) {
+    return (
+      <>
+        <div className="change-password-background"></div>
+        <div className="change-password">
+          <div className="change-password-changepasswordform">
+            <div>
+            We sent an email to the provided email address. From there, you will be able to reset your password. If you did not receive the email, please click <span onClick={(e) => {handleSubmit(e)}} style={{display: "inline-block", textDecoration: "underline", cursor: "pointer"}}>Here</span>&nbsp; to receive another one.
+            </div>
+          </div>
+        </div>
+      </>
+    )
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
 
-    console.log(emailRef.current.value)
       
-    if (!validateEmail(emailRef.current.value)) {
+    if (!validateEmail(email)) {
       alert("Error: Please enter a valid email")
-      return;
-    }
-
-    if (passwordRef.current.value.length < 6) {
-      alert("Error: Password must have length of at least 6");
       return;
     }
 
     try {
       setIsLoading(true)
-      await login(emailRef.current.value, passwordRef.current.value)
-      console.log("Success!")
+      resetPassword(email);
+      console.log("Password email sent!")
+      setSuccess(true);
     }
     catch (e){
       alert("Failed to login to account")
@@ -57,7 +67,10 @@ export default function ChangePassword() {
       <div className="change-password">
         <div className="change-password-changepasswordform">
           <div className="change-password-title">Reset Password</div>
-          <input ref={emailRef} className="change-password-input" type="email" placeholder='Enter Email Address'></input>
+          <input className="change-password-input" type="email" placeholder='Enter Email Address' 
+          onChange={(e) => {setEmail(e.target.value)}}
+          value={email}
+          ></input>
           <button disabled={isLoading} onClick={(e) => {handleSubmit(e)}} className="change-password-button">Submit</button>
         </div>
       </div>
