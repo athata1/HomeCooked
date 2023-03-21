@@ -15,6 +15,7 @@ class User (models.Model):
     user_fid = models.CharField(max_length=200, verbose_name='Firebase ID')
     user_uname = models.CharField(max_length=200, verbose_name='Username')
     user_address = models.CharField(max_length=200, verbose_name='Address', default="")
+    user_zip = models.CharField(max_length=6, verbose_name='Zip Code', default="")
     user_city = models.CharField(max_length=200, verbose_name='City', default="")
     user_state = models.CharField(max_length=200, verbose_name='State', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")

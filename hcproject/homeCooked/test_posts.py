@@ -6,7 +6,7 @@ from .models import *
 class PostTestCase(TestCase):   
     def setUp(self):
         self.user = User(user_fid="user1", user_uname="sampleUser", 
-            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
             user_bio="a fake person")
         self.user.save()
 
@@ -198,5 +198,47 @@ class PostTestCase(TestCase):
             print(" error: only the producer should be able to delete posts!")
         else:
             print(" Success! You must be the producer to delete this post!")
+
+        print(response.json())
+
+
+    def test_011_post_get_all(self):
+        print('\ntest 011')
+        print("Getting all posts")
+        print('''expected response: [a post object]''')
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        response = self.c.get('/posts/get')
+        if response.status_code != 200:
+            print(" error with retrieving posts")
+        else:
+            print(" Success! Got response")
+
+        print(response.json())
+
+
+    def test_012_post_get_by_location(self):
+        print('\ntest 012')
+        print("Getting all posts in zipcode 60613")
+        print('''expected response: [a post object][a post object from a different user]''')
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        user2 = User(user_fid="user2", user_uname="sampleUser1", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake sibling of a fake person")
+        user2.save()
+
+        post2 = Post(post_producer=user2, post_recipe=self.recipe, post_title="some random title")
+        post2.save()        
+
+        response = self.c.get('/posts/zip', {'zip':'60613'})
+        if response.status_code != 200:
+            print(" error with retrieving posts")
+        else:
+            print(" Success! Got response")
 
         print(response.json())

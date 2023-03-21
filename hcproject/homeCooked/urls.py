@@ -8,6 +8,8 @@ app_name = 'HomeCooked'
 urlpatterns = [
     path('posts/sort', post_sort),
     path('posts/create', post_create),
+    path('posts/get', post_get_all),
+    path('posts/zip', post_get_by_loc),
     path('posts/update', post_update),
     path('posts/close', post_close),
     path('posts/delete', post_delete),

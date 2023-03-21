@@ -243,6 +243,38 @@ def get_reviews(request):
         return JsonResponse(status=500, data={'response':'could not get post(s) ' + str(E)})
 
 @csrf_exempt
+def post_get_all(request):
+    try:
+        if request.method != 'GET':
+            return JsonResponse(status=404, data={'response':'request method is not GET'})
+        
+        posts = Post.objects.all()
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response':'could not get post(s) ' + str(E)})
+
+
+@csrf_exempt
+def post_get_by_loc(request):
+    try:
+        if request.method != 'GET':
+            return JsonResponse(status=404, data={'response': 'request method must be POST'})
+        if 'zip' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing parameter zipcode'})
+    
+        posts = []
+        for user in User.objects.filter(user_zip=request.GET.get('zip')):
+            print("hi!")
+            posts.extend(Post.objects.filter(post_producer=user))
+        
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
+
+@csrf_exempt
 def post_sort(request):
     try:
         if request.method != 'GET':
