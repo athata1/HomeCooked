@@ -12,7 +12,7 @@ import InputTag from '../../components/InputTag/InputTag';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 
-const Dashboard = () => {
+const Events = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
   const [token, setToken] = useState();
   const [tags, setTags] = useState([])
@@ -37,8 +37,8 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="dashboard">
-      <Navbar part="Posts" mode={userMode} />
+    <div className="events">
+      <Navbar part="Events" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
       <div >
         <Container>
@@ -49,7 +49,7 @@ const Dashboard = () => {
                   variant="success"
                   data-bs-toggle="modal"
                   data-bs-target="#exampleModal"
-                  onClick={handleNewPost}>New Recipe</Button>
+                  onClick={handleNewPost}>New Event</Button>
                 <Button
                   variant="warning"
                   onClick={handleRecipes}
@@ -86,7 +86,7 @@ const Dashboard = () => {
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title" id="exampleModalLabel">
-                  Create a Recipe
+                  Create an Event
                 </h5>
                 <button
                   type="button"
@@ -181,5 +181,5 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard;
+export default Events;
 //test
