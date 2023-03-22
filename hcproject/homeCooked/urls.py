@@ -13,6 +13,7 @@ urlpatterns = [
     path('posts/delete', post_delete),
     path('posts/all', post_get_all),
     path('posts/zip', post_get_by_loc),
+    path('users/delete', delete_user),
     path('users/', user_manager),
     path('allergy/', allergy_request, name='allergy_request'),
     path('recipe/create', create_recipe),
