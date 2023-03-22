@@ -106,6 +106,27 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     })
   }
 
+  function closedConsumerPost() {
+    getToken().then((token) => {
+      let url = "http://localhost:8000/posts/consumer/closed?token=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json()
+      }).then((data) => {
+        setResponses(JSON.parse(data.response))
+      })
+    })
+  }
 
   useEffect(() => {
     if (showMode === 1 && mode === 'producer') {
@@ -123,8 +144,13 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
         setUrl("http://localhost:8000/posts?token=" + token + "&type=producer_closed")
       })
     }
-    else if (showMode == 2 && mode === "consumer") {
+    else if (showMode === 2 && mode === "consumer") {
       setUrl("http://localhost:8000/posts/all");
+    }
+    else if (showMode === 3 && mode === "consumer") {
+      getToken().then((token) => {
+        setUrl("http://localhost:800/posts/consumer/closed?token" + token);
+      })
     }
   }, [isRecipe, showMode])
 
@@ -146,6 +172,10 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
 
     if (showMode === 2 && mode === 'consumer') {
       allPosts();
+    }
+
+    if (showMode === 3 && mode === 'consumer') {
+      closedConsumerPost();
     }
 
   }, [url])
