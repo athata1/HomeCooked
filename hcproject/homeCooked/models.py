@@ -20,6 +20,8 @@ class User (models.Model):
     #user_zip = models.CharField(max_length=6, verbose_name='Zipcode', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
+    user_longitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Longitude", default="")
+    user_latitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Latitude", default="")
     def __str__(self):
         return self.user_uname
 
