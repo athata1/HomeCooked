@@ -1,5 +1,5 @@
 import React from 'react'
-import ReactStars from "react-rating-stars-component";
+import { Rating } from "react-simple-star-rating";
 import { render } from "react-dom";
 
 export default function Reviews() {
@@ -7,19 +7,29 @@ export default function Reviews() {
         console.log(newRating);
     };
 
-    return (
-        <ReactStars
-            count={5}
-            onChange={ratingChanged}
-            size={24}
-            isHalf={true}
-            emptyIcon={<i className="far fa-star"></i>}
-            halfIcon={<i className="fa fa-star-half-alt"></i>}
-            fullIcon={<i className="fa fa-star"></i>}
-            activeColor="#ffd700"
-        />,
+    const [rating, setRating] = useState(0);
 
-        document.getElementById("where-to-render")
+  // Catch Rating value
+  const handleRating = (rate) => {
+    setRating(rate);
+
+    // other logic
+  };
+  // Optinal callback functions
+  const onPointerEnter = () => console.log("Enter");
+  const onPointerLeave = () => console.log("Leave");
+  const onPointerMove = (value, index) => console.log(value, index);
+
+    return (
+        <Rating
+            onClick={handleRating}
+            onPointerEnter={onPointerEnter}
+            onPointerLeave={onPointerLeave}
+            onPointerMove={onPointerMove}
+            // readonly={true}
+            fillColorArray={['#f17a45', '#f19745', '#f1a545', '#f1b345', '#f1d045']} 
+            /* Available Props */
+          />
     );
 }
 

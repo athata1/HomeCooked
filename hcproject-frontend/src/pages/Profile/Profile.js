@@ -15,6 +15,7 @@ import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
 import { useNavigate } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
+import ReviewsShow from '../../components/ReviewsShow/ReviewsShow';
 
 function Profile() {
 
@@ -165,8 +166,13 @@ function Profile() {
                       photoCallback={setPhotoSource}
                       aboutCallback={setAbout}
                       />}
+        <h1 className='px-5'>Reviews</h1>
+        <hr />
+        <ReviewsShow />
+        <br />
+        <br />
         <h1 className='px-5'>Posts</h1>
-        {/* <div className="profile-line"></div> */}
+        <hr />
         <RecipeShow responses={responses} setResponses={setResponses} mode="producer" showMode={2} profileMode={true}/>
     </div>
   );
