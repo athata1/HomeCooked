@@ -242,3 +242,19 @@ class PostTestCase(TestCase):
             print(" Success! Got response")
 
         print(response.json())
+    
+    def test_013_post_get_wrong_post_by_location(self):
+        print('\ntest 013')
+        print("Getting all posts in zipcode 0 (only post is of zip code 60613)")
+        print('''expected response: [nothing]''')
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()      
+
+        response = self.c.get('/posts/zip', {'zip':'0'})
+        if response.status_code != 200:
+            print(" error with retrieving posts")
+        else:
+            print(" Success! Got response")
+
+        print(response.json())
