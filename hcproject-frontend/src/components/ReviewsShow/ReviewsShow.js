@@ -18,20 +18,26 @@ const ReviewsShow = () => {
   const onPointerLeave = () => console.log("Leave");
   const onPointerMove = (value, index) => {
     Math.round(rating);
-    console.log(value, index)
+    console.log(value, index);
   };
   return (
     <div className="reviewshow-width px-5">
       <div class="card">
         <div class="card-header">
-          <Rating
+        <Rating
             onClick={handleRating}
             onPointerEnter={onPointerEnter}
             onPointerLeave={onPointerLeave}
             onPointerMove={onPointerMove}
             readonly={true}
             initialValue={rating}
-            fillColorArray={['#f17a45', '#f19745', '#f1a545', '#f1b345', '#f1d045']}
+            fillColorArray={[
+              "#f17a45",
+              "#f19745",
+              "#f1a545",
+              "#f1b345",
+              "#f1d045",
+            ]}
             // tooltipArray={['Terrible', 'Bad', 'Average', 'Great', 'Prefect']}
             // showTooltip={true}
             allowFraction={true}
@@ -39,8 +45,14 @@ const ReviewsShow = () => {
           />
         </div>
         <div class="card-body">
-          <h5 class="card-title">USERNAME</h5>
-          <p class="card-text">SPLENDID STUFF LADS</p>
+          <blockquote class="blockquote mb-0">
+            <p>
+              SPLENDID STUFF LADS
+            </p>
+            <footer class="blockquote-footer pt-4">
+              USERNAME
+            </footer>
+          </blockquote>
         </div>
       </div>
     </div>
