@@ -48,19 +48,30 @@ def allergy_request(request):
 
 @csrf_exempt
 def delete_user(request):
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'request method must be post'})
 
-        if 'fid' not in request.GET:
-            return JsonResponse(status=404, data={'response': 'token not in parameters'})
-        uid = validate_token(request.GET.get('fid'))
-        print(uid)
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
 
-        user = User.objects.filter(user_fid=uid)
-        if len(list(user)) == 0:
-            return JsonResponse(status=400, data={'response':'Error: User does not exist'})
-        user.delete()
-        return JsonResponse(status=200, data={'response':'Deleted User'})
-    return JsonResponse(status=500, data= {'response':'Error: request type must be POST'})
+    if 'fid' not in parameters:
+        return JsonResponse(status=405, data={'response': 'token not in parameters'})
+
+    # TESTING ONLY DO NOT ALLOW IN PROD/MAIN
+    uid = parameters.get('fid')
+
+    if uid is None:
+        return JsonResponse(status=404, data={'response': 'invalid fid'})
+
+    user = User.objects.get(user_fid=uid)
+
+    if user is None:
+        return JsonResponse(status=400, data={'response':'Error: User does not exist'})
+    
+    user.delete()
+    
+    return JsonResponse(status=200, data={'response':'Deleted User'})
 
 
 def index(request):
@@ -264,8 +275,9 @@ def post_get_by_loc(request):
             return JsonResponse(status=405, data={'response': 'missing parameter zipcode'})
     
         posts = []
-        for user in User.objects.filter(user_zip=request.GET.get('zip')):
-            print("hi!")
+
+
+        for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
             posts.extend(Post.objects.filter(post_producer=user))
         
         return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
@@ -518,7 +530,8 @@ def user_manager(request):
         if 'fid' not in request.GET:
             return JsonResponse(status=404, data={'response': "Error: token not valid"})
 
-        fid = validate_token(request.GET.get('fid'))
+        # TEST ONLY!! VALIDATE TOKEN OTHERWISE!!!!!!!
+        fid = request.GET.get('fid')
 
         if fid is None:
             return JsonResponse(status=404, data={'response': "Error: token not valid"})
@@ -530,57 +543,70 @@ def user_manager(request):
 
         return JsonResponse(status=200, data={'user': serializers.serialize('json', user)}, safe=False)
     if request.method == 'POST':
-        if 'fid' not in request.GET or 'type' not in request.GET:
-            return JsonResponse(status=404, data={'response': "Error: Missing parameters"})
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
 
-        fid = validate_token(request.GET.get('fid'))
+
+        if 'fid' not in parameters:
+            return JsonResponse(status=405, data={'response': "Error: Missing fid"})
+        if 'type' not in parameters:
+            return JsonResponse(status=405, data={'response': "Error: Missing request type"})
+
+        # TESTING ONLY!! VALIDATE FID OTHERWISE AND USE TOKEN!!!!!!!!!!
+        fid = parameters.get('fid')
 
         if fid is None:
             return JsonResponse(status=404, data={'response': "Error: invalid token"})
 
-        if request.GET.get('type') == "Create":
+        if parameters.get('type') == "Create":
             # new user
-            if 'uname' not in request.GET:
-                return JsonResponse(status=404, data={'response': "Error:username missing"})
+            if 'uname' not in parameters:
+                return JsonResponse(status=405, data={'response': "Error: Username missing"})
 
-            username = request.GET.get('uname')
+            username = parameters.get('uname')
 
-            if len(list(User.objects.filter(user_fid__exact=fid))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: Account Already created"})
+            if len(list(User.objects.filter(user_fid=fid))) != 0:
+                return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
-            if len(list(User.objects.filter(user_uname__exact=username))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: username already taken"})
+            if len(list(User.objects.filter(user_uname=username))) != 0:
+                return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
             user = User(user_fid=fid, user_uname=username)
             user.save()
 
             return JsonResponse(status=200, data={ 'data': 'Created user'}, safe=False)
-        elif request.GET.get('type') == "Change":  # change to id email or password
+        elif parameters.get('type') == "Change":  # change to id email or password
 
-            uid = validate_token(request.GET.get('fid'))
+            # testing purposes only!! DO NOT ALLOW IN MAIN/PROD
+            uid = parameters.get('fid')
 
             if uid is None:
                 return JsonResponse(status=404, data={'response': "Error: invalid token"})
 
-            user = User.objects.filter(user_fid__exact=uid)[0]
-            if 'uname' in request.GET:
-                if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
-                    if 'uname' in request.GET and len(
-                            list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
-                        user.user_uname = request.GET.get('uname')
-                    elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
-                        return JsonResponse(status=404, data={'response': "Error: username already taken"})
+            user = User.objects.get(user_fid=uid)
 
-            if 'address' in request.GET:
-                user.user_address = request.GET.get('address')
-            if 'bio' in request.GET:
-                user.user_bio = request.GET.get('bio')
-            if 'city' in request.GET:
-                user.user_city = request.GET.get('city')
-            if 'state' in request.GET:
-                user.user_state = request.GET.get('state')
-            if 'image' in request.GET:
-                vals = request.GET.get('image').split('/o/images/')
+            if user is None:
+                return JsonResponse(status=404, data={'response': "Error: no user matching that fid"})
+            
+            if 'uname' in parameters:
+                if len(list(User.objects.filter(user_uname=parameters.get('uname')))) == 0:
+                    user.user_uname = parameters.get('uname')
+                else:
+                    return JsonResponse(status=404, data={'response': "Error: username already taken"})
+
+            if 'address' in parameters:
+                user.user_address = parameters.get('address')
+            if 'bio' in parameters:
+                user.user_bio = parameters.get('bio')
+            if 'city' in parameters:
+                user.user_city = parameters.get('city')
+            if 'state' in parameters:
+                user.user_state = parameters.get('state')
+            if 'zip' in parameters:
+                user.user_zip = parameters.get('zip')
+            if 'image' in parameters:
+                vals = parameters.get('image').split('/o/images/')
                 user.image_text = vals[0] + "/o/images%2F" + vals[1]
             user.save()
 
