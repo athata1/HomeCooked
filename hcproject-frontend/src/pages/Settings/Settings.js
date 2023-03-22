@@ -13,6 +13,7 @@ import { getDownloadURL } from "firebase/storage";
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
+  const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
@@ -40,6 +41,7 @@ const Settings = () => {
     getToken,
     setCurrentPhoto,
     getCurrentPhoto,
+    loginWithoutEmail,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
@@ -47,6 +49,7 @@ const Settings = () => {
     if (currentUser.email !== null) {
       setEmail(currentUser.email);
     }
+
     getToken().then((token) => {
       let url = "http://localhost:8000/users/?type=Create&fid=" + token;
       fetch(url, {
@@ -70,6 +73,7 @@ const Settings = () => {
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
+          setAddress(userData.fields.user_address);
         });
     });
     getCurrentPhoto().then((url) => {
@@ -105,6 +109,7 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
+          console.log(data);
           let userData = JSON.parse(data.user)[0];
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
@@ -120,7 +125,11 @@ const Settings = () => {
 
   const confirmDeleteAccount = async (e) => {
     e.preventDefault();
-    getToken().then((token) => {
+    loginWithoutEmail(deleteAccountPassword)
+    .then(async () => {
+      console.log("Here")
+      await new Promise(r => setTimeout(r, 1000));
+      getToken().then((token) => {
       let url = "http://localhost:8000/users/delete?fid=" + token;
       fetch(url, {
         method: "POST", // *GET, POST, PUT, DELETE, etc.
@@ -135,18 +144,24 @@ const Settings = () => {
         referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       })
         .then((res) => {
-          return res.json();
-        })
-        .then((data) => {
-          if (data.status == "200") {
-            deleteUser(deleteAccountPassword).then((res) =>
+          if (res.status === 200) {
+            res.json().then((data) => {
+              deleteUser(deleteAccountPassword).then((res) =>
               setDeletedAccount(res)
             );
-          } else {
+            })
+          }
+          else {
+            res.json().then((data) => {
+              console.log(data);
+            })
             alert("Error: Could not delete account");
           }
-        });
-    });
+        })
+    })}
+    ).catch((e) => {
+      alert("Error: Invalid password")
+    })
   };
 
   const handleRemoveImage = (e) => {
@@ -173,8 +188,13 @@ const Settings = () => {
 
   const handleSave = (e) => {
     e.preventDefault();
-
     if (validationChecks()) {
+      if (emailChangePassword !== "") {
+        changeEmail(email, emailChangePassword)
+          .then((res) => setEmailChangeSuccess(res))
+          .catch((err) => console.log(err));
+      }
+
       if (oldPassword !== "" && newPassword !== "" && confirmPassword !== "") {
         changePassword(oldPassword, newPassword).then((res) => {
           setPasswordChangeSuccess(res);
@@ -183,12 +203,6 @@ const Settings = () => {
             window.screenTo(0, 0);
           }
         });
-      }
-
-      if (emailChangePassword !== "") {
-        changeEmail(email, emailChangePassword)
-          .then((res) => setEmailChangeSuccess(res))
-          .catch((err) => console.log(err));
       }
 
       getToken().then((token) => {
@@ -202,7 +216,9 @@ const Settings = () => {
           "&state=" +
           selectedState +
           "&bio=" +
-          about;
+          about +
+          "&address=" +
+          address;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -216,21 +232,47 @@ const Settings = () => {
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         })
           .then((res) => {
-            return res.json();
-          })
-          .then((data) => {
-            if (data.status === "200") {
+            if (res.status === 200) {
               if (uploadedFile !== null) {
-                let url = crypto.randomUUID();
-                const imageRef = ref(storage, "images/" + url);
+                let rand = crypto.randomUUID();
+                const imageRef = ref(storage, "images/" + rand);
                 uploadBytes(imageRef, uploadedFile).then((e) => {
-                  getDownloadURL(e.ref).then((url) => {
-                    setCurrentPhoto(url);
-                  });
+                  getDownloadURL(e.ref)
+                    .then((url) => {
+                      setCurrentPhoto(url);
+                      return url;
+                    })
+                    .then((link) => {
+                      link =
+                        "https://firebasestorage.googleapis.com/v0/b/homecooked-7cc68.appspot.com/o/images%2F" +
+                        rand +
+                        "?alt=media";
+                      let url =
+                        "http://localhost:8000/users/?type=Change&uname=" +
+                        "&fid=" +
+                        token +
+                        "&image=" +
+                        link +
+                        "&uname=" +
+                        username;
+                      fetch(url, {
+                        method: "POST", // *GET, POST, PUT, DELETE, etc.
+                        // mode: "no-cors", // no-cors, *cors, same-origin
+                        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+                        credentials: "same-origin", // include, *same-origin, omit
+                        headers: {
+                          "Content-Type": "application/json",
+                          // 'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        redirect: "follow", // manual, *follow, error
+                        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                      });
+                    });
                 });
               }
             }
-          });
+            return res.json();
+          })
       });
     }
 
@@ -394,6 +436,21 @@ const Settings = () => {
                   readOnly={!edit}
                 />
               )}
+            </div>
+          </div>
+          <div className="Address">
+            <div className="col">
+              <h3 className="settings-label">Address</h3>
+            </div>
+          </div>
+          <div className="row mb-5">
+            <div className="col">
+              <textarea
+                className="settings-textarea-address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                readOnly={!edit}
+              ></textarea>
             </div>
           </div>
           {newPassword !== confirmPassword && (

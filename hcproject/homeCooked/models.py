@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 from datetime import datetime
 
 class Allergy (models.Model):
@@ -16,6 +17,7 @@ class User (models.Model):
     user_address = models.CharField(max_length=200, verbose_name='Address', default="")
     user_city = models.CharField(max_length=200, verbose_name='City', default="")
     user_state = models.CharField(max_length=200, verbose_name='State', default="")
+    #user_zip = models.CharField(max_length=6, verbose_name='Zipcode', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
     def __str__(self):
@@ -52,13 +54,11 @@ class Post (models.Model):
     post_title = models.CharField(max_length=100, verbose_name='Title')
     post_desc = models.CharField(max_length=200, verbose_name='Description')
     post_producer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='producer', verbose_name='Producer')
-    post_consumer = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='consumer', verbose_name='Consumer')
-    post_created = models.DateTimeField(auto_created=True, verbose_name='Created Date/Time')
+    post_consumer = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='consumer', verbose_name='Consumer', null=True)
+    post_created = models.DateTimeField(auto_created=True, verbose_name='Created Date/Time', default=timezone.now)
     post_completed = models.DateTimeField(auto_now=True, verbose_name='Completed Date/Time')
     post_recipe = models.ForeignKey(Recipe, null=True, on_delete=models.CASCADE, related_name='RecipeID', verbose_name='Recipe')
     post_available = models.BooleanField(default=True)
-    post_sys_tags = models.CharField(max_length=200, verbose_name='system tags', default="")
-    post_user_tags = models.CharField(max_length=200, verbose_name='user tags', default="")
 
     def __str__(self):
         return self.post_desc
@@ -80,7 +80,7 @@ class Message (models.Model):
     message = models.CharField(max_length=200, verbose_name='Content')
     message_sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sender', verbose_name='Sender')
     message_recipient = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='recipient', verbose_name='Recipient')
-    message_sent = models.DateTimeField(default=datetime.now, verbose_name='Sent Date/Time')
+    message_sent = models.DateTimeField(default=timezone.now, verbose_name='Sent Date/Time')
 
     def __str__(self):
         return self.message_desc

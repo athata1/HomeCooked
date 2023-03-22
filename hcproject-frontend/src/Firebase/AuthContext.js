@@ -17,6 +17,14 @@ export function AuthProvider({ children }) {
     return token;
   }
 
+  function resetPassword(email) {
+    return auth.sendPasswordResetEmail(email);
+  }
+
+  function changeResetPassword(code, password) {
+    return auth.confirmPasswordReset(code, password)
+  }
+
   async function deleteUser(password) {
     /*const user = auth.currentUser;
     console.log(auth);
@@ -40,6 +48,7 @@ export function AuthProvider({ children }) {
     return true;
   }
 
+  
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setLoading(true);
@@ -58,6 +67,10 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     await auth.signInWithEmailAndPassword(email, password);
+  }
+
+  async function loginWithoutEmail(password) {
+    await auth.signInWithEmailAndPassword(auth.currentUser.email, password)
   }
 
   async function changePassword(oldPassword, newPassword) {
@@ -146,7 +159,9 @@ export function AuthProvider({ children }) {
         } catch (e) {
           console.log(e);
         }
-      });
+      }).catch(() => {
+        alert("Error: Email already Exists")
+      })
     setCreating(false);
   }
 
@@ -165,8 +180,11 @@ export function AuthProvider({ children }) {
     setCurrentUsername,
     loading,
     creating,
+    resetPassword,
     setCurrentPhoto,
-    getCurrentPhoto
+    getCurrentPhoto,
+    loginWithoutEmail,
+    changeResetPassword
   };
 
   return (
