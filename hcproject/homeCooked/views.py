@@ -512,32 +512,6 @@ def post_delete(request):
 
 
 @csrf_exempt
-def user_by_uname(request):
-    if request.method == 'GET':
-        if 'uname' not in request.GET:
-            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
-
-        user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
-        if len(list(user)) != 0:
-            return JsonResponse(status=405, data={'data': serializers.serialize('json', user)}, safe=False)
-        return JsonResponse(status=404, data={'response': 'uname does not exist'})
-    return JsonResponse(status=405, data={'response': 'Not Get request'})
-
-
-@csrf_exempt
-def user_by_id(request):
-    if request.method == 'GET':
-        if 'id' not in request.GET:
-            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
-
-        user = User.objects.filter(user_id=request.GET.get('id'))
-        if len(list(user)) != 0:
-            return JsonResponse(status=200, data={'data': serializers.serialize('json', user)}, safe=False)
-        return JsonResponse(status=404, data={'response': 'id does not exist'})
-    return JsonResponse(status=405, data={'response': 'Not Get request'})
-
-
-@csrf_exempt
 def user_manager(request):
     if request.method == 'GET':
         # return JsonResponse(data={'status': '200', 'user': serializers.serialize('json', User.objects.all())}, safe=False)
@@ -559,7 +533,6 @@ def user_manager(request):
         if 'fid' not in request.GET or 'type' not in request.GET:
             return JsonResponse(status=404, data={'response': "Error: Missing parameters"})
 
-        print(request.GET.get('fid'))
         fid = validate_token(request.GET.get('fid'))
 
         if fid is None:
