@@ -351,6 +351,24 @@ def post_create(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not create post ' + str(E)})
 
+@csrf_exempt
+def post_consumer_closed(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'request method must be GET'})
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    fid = validate_token(parameters.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    posts = Post.objects.filter(post_consumer=user);
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+
+
 
 @csrf_exempt
 def post_update(request):
