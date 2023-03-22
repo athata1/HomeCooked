@@ -17,6 +17,14 @@ export function AuthProvider({ children }) {
     return token;
   }
 
+  function resetPassword(email) {
+    return auth.sendPasswordResetEmail(email);
+  }
+
+  function changeResetPassword(code, password) {
+    return auth.confirmPasswordReset(code, password)
+  }
+
   async function deleteUser(password) {
     /*const user = auth.currentUser;
     console.log(auth);
@@ -172,9 +180,11 @@ export function AuthProvider({ children }) {
     setCurrentUsername,
     loading,
     creating,
+    resetPassword,
     setCurrentPhoto,
     getCurrentPhoto,
-    loginWithoutEmail
+    loginWithoutEmail,
+    changeResetPassword
   };
 
   return (

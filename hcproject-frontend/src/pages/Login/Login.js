@@ -64,7 +64,9 @@ export default function Login() {
           <Link to="/signup" style={{ textDecoration: 'none' }}>
             <div className="signup-link">Sign Up</div>
           </Link>
+          <Link to="/reset" style={{ textDecoration: 'none' }}>
             <div className='forgot-password-link'>Forgot Password</div>
+          </Link>
           </div>
         </div>
       </div>
