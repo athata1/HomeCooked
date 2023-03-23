@@ -6,17 +6,17 @@ from .views import *
 
 app_name = 'HomeCooked'
 urlpatterns = [
+    path('posts/consumer/closed', post_consumer_closed),
     path('posts/sort', post_sort),
     path('posts/create', post_create),
     path('posts/update', post_update),
     path('posts/close', post_close),
     path('posts/delete', post_delete),
     path('posts/all', post_get_all),
-    path('users/create', user_create),
-    path('users/update', user_update),
+    path('posts/zip', post_get_by_loc),
     path('users/delete', delete_user),
-    path('users/uname', user_by_uname),
     path('users/', user_manager),
+    path('users/uname', user_by_uname),
     path('allergy/', allergy_request, name='allergy_request'),
     path('recipe/create', create_recipe),
     path('recipe/get', get_recipes),
