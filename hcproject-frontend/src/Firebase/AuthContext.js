@@ -12,6 +12,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [userMode, setUserMode] = useState("consumer");
   const [creating, setCreating] = useState(false);
+  const [searchMode, setSearchMode] = useState(0);
+  const [searchText, setSearchText] = useState("");
+
   async function getToken() {
     let token = await auth.currentUser.getIdToken(false);
     return token;
@@ -184,7 +187,11 @@ export function AuthProvider({ children }) {
     setCurrentPhoto,
     getCurrentPhoto,
     loginWithoutEmail,
-    changeResetPassword
+    changeResetPassword,
+    searchMode,
+    searchText,
+    setSearchMode,
+    setSearchText
   };
 
   return (
