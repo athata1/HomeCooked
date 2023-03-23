@@ -33,7 +33,7 @@ const Dashboard = () => {
   const [filteredResponse, setFilteredResponse] = useState([]);
 
   useEffect(() => {
-    console.log(searchText);
+
   }, [searchText])
 
   const handleNewPost = (e) => {
