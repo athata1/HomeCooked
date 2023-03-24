@@ -322,7 +322,6 @@ function Recipes({
               )}
               {showMode === 3 && mode === "consumer" ? (
                 <div>
-                  {/* <Button onClick={handleReview} variant="success">Create Review</Button> */}
                   <button
                     className="btn btn-success"
                     data-bs-toggle="modal"
