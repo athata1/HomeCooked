@@ -24,5 +24,6 @@ urlpatterns = [
     path('recipe/get/id', get_recipes_by_id),
     path('users/get/id', user_by_id),
     path('review/create', create_review),
-    path('review/average', get_average_review)
+    path('review/average', get_average_review),
+    path('review/get', get_reviews)
 ]
