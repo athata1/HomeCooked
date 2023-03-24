@@ -17,7 +17,7 @@ class User (models.Model):
     user_address = models.CharField(max_length=200, verbose_name='Address', default="")
     user_city = models.CharField(max_length=200, verbose_name='City', default="")
     user_state = models.CharField(max_length=200, verbose_name='State', default="")
-    user_zip = models.CharField(max_length=6, verbose_name='Zipcode', default="")
+    #user_zip = models.CharField(max_length=6, verbose_name='Zipcode', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
     user_longitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Longitude", default="")
