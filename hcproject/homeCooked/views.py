@@ -227,7 +227,6 @@ def get_reviews(request):
 def create_review(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not POST request'})
-
     if 'fid' not in request.GET:
         return JsonResponse(status=404, data={'response': 'No fid in params'})
 
@@ -246,7 +245,7 @@ def create_review(request):
         return JsonResponse(status=404, data={'response': 'No rating in params'})
 
     post = Post.objects.get(post_id=int(request.GET.get('post_id')))
-    if post.post_consumer != fid:
+    if post.post_consumer.user_fid != fid:
         return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
 
     review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user

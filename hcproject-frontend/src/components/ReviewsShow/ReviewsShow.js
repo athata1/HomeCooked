@@ -17,7 +17,7 @@ const ReviewsShow = () => {
   const onPointerEnter = () => console.log("Enter");
   const onPointerLeave = () => console.log("Leave");
   const onPointerMove = (value, index) => {
-    Math.round(rating);
+    // Math.round(rating);
     console.log(value, index);
   };
   return (
@@ -38,8 +38,6 @@ const ReviewsShow = () => {
               "#f1b345",
               "#f1d045",
             ]}
-            // tooltipArray={['Terrible', 'Bad', 'Average', 'Great', 'Prefect']}
-            // showTooltip={true}
             allowFraction={true}
             /* Available Props */
           />
