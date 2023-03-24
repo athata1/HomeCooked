@@ -202,6 +202,26 @@ def get_average_review(request):
     print(avg)
     return JsonResponse(status=200, data={'response': avg})
 
+@csrf_exempt
+def get_reviews(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response', "Not a GET request"})
+
+    if 'token' in request.GET:
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(status=404, data={'response', "Could not find user"})
+        user = User.objects.get(user_fid=fid)
+
+        reviews = Review.objects.filter(review_receiver=user);
+        return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
+
+    elif 'uname' in request.GET:
+        user = User.objects.get(user_uname=request.GET.get('uname'))
+        reviews = Review.objects.filter(review_receiver=user);
+        return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
+    else:
+        return JsonResponse(status=404, data={'response', 'Not valid method type'})
 
 @csrf_exempt
 def create_review(request):
@@ -226,6 +246,9 @@ def create_review(request):
         return JsonResponse(status=404, data={'response': 'No rating in params'})
 
     post = Post.objects.get(post_id=int(request.GET.get('post_id')))
+    if post.post_consumer != fid:
+        return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
+
     review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
 
     review = Review(review_desc=request.GET.get('description'), review_giver=user,
