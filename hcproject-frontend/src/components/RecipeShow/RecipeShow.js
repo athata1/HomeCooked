@@ -4,7 +4,7 @@ import Recipes from '../Recipes/Recipes';
 import Posts from '../Posts/Posts';
 import './RecipeShow.css'
 
-export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode}) {
+export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode, profileMode}) {
   
   const [url, setUrl] = useState('');
   const {getToken} = useAuth();
@@ -184,10 +184,10 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     <div className="recipe-show-container">
       <div className='recipe-show'>
         {showMode === 1 && mode === 'producer' ? responses.map((response) => {
-          return <Recipes removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response} showMode={showMode}/>
+          return <Recipes profileMode={profileMode} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response} showMode={showMode}/>
         }) : ""}
         {(showMode === 2 || showMode === 3) && mode === 'producer' ? responses.map((response) => {
-          return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode}/>
+          return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode} profileMode={profileMode} />
         }) : ""}
         {(showMode === 2 || showMode === 3) && mode === 'consumer' ? responses.map((response) => {
           return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode}/>
