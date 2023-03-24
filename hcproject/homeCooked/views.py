@@ -213,12 +213,12 @@ def get_reviews(request):
             return JsonResponse(status=404, data={'response', "Could not find user"})
         user = User.objects.get(user_fid=fid)
 
-        reviews = Review.objects.filter(review_receiver=user);
+        reviews = Review.objects.filter(review_receiver=user)
         return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
 
     elif 'uname' in request.GET:
         user = User.objects.get(user_uname=request.GET.get('uname'))
-        reviews = Review.objects.filter(review_receiver=user);
+        reviews = Review.objects.filter(review_receiver=user)
         return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
     else:
         return JsonResponse(status=404, data={'response', 'Not valid method type'})
