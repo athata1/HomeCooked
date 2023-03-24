@@ -5,8 +5,11 @@ import {BsHouseDoor, BsBell} from 'react-icons/bs'
 import NavbarDropdown from "../NavbarDropdown/NavbarDropdown";
 import { Link } from "react-router-dom";
 import {Switch} from "./../Switch/Switch"
+import { useAuth } from "../../Firebase/AuthContext";
 
 function Navbar({part, mode}) {
+  const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
+
   return <div className="navbar">
     <div className="navbarLeft">
       <Link to="/dashboard"><div className="navbarBellContainer">
@@ -19,7 +22,7 @@ function Navbar({part, mode}) {
     
     <div className="navbarMiddle">
       <div className="searchInput">
-        <input className="navbar-search" type="text" placeholder={"Find profiles, posts, events..."} /> 
+        <input className="navbar-search" type="text" placeholder={"Find profiles, posts, events..."} value={searchText} onChange={(e) => {setSearchText(e.target.value)}}/> 
         <div className="searchIcon"> </div>
       </div>
       <div className="searchResult"></div>

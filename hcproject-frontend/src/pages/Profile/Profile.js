@@ -8,18 +8,20 @@ import Card from 'react-bootstrap/Card';
 import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import Recipes from '../../components/Recipes/Recipes';
+import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
 import { useAuth } from '../../Firebase/AuthContext';
 import { CgProfile } from "react-icons/cg";
 import ProfileSettings from '../../components/ProfileSettings/ProfileSettings';
 import { useNavigate } from 'react-router-dom';
 import ReactStars from "react-rating-stars-component";
+import ReviewsShow from '../../components/ReviewsShow/ReviewsShow';
 
 function Profile() {
 
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
-  const {getToken, getCurrentPhoto} = useAuth()
+  const {getToken, getCurrentPhoto, userMode} = useAuth()
   const [about, setAbout] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedState, setSelectedState] = useState('');
@@ -27,6 +29,7 @@ function Profile() {
   const [edit, setEdit] = useState(false);
   const [rating, setRating] = useState(3);
   const [a, b] = useState(3);
+  const [responses, setResponses] = useState([]);
   const ratingChanged = (newRating) => {
     console.log(newRating);
   };
@@ -163,6 +166,14 @@ function Profile() {
                       photoCallback={setPhotoSource}
                       aboutCallback={setAbout}
                       />}
+        <h1 className='px-5'>Reviews</h1>
+        <hr />
+        <ReviewsShow />
+        <br />
+        <br />
+        <h1 className='px-5'>Posts</h1>
+        <hr />
+        <RecipeShow responses={responses} setResponses={setResponses} mode="producer" showMode={2} profileMode={true}/>
     </div>
   );
 }

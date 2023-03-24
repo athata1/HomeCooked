@@ -1,4 +1,7 @@
 .header {
-    text-align: center;
-  }
-  
+  text-align: center;
+}
+
+.profile-padding {
+  padding-bottom: 50rem;
+}

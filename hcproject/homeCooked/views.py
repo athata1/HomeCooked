@@ -48,19 +48,27 @@ def allergy_request(request):
 
 @csrf_exempt
 def delete_user(request):
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return JsonResponse(status=500, data={'response': 'Error: request type must be POST'})
 
-        if 'fid' not in request.GET:
-            return JsonResponse(status=404, data={'response': 'token not in parameters'})
-        uid = validate_token(request.GET.get('fid'))
-        print(uid)
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
 
-        user = User.objects.filter(user_fid=uid)
-        if len(list(user)) == 0:
-            return JsonResponse(status=400, data={'response': 'Error: User does not exist'})
-        user.delete()
-        return JsonResponse(status=200, data={'response': 'Deleted User'})
-    return JsonResponse(status=500, data={'response': 'Error: request type must be POST'})
+    if 'fid' not in parameters:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+    uid = validate_token(parameters.get('fid'))
+
+    if uid is None:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+
+    user = User.objects.get(user_fid=uid)
+
+    if user is None:
+        return JsonResponse(status=400, data={'response': 'Error: User does not exist'})
+    
+    user.delete()
+    return JsonResponse(status=200, data={'response': 'Deleted User'})
 
 
 def index(request):
@@ -194,12 +202,31 @@ def get_average_review(request):
     print(avg)
     return JsonResponse(status=200, data={'response': avg})
 
+@csrf_exempt
+def get_reviews(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response', "Not a GET request"})
+
+    if 'token' in request.GET:
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(status=404, data={'response', "Could not find user"})
+        user = User.objects.get(user_fid=fid)
+
+        reviews = Review.objects.filter(review_receiver=user);
+        return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
+
+    elif 'uname' in request.GET:
+        user = User.objects.get(user_uname=request.GET.get('uname'))
+        reviews = Review.objects.filter(review_receiver=user);
+        return JsonResponse(status=200, data={'response', serializers.serialize('json', reviews)})
+    else:
+        return JsonResponse(status=404, data={'response', 'Not valid method type'})
 
 @csrf_exempt
 def create_review(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not POST request'})
-
     if 'fid' not in request.GET:
         return JsonResponse(status=404, data={'response': 'No fid in params'})
 
@@ -218,6 +245,9 @@ def create_review(request):
         return JsonResponse(status=404, data={'response': 'No rating in params'})
 
     post = Post.objects.get(post_id=int(request.GET.get('post_id')))
+    if post.post_consumer.user_fid != fid:
+        return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
+
     review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
 
     review = Review(review_desc=request.GET.get('description'), review_giver=user,
@@ -244,18 +274,21 @@ def post_get_by_loc(request):
     try:
         if request.method != 'GET':
             return JsonResponse(status=404, data={'response': 'request method must be POST'})
-        if 'zip' not in request.GET:
-            return JsonResponse(status=405, data={'response': 'missing parameter zipcode'})
+        if 'city' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing parameter city'})
+        if 'state' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing parameter state'})
     
         posts = []
-        for user in User.objects.filter(user_zip=request.GET.get('zip')):
-            print("hi!")
+
+        for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
             posts.extend(Post.objects.filter(post_producer=user))
         
         return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
 
 @csrf_exempt
 def post_sort(request):
@@ -339,6 +372,24 @@ def post_create(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response': 'could not create post ' + str(E)})
+
+@csrf_exempt
+def post_consumer_closed(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'request method must be GET'})
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    fid = validate_token(parameters.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    posts = Post.objects.filter(post_consumer=user);
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+
 
 
 @csrf_exempt
@@ -481,6 +532,30 @@ def post_delete(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not delete post: ' + str(E)})
 
+@csrf_exempt
+def user_by_uname(request):
+    if request.method == 'GET':
+        if 'uname' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
+        if len(list(user)) != 0:
+            return JsonResponse(status=405, data={'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(status=404, data={'response': 'uname does not exist'})
+    return JsonResponse(status=405, data={'response': 'Not Get request'})
+
+
+@csrf_exempt
+def user_by_id(request):
+    if request.method == 'GET':
+        if 'id' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_id=request.GET.get('id'))
+        if len(list(user)) != 0:
+            return JsonResponse(status=200, data={'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(status=404, data={'response': 'id does not exist'})
+    return JsonResponse(status=405, data={'response': 'Not Get request'})
 
 @csrf_exempt
 def user_manager(request):
@@ -496,63 +571,75 @@ def user_manager(request):
 
         user = User.objects.filter(user_fid__exact=fid).only('user_uname', 'user_city', 'user_state', 'user_bio')
 
-        if len(list(user)) == 0:
+        if user is None:
             return JsonResponse(status=404, data={'response': "Error: could not find user"})
 
         return JsonResponse(status=200, data={'user': serializers.serialize('json', user)}, safe=False)
     if request.method == 'POST':
-        if 'fid' not in request.GET or 'type' not in request.GET:
-            return JsonResponse(status=404, data={'response': "Error: Missing parameters"})
+        parameters = request.POST
+        if len(request.POST) == 0:
+            parameters = request.GET
+
+
+        if 'fid' not in parameters:
+            return JsonResponse(status=405, data={'response': "Error: Missing fid"})
+        if 'type' not in parameters:
+            return JsonResponse(status=405, data={'response': "Error: Missing request type"})
 
         print(request.GET.get('fid'))
-        fid = validate_token(request.GET.get('fid'))
+        fid = validate_token(parameters.get('fid'))
 
         if fid is None:
             return JsonResponse(status=404, data={'response': "Error: invalid token"})
 
-        if request.GET.get('type') == "Create":
+        if parameters.get('type') == "Create":
             # new user
-            if 'uname' not in request.GET:
-                return JsonResponse(status=404, data={'response': "Error:username missing"})
+            if 'uname' not in parameters:
+                return JsonResponse(status=405, data={'response': "Error: Username missing"})
 
-            username = request.GET.get('uname')
+            username = parameters.get('uname')
 
-            if len(list(User.objects.filter(user_fid__exact=fid))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: Account Already created"})
+            if len(list(User.objects.filter(user_fid=fid))) != 0:
+                return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
-            if len(list(User.objects.filter(user_uname__exact=username))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: username already taken"})
+            if len(list(User.objects.filter(user_uname=username))) != 0:
+                return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
             user = User(user_fid=fid, user_uname=username)
             user.save()
 
-            return JsonResponse(status=200, data={'data': 'Created user'}, safe=False)
-        elif request.GET.get('type') == "Change":  # change to id email or password
+            return JsonResponse(status=200, data={ 'data': 'Created user'}, safe=False)
+        elif parameters.get('type') == "Change":  # change to id email or password
 
-            uid = validate_token(request.GET.get('fid'))
+            # testing purposes only!! DO NOT ALLOW IN MAIN/PROD
+            uid = parameters.get('fid')
 
             if uid is None:
                 return JsonResponse(status=404, data={'response': "Error: invalid token"})
 
-            user = User.objects.filter(user_fid__exact=uid)[0]
-            if 'uname' in request.GET:
-                if user.user_fid == uid and request.GET.get('uname') != user.user_uname:
-                    if 'uname' in request.GET and len(
-                            list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) == 0:
-                        user.user_uname = request.GET.get('uname')
-                    elif len(list(User.objects.filter(user_uname__exact=request.GET.get('uname')))) > 0:
-                        return JsonResponse(status=404, data={'response': "Error: username already taken"})
+            user = User.objects.get(user_fid=uid)
 
-            if 'address' in request.GET:
-                user.user_address = request.GET.get('address')
-            if 'bio' in request.GET:
-                user.user_bio = request.GET.get('bio')
-            if 'city' in request.GET:
-                user.user_city = request.GET.get('city')
-            if 'state' in request.GET:
-                user.user_state = request.GET.get('state')
-            if 'image' in request.GET:
-                vals = request.GET.get('image').split('/o/images/')
+            if user is None:
+                return JsonResponse(status=404, data={'response': "Error: no user matching that fid"})
+            
+            if 'uname' in parameters:
+                if len(list(User.objects.filter(user_uname=parameters.get('uname')))) == 0:
+                    user.user_uname = parameters.get('uname')
+                else:
+                    return JsonResponse(status=404, data={'response': "Error: username already taken"})
+
+            if 'address' in parameters:
+                user.user_address = parameters.get('address')
+            if 'bio' in parameters:
+                user.user_bio = parameters.get('bio')
+            if 'city' in parameters:
+                user.user_city = parameters.get('city')
+            if 'state' in parameters:
+                user.user_state = parameters.get('state')
+            if 'zip' in parameters:
+                user.user_zip = parameters.get('zip')
+            if 'image' in parameters:
+                vals = parameters.get('image').split('/o/images/')
                 user.image_text = vals[0] + "/o/images%2F" + vals[1]
             user.save()
 
