@@ -20,6 +20,8 @@ class User (models.Model):
     #user_zip = models.CharField(max_length=6, verbose_name='Zipcode', default="")
     user_bio = models.CharField(max_length=200, verbose_name='Biography', default="")
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
+    user_longitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Longitude", default="")
+    user_latitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Latitude", default="")
     def __str__(self):
         return self.user_uname
 
@@ -65,7 +67,7 @@ class Post (models.Model):
 
 class Review (models.Model):
     review_id = models.AutoField(primary_key=True, verbose_name='Review ID')
-    review_desc = models.CharField(max_length=200, verbose_name='Description')
+    review_desc = models.CharField(max_length=200, null=True, blank=True, verbose_name='Description')
     review_giver = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='UserGiver')
     review_receiver = models.ForeignKey(User,null=True, on_delete=models.CASCADE, related_name='UserReceiver')
     review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')

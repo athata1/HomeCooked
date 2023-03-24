@@ -22,7 +22,7 @@ urlpatterns = [
     path('recipe/get', get_recipes),
     path('recipe/delete', delete_recipe),
     path('recipe/get/id', get_recipes_by_id),
-    path('users/get/id', user_by_id),
+    #path('users/get/id', user_by_id),
     path('review/create', create_review),
     path('review/average', get_average_review),
     path('review/get', get_reviews)
