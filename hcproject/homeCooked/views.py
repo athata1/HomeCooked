@@ -92,6 +92,68 @@ def allergens(food):
     print(res.text);
     return res.text
 
+@csrf_exempt
+def create_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'Not post request'})
+    # return JsonResponse(serializers.serialize('json', Recipe.objects.all()), safe=False)
+
+    if 'fid' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('fid'))
+
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+
+    event_desc = request.GET.get('desc')
+    event_host = user
+    event_name = request.GET.get('title')
+    event_date = request.GET.get('date')
+    event_time = request.GET.get('time')
+    event_location = request.GET.get('location')
+    event_capacity = request.GET.get('capacity')
+    event = Event(event_desc=event_desc, event_host=event_host,
+                    event_name=event_name, event_date=event_date, event_time=event_time,
+                    event_location=event_location, event_capacity=event_capacity)
+    event.save()
+    return JsonResponse(status=200, data={'response': 'Created event'})
+
+@csrf_exempt
+def get_events_by_id(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'not GET request'})
+
+    if 'event_id' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'No recipe_ud in parameters'})
+    try:
+        event = Recipe.objects.filter(recipe_id=int(request.GET.get('event_id')))
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', event)})
+    except Exception as e:
+        print(e)
+    return JsonResponse(status=404, data={'response': 'Error Occured'})
+
+@csrf_exempt
+def get_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'not GET request'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+    recipes = Recipe.objects.filter(recipe_user=user.user_id)
+    if user is None:
+        return JsonResponse(status=400, data={'response': 'Error: User does not exist'})
+
+    events = Event.objects.filter(event_host=user)
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', events)})
+
+
 
 @csrf_exempt
 def create_recipe(request):
@@ -123,7 +185,6 @@ def create_recipe(request):
     recipe.save()
     return JsonResponse(status=200, data={'response': 'Created recipe'})
 
-
 @csrf_exempt
 def get_recipes_by_id(request):
     if request.method != 'GET':
@@ -137,7 +198,6 @@ def get_recipes_by_id(request):
     except Exception as e:
         print(e)
     return JsonResponse(status=404, data={'response': 'Error Occured'})
-
 
 @csrf_exempt
 def get_recipes(request):
