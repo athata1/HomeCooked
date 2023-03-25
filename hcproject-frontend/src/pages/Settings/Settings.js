@@ -325,13 +325,6 @@ const Settings = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
       return false;
     }
-    if (zipcode.length < 5) {
-      setErrorField("zipcode");
-      setEdit(true);
-      setValidFields(false);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return false;
-    }
 
     if (about.length <= 15) {
       setErrorField("about section");
@@ -475,16 +468,6 @@ const Settings = () => {
                   readOnly={!edit}
                 />
               )}
-            </div>
-            <div className="col pt-2">
-              <input
-                  type="text"
-                  className="form-control settings-input"
-                  placeholder="--ZIPCODE--"
-                  value={zipcode}
-                  onChange={(e) => setZipcode(e.target.value)}
-                  readOnly={!edit}
-                />
             </div>
           </div>
           <div className="Address">
