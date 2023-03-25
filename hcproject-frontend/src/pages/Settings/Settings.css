@@ -22,6 +22,11 @@
   font-size: 48px;
 }
 
+.leaflet-container {
+  height: 600px;
+  width: 600px;
+}
+
 .settings-form .settings-input {
   height: 50px;
   margin: 0 auto;
