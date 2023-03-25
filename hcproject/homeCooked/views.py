@@ -612,7 +612,7 @@ def user_manager(request):
         elif parameters.get('type') == "Change":  # change to id email or password
 
             # testing purposes only!! DO NOT ALLOW IN MAIN/PROD
-            uid = parameters.get('fid')
+            uid = validate_token(parameters.get('fid'))
 
             if uid is None:
                 return JsonResponse(status=404, data={'response': "Error: invalid token"})
@@ -626,7 +626,8 @@ def user_manager(request):
                 if len(list(User.objects.filter(user_uname=parameters.get('uname')))) == 0:
                     user.user_uname = parameters.get('uname')
                 else:
-                    return JsonResponse(status=404, data={'response': "Error: username already taken"})
+                    if (User.objects.get(user_uname=parameters.get('uname')) != user):
+                        return JsonResponse(status=404, data={'response': "Error: username already taken"})
 
             if 'address' in parameters:
                 user.user_address = parameters.get('address')
@@ -641,6 +642,12 @@ def user_manager(request):
             if 'image' in parameters:
                 vals = parameters.get('image').split('/o/images/')
                 user.image_text = vals[0] + "/o/images%2F" + vals[1]
+            if 'lng' in parameters:
+                val = float(parameters.get('lng'))
+                user.user_longitude = val
+            if 'lat' in parameters:
+                val = float(parameters.get('lat'))
+                user.user_latitude = val
             user.save()
 
             return JsonResponse(status=200, data={'response': 'Saved data'}, safe=False)
