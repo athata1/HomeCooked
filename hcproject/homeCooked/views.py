@@ -153,6 +153,29 @@ def get_events(request):
     events = Event.objects.filter(event_host=user)
     return JsonResponse(status=200, data={'response': serializers.serialize('json', events)})
 
+def delete_events(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'not POST request'})
+    
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    
+    if 'event_id' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'No event_id in parameters'})
+    
+    user = User.objects.get(user_fid=fid)
+    if user is None:
+        return JsonResponse(status=400, data={'response': 'Error: User does not exist'})
+    try:
+        event = Event.objects.get(event_id=int(request.GET.get('event_id')))
+        event.delete()
+    except:
+        return JsonResponse(status=404, data={'response': 'Error: Event does not exist'})
+    
+    return JsonResponse(status=200, data={'response': 'Deleted Event'})
 
 
 @csrf_exempt
