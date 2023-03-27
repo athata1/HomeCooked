@@ -16,9 +16,9 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
+
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
-  const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
 
   const [token, setToken] = useState();
   const [tags, setTags] = useState([])
@@ -30,11 +30,6 @@ const Dashboard = () => {
   const [image, setImage] = useState(null);
   const [showMode, setShowMode] = useState(0);
   const [responses, setResponses] = useState([]);
-  const [filteredResponse, setFilteredResponse] = useState([]);
-
-  useEffect(() => {
-
-  }, [searchText])
 
   const handleNewPost = (e) => {
     e.preventDefault();
