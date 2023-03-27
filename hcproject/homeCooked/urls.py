@@ -17,6 +17,7 @@ urlpatterns = [
     path('users/delete', delete_user),
     path('users/', user_manager),
     path('users/uname', user_by_uname),
+    path('users/id', user_by_id),
     path('allergy/', allergy_request, name='allergy_request'),
     path('recipe/create', create_recipe),
     path('recipe/get', get_recipes),

@@ -171,7 +171,7 @@ export default function RecipeShow({
         setUrl("http://localhost:800/posts/consumer/closed?token" + token);
       });
     }
-  }, [isRecipe, showMode]);
+  }, [isRecipe, showMode, mode])
 
   useEffect(() => {
     if (url === "") return;

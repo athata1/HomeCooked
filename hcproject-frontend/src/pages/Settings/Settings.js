@@ -9,7 +9,7 @@ import Alert from "react-bootstrap/Alert";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
-import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet'
+import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import osm from '../../utils/osm-providers'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
@@ -21,8 +21,6 @@ const markerIcon = new L.Icon({
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
-  const [zipcode, setZipcode] = useState("");
-  const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [username, setUsername] = useState("");
@@ -87,7 +85,6 @@ const Settings = () => {
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
-          setAddress(userData.fields.user_address);
           setCenter({lat: parseFloat(userData.fields.user_latitude), lng: parseFloat(userData.fields.user_longitude)})
           let lng = parseFloat(userData.fields.user_latitude)
           let lat = parseFloat(userData.fields.user_longitude)

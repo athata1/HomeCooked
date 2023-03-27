@@ -179,6 +179,16 @@ def delete_recipe(request):
 
     return JsonResponse(status=200, data={'response': 'Recipe deleted'})
 
+@csrf_exempt
+def get_user_id(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'Not POST request'})
+
+    if 'id' not in requests.GET:
+        return JsonResponse(status=404, data={'response', 'Not id'})
+
+    user = User.object.get(user_id=request.GET.get('id'))
+    return JsonResponse(status=200, data={'response': user})
 
 @csrf_exempt
 def get_average_review(request):
