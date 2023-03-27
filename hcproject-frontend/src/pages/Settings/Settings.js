@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./Settings.css";
 import { CgProfile } from "react-icons/cg";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -9,10 +9,19 @@ import Alert from "react-bootstrap/Alert";
 import { ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
+import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents} from 'react-leaflet'
+import osm from '../../utils/osm-providers'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 
+const markerIcon = new L.Icon({
+  iconUrl: require('../../images/marker.png'),
+  iconSize: [35, 45],
+})
 const Settings = () => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
+  const [zipcode, setZipcode] = useState("");
   const [address, setAddress] = useState("");
   const [edit, setEdit] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -45,6 +54,11 @@ const Settings = () => {
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
 
+  const [center, setCenter] = useState({lat: 38, lng: -97})
+  const ZOOM_LEVEL = 9;
+  const mapRef = useRef();
+
+
   useEffect(() => {
     if (currentUser.email !== null) {
       setEmail(currentUser.email);
@@ -74,6 +88,18 @@ const Settings = () => {
           setSelectedCity(userData.fields.user_city.toUpperCase());
           setAbout(userData.fields.user_bio);
           setAddress(userData.fields.user_address);
+          setCenter({lat: parseFloat(userData.fields.user_latitude), lng: parseFloat(userData.fields.user_longitude)})
+          let lng = parseFloat(userData.fields.user_latitude)
+          let lat = parseFloat(userData.fields.user_longitude)
+          if (lng !== 0.0 && lat !== 0.0) {
+            mapRef.current.setView(new L.LatLng(parseFloat(userData.fields.user_latitude), parseFloat(userData.fields.user_longitude)), ZOOM_LEVEL);
+          }
+          mapRef.current.on("click", function(e) {
+            let latlng = {...e.latlng}
+            setCenter(latlng)
+            mapRef.current.setView(new L.LatLng(latlng.lat, latlng.lng), 17)
+            console.log(mapRef.current)
+          })
         });
     });
     getCurrentPhoto().then((url) => {
@@ -81,10 +107,6 @@ const Settings = () => {
       setPrevPhotoSrc(url);
     });
   }, []);
-
-  useEffect(() => {}, [selectedState]);
-
-  useEffect(() => {}, [selectedCity]);
 
   if (creating) {
     return <h1>Loading...</h1>;
@@ -109,8 +131,8 @@ const Settings = () => {
           return res.json();
         })
         .then((data) => {
-          console.log(data);
           let userData = JSON.parse(data.user)[0];
+          console.log(userData);
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
@@ -118,6 +140,8 @@ const Settings = () => {
         });
     });
   }
+
+  
 
   const handleDeleteAccount = (e) => {
     e.preventDefault();
@@ -217,8 +241,9 @@ const Settings = () => {
           selectedState +
           "&bio=" +
           about +
-          "&address=" +
-          address;
+          "&lat=" + 
+          center.lat + 
+          "&lng=" + center.lng;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -272,7 +297,7 @@ const Settings = () => {
               }
             }
             return res.json();
-          })
+          }) 
       });
     }
 
@@ -317,6 +342,13 @@ const Settings = () => {
     }
     if (selectedCity === "--Choose City--" || selectedCity === "") {
       setErrorField("city");
+      setEdit(true);
+      setValidFields(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return false;
+    }
+    if (center.lat === 0.0 && center.lng === 0.0) {
+      setErrorField("map");
       setEdit(true);
       setValidFields(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -440,19 +472,26 @@ const Settings = () => {
           </div>
           <div className="Address">
             <div className="col">
-              <h3 className="settings-label">Address</h3>
+              <h3 className="settings-label">Dropoff Location</h3>
             </div>
           </div>
-          <div className="row mb-5">
-            <div className="col">
-              <textarea
-                className="settings-textarea-address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                readOnly={!edit}
-              ></textarea>
-            </div>
-          </div>
+          <MapContainer
+            center={center}
+            zoom={ZOOM_LEVEL}
+            ref={mapRef}
+          >
+            <TileLayer 
+              url={osm.maptiler.url} 
+              attribution={osm.maptiler.attribution} />
+            {center.lat}
+            {center.lat !== 0.0 && center.lng !== 0.9 ?
+            <Marker position={[center.lat, center.lng]} icon={markerIcon}>
+              <Popup>
+                <b>Dropoff Location</b>
+              </Popup>
+            </Marker>
+            : ""}
+          </MapContainer>
           {newPassword !== confirmPassword && (
             <div className="align-items-center">
               <Alert

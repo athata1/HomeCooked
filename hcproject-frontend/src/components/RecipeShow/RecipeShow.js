@@ -4,7 +4,7 @@ import Recipes from '../Recipes/Recipes';
 import Posts from '../Posts/Posts';
 import './RecipeShow.css'
 
-export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode}) {
+export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode, profileMode}) {
   
   const [url, setUrl] = useState('');
   const {getToken} = useAuth();
@@ -64,6 +64,26 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     })
   }
 
+  function allPosts() {
+    let url = "http://localhost:8000/posts/all";
+    fetch(url, {
+      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      // mode: "no-cors", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      redirect: "follow", // manual, *follow, error
+      referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    }).then((res) => {
+      return res.json();
+    }).then((data) => {
+      setResponses(JSON.parse(data.response));
+    })
+  }
+
   function archiveProducer() {
     getToken().then((token) => {
       let url = "http://localhost:8000/posts/sort?token=" + token  + "&filter=producer-closed"
@@ -86,6 +106,27 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     })
   }
 
+  function closedConsumerPost() {
+    getToken().then((token) => {
+      let url = "http://localhost:8000/posts/consumer/closed?token=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json()
+      }).then((data) => {
+        setResponses(JSON.parse(data.response))
+      })
+    })
+  }
 
   useEffect(() => {
     if (showMode === 1 && mode === 'producer') {
@@ -101,6 +142,14 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     else if (showMode === 3 && mode === 'producer') {
       getToken().then((token) => {
         setUrl("http://localhost:8000/posts?token=" + token + "&type=producer_closed")
+      })
+    }
+    else if (showMode === 2 && mode === "consumer") {
+      setUrl("http://localhost:8000/posts/all");
+    }
+    else if (showMode === 3 && mode === "consumer") {
+      getToken().then((token) => {
+        setUrl("http://localhost:800/posts/consumer/closed?token" + token);
       })
     }
   }, [isRecipe, showMode])
@@ -121,15 +170,26 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
       archiveProducer();
     }
 
+    if (showMode === 2 && mode === 'consumer') {
+      allPosts();
+    }
+
+    if (showMode === 3 && mode === 'consumer') {
+      closedConsumerPost();
+    }
+
   }, [url])
   
   return (
     <div className="recipe-show-container">
       <div className='recipe-show'>
         {showMode === 1 && mode === 'producer' ? responses.map((response) => {
-          return <Recipes removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response} showMode={showMode}/>
+          return <Recipes profileMode={profileMode} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} response={response} showMode={showMode}/>
         }) : ""}
         {(showMode === 2 || showMode === 3) && mode === 'producer' ? responses.map((response) => {
+          return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode} profileMode={profileMode} />
+        }) : ""}
+        {(showMode === 2 || showMode === 3) && mode === 'consumer' ? responses.map((response) => {
           return <Posts response={response} removeCallback={removeResponseByPK} key={response.pk} mode={mode} isArchived={isArchived} isRecipe={isRecipe} isPost={isPost} showMode={showMode}/>
         }) : ""}
       </div>

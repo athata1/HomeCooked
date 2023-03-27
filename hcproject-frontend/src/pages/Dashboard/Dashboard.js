@@ -18,6 +18,8 @@ import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
+  const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
+
   const [token, setToken] = useState();
   const [tags, setTags] = useState([])
   const [ingredients, setIngredients] = useState([]);
@@ -28,8 +30,11 @@ const Dashboard = () => {
   const [image, setImage] = useState(null);
   const [showMode, setShowMode] = useState(0);
   const [responses, setResponses] = useState([]);
+  const [filteredResponse, setFilteredResponse] = useState([]);
 
+  useEffect(() => {
 
+  }, [searchText])
 
   const handleNewPost = (e) => {
     e.preventDefault();
@@ -114,43 +119,44 @@ const Dashboard = () => {
       <span>&nbsp;&nbsp;</span>
       <div >
         <Container>
-          {userMode == "producer" ?
-            <Row>
-              <ButtonGroup>
-                <Button
-                  variant="success"
-                  data-bs-toggle="modal"
-                  data-bs-target="#exampleModal"
-                  onClick={() => {
-                    setResponses([])
-                    setShowMode(0);
-                  }}
-                 >New Recipe</Button>
-                <Button
-                  variant="warning"
-                  disabled={showMode === 1}
-                  onClick={() => {
-                    setResponses([])
-                    setShowMode(1);
-                  }}
-                >
-                  Recipes</Button>
-                <Button
-                  disabled={showMode === 2}
-                  onClick={() => {
-                    setResponses([])
-                    setShowMode(2)
-                  }}
-                >Posts</Button>
-                <Button variant="danger"
-                disabled={showMode === 3}
+          <Row>
+            <ButtonGroup>
+              {userMode == "producer" ?
+              <>
+              <Button
+                variant="success"
+                data-bs-toggle="modal"
+                data-bs-target="#exampleModal"
                 onClick={() => {
                   setResponses([])
-                  setShowMode(3);
-                }}>Archives</Button>
-              </ButtonGroup>
-            </Row> : ""}
-              {showMode === 1 || showMode === 2|| showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
+                  setShowMode(0);
+                }}
+                >New Recipe</Button>
+              <Button
+                variant="warning"
+                disabled={showMode === 1}
+                onClick={() => {
+                  setResponses([])
+                  setShowMode(1);
+                }}
+              >
+                Recipes</Button></> : "" }
+              <Button
+                disabled={showMode === 2}
+                onClick={() => {
+                  setResponses([])
+                  setShowMode(2)
+                }}
+              >Posts</Button>
+              <Button variant="danger"
+              disabled={showMode === 3}
+              onClick={() => {
+                setResponses([])
+                setShowMode(3);
+              }}>Archives</Button>
+            </ButtonGroup>
+          </Row>
+            {showMode === 1 || showMode === 2 || showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
 
         </Container>
 

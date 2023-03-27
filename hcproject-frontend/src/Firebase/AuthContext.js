@@ -12,9 +12,20 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [userMode, setUserMode] = useState("consumer");
   const [creating, setCreating] = useState(false);
+  const [searchMode, setSearchMode] = useState(0);
+  const [searchText, setSearchText] = useState("");
+
   async function getToken() {
     let token = await auth.currentUser.getIdToken(false);
     return token;
+  }
+
+  function resetPassword(email) {
+    return auth.sendPasswordResetEmail(email);
+  }
+
+  function changeResetPassword(code, password) {
+    return auth.confirmPasswordReset(code, password)
   }
 
   async function deleteUser(password) {
@@ -172,9 +183,15 @@ export function AuthProvider({ children }) {
     setCurrentUsername,
     loading,
     creating,
+    resetPassword,
     setCurrentPhoto,
     getCurrentPhoto,
-    loginWithoutEmail
+    loginWithoutEmail,
+    changeResetPassword,
+    searchMode,
+    searchText,
+    setSearchMode,
+    setSearchText
   };
 
   return (
