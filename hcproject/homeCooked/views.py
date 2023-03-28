@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-# import datetime
+import datetime
 # import sqlite3
 import json
 import requests
@@ -180,9 +180,46 @@ def delete_recipe(request):
     return JsonResponse(status=200, data={'response': 'Recipe deleted'})
 
 @csrf_exempt
+def create_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'Not POST request'})
+
+    if 'title' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No title given'})
+
+    if 'desc' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No description given'})
+
+    if 'location' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No location given'})
+
+    if 'time' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No time given'})
+
+    date_time = datetime.datetime.fromtimestamp(int(request.GET.get('time'))/1000)
+    date = date_time.date()
+    time = date_time.time()
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No token given'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    event = Event(event_desc=request.GET.get('desc'), event_location=request.GET.get('location'),
+                  event_host=user, event_time=time, event_date=date, event_name=request.GET.get('title'))
+    event.save()
+    return JsonResponse(status=200, data={'response': 'Saved Event'})
+
+
+
+
+@csrf_exempt
 def get_user_id(request):
     if request.method != 'GET':
-        return JsonResponse(status=404, data={'response': 'Not POST request'})
+        return JsonResponse(status=404, data={'response': 'Not GET request'})
 
     if 'id' not in requests.GET:
         return JsonResponse(status=404, data={'response', 'Not id'})
@@ -209,7 +246,6 @@ def get_average_review(request):
     if count == 0:
         return JsonResponse(status=200, data={'response': 5})
     avg = sum_reviews['review_rating__sum'] / count
-    print(avg)
     return JsonResponse(status=200, data={'response': avg})
 
 @csrf_exempt
@@ -259,11 +295,10 @@ def create_review(request):
         return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
 
     review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
-
     review = Review(review_desc=request.GET.get('description'), review_giver=user,
                     review_receiver=review_receiver,
                     review_recipe=Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe,
-                    review_rating=request.GET.get('rating'), review_post=post)
+                    review_rating=float(request.GET.get('rating')), review_post=post)
     review.save()
     return JsonResponse(status=200, data={'response': 'Saved review'})
 
