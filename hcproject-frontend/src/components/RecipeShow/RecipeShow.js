@@ -19,7 +19,6 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
     setResponses(res);
   }
 
-
   function recipeProducer() {
     getToken().then((token) => {
     fetch("http://localhost:8000/recipe/get?token=" + token, {

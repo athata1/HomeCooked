@@ -38,7 +38,7 @@ function Recipes({
   const [reviewDescription, setReviewDescription] = useState("");
   const [visible, setVisible] = useState(false);
 
-  const { searchMode, searchText, setSearchMode, setSearchText} = useAuth();
+  const { searchMode, searchText} = useAuth();
 
   useEffect(() => {
     setTitle(response.fields.recipe_name);
@@ -117,7 +117,10 @@ function Recipes({
           textState.localeCompare(state) === 0) {
         setVisible(true);
         return;
-      } 
+      }
+      else {
+        setVisible(false)
+      }
       return;
     }
     else {
@@ -215,7 +218,15 @@ function Recipes({
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         }
-      );
+      ).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          alert("Gave post to user");
+        }
+        else {
+          alert("Could not find user");
+        }
+      });
     });
   }
 
