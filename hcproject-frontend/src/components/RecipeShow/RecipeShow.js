@@ -152,7 +152,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
         setUrl("http://localhost:800/posts/consumer/closed?token" + token);
       })
     }
-  }, [isRecipe, showMode])
+  }, [isRecipe, showMode, mode])
 
   useEffect(() => {
     if (url === '')

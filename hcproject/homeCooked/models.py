@@ -32,7 +32,7 @@ class Event (models.Model):
     event_date = models.DateField(verbose_name='Date')
     event_time = models.TimeField(verbose_name='Time')
     event_location = models.CharField(max_length=200, verbose_name='Location')
-    event_capacity = models.IntegerField(verbose_name='Capacity')
+    event_capacity = models.IntegerField(verbose_name='Capacity', null=True)
     event_host = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Host')
 
     def __str__(self):
@@ -71,7 +71,7 @@ class Review (models.Model):
     review_giver = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='UserGiver')
     review_receiver = models.ForeignKey(User,null=True, on_delete=models.CASCADE, related_name='UserReceiver')
     review_recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name='Recipe')
-    review_rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(10)], verbose_name='Rating')
+    review_rating = models.FloatField(validators=[MinValueValidator(1), MaxValueValidator(10)], verbose_name='Rating')
     review_post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name='Post')
 
     def __str__(self):

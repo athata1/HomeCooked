@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-# import datetime
+import datetime
 # import sqlite3
 import json
 import requests
@@ -179,6 +179,53 @@ def delete_recipe(request):
 
     return JsonResponse(status=200, data={'response': 'Recipe deleted'})
 
+@csrf_exempt
+def create_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'Not POST request'})
+
+    if 'title' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No title given'})
+
+    if 'desc' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No description given'})
+
+    if 'location' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No location given'})
+
+    if 'time' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No time given'})
+
+    date_time = datetime.datetime.fromtimestamp(int(request.GET.get('time'))/1000)
+    date = date_time.date()
+    time = date_time.time()
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No token given'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    event = Event(event_desc=request.GET.get('desc'), event_location=request.GET.get('location'),
+                  event_host=user, event_time=time, event_date=date, event_name=request.GET.get('title'))
+    event.save()
+    return JsonResponse(status=200, data={'response': 'Saved Event'})
+
+
+
+
+@csrf_exempt
+def get_user_id(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'Not GET request'})
+
+    if 'id' not in requests.GET:
+        return JsonResponse(status=404, data={'response', 'Not id'})
+
+    user = User.object.get(user_id=request.GET.get('id'))
+    return JsonResponse(status=200, data={'response': user})
 
 @csrf_exempt
 def get_average_review(request):
@@ -199,7 +246,6 @@ def get_average_review(request):
     if count == 0:
         return JsonResponse(status=200, data={'response': 5})
     avg = sum_reviews['review_rating__sum'] / count
-    print(avg)
     return JsonResponse(status=200, data={'response': avg})
 
 @csrf_exempt
@@ -249,11 +295,10 @@ def create_review(request):
         return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
 
     review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
-
     review = Review(review_desc=request.GET.get('description'), review_giver=user,
                     review_receiver=review_receiver,
                     review_recipe=Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe,
-                    review_rating=request.GET.get('rating'), review_post=post)
+                    review_rating=float(request.GET.get('rating')), review_post=post)
     review.save()
     return JsonResponse(status=200, data={'response': 'Saved review'})
 
@@ -389,7 +434,6 @@ def post_consumer_closed(request):
 
     posts = Post.objects.filter(post_consumer=user);
     return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
-
 
 
 @csrf_exempt
@@ -532,6 +576,7 @@ def post_delete(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not delete post: ' + str(E)})
 
+
 @csrf_exempt
 def user_by_uname(request):
     if request.method == 'GET':
@@ -575,11 +620,12 @@ def user_manager(request):
             return JsonResponse(status=404, data={'response': "Error: could not find user"})
 
         return JsonResponse(status=200, data={'user': serializers.serialize('json', user)}, safe=False)
+    
     if request.method == 'POST':
+        
         parameters = request.POST
         if len(request.POST) == 0:
             parameters = request.GET
-
 
         if 'fid' not in parameters:
             return JsonResponse(status=405, data={'response': "Error: Missing fid"})
@@ -611,8 +657,7 @@ def user_manager(request):
             return JsonResponse(status=200, data={ 'data': 'Created user'}, safe=False)
         elif parameters.get('type') == "Change":  # change to id email or password
 
-            # testing purposes only!! DO NOT ALLOW IN MAIN/PROD
-            uid = parameters.get('fid')
+            uid = validate_token(parameters.get('fid'))
 
             if uid is None:
                 return JsonResponse(status=404, data={'response': "Error: invalid token"})
@@ -626,7 +671,8 @@ def user_manager(request):
                 if len(list(User.objects.filter(user_uname=parameters.get('uname')))) == 0:
                     user.user_uname = parameters.get('uname')
                 else:
-                    return JsonResponse(status=404, data={'response': "Error: username already taken"})
+                    if (User.objects.get(user_uname=parameters.get('uname')) != user):
+                        return JsonResponse(status=404, data={'response': "Error: username already taken"})
 
             if 'address' in parameters:
                 user.user_address = parameters.get('address')
@@ -641,6 +687,12 @@ def user_manager(request):
             if 'image' in parameters:
                 vals = parameters.get('image').split('/o/images/')
                 user.image_text = vals[0] + "/o/images%2F" + vals[1]
+            if 'lng' in parameters:
+                val = float(parameters.get('lng'))
+                user.user_longitude = val
+            if 'lat' in parameters:
+                val = float(parameters.get('lat'))
+                user.user_latitude = val
             user.save()
 
             return JsonResponse(status=200, data={'response': 'Saved data'}, safe=False)
