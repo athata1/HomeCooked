@@ -13,6 +13,10 @@ class HomeCookedTestCases(TestCase):
         self.recipe = Recipe.objects.create(recipe_user=self.user, recipe_name="a recipe", recipe_ingredients="stuff and things",
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         self.recipe.save()
+
+        self.post = Post.objects.create(post_producer=self.user, post_consumer=self.user, post_title="a new post", post_desc="a post description",
+            post_recipe=self.recipe)
+        self.post.save();
         
         self.c = Client()
         self.factory = RequestFactory()
@@ -388,3 +392,88 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
+        self.user = User(user_fid="user1", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        self.user.save()
+
+    def test_201_recipe_create(self):
+        print("\ntest 201")
+        print("creating a recipe")
+        print('expected response: "Created recipe"')
+
+        response = self.c.post('/recipe/create', {
+            'fid':'user1', 'title':'test recipe please ignore', 'desc':'a new recipe description',
+            'ingredients':"{'stuff and things'}", 'tags':'gluten free', 'image':'stuff/o/images/things'})
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+    
+    def test_202_recipe_get(self):
+        print("\ntest 202")
+        print("getting recipes by user token")
+        print('expected response: "[2 recipe objects]"')
+
+        recipe2 = Recipe.objects.create(recipe_user=self.user, recipe_name="another recipe", recipe_ingredients="more stuff and things",
+            recipe_img="https://imgur.com/71HOrWu", recipe_desc="another fake recipe that is deff not real.")
+        recipe2.save()
+
+        response = self.c.get('/recipe/get', {'token':self.user.user_fid});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_203_recipe_get_by_id(self):
+        print("\ntest 203")
+        print("getting recipe by user id")
+        print('expected response: "[recipe object]"')
+
+        response = self.c.get('/recipe/get/id', {'recipe_id':self.recipe.recipe_id});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_204_recipe_delete(self):
+        print("\ntest 202")
+        print("deleting recipe")
+        print('expected response: "Recipe deleted"')
+
+        recipe2 = Recipe.objects.create(recipe_user=self.user, recipe_name="another recipe", recipe_ingredients="more stuff and things",
+            recipe_img="https://imgur.com/71HOrWu", recipe_desc="another fake recipe that is deff not real.")
+        recipe2.save()
+
+        response = self.c.post('/recipe/delete', {'token':self.user.user_fid, 'recipe_id': recipe2.recipe_id});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_301_review_create(self):
+        print("\ntest 301")
+        print("creating a review")
+        print('expected response: "Saved review"')
+
+        response = self.c.post('/review/create', {'fid':self.user.user_fid, 'post_id':self.post.post_id,
+        'description':'absolutely flavorless, do not recommend', 'rating':'1'})
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())

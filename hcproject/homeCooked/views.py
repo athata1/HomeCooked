@@ -102,7 +102,7 @@ def allergens(food):
         "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
     }
     res = requests.request("GET", url, headers=headers, params=query_string)
-    print(res.text);
+    #print(res.text);
     return res.text
 
 
@@ -110,26 +110,34 @@ def allergens(food):
 def create_recipe(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not post request'})
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+       parameters = request.GET
+
     # return JsonResponse(serializers.serialize('json', Recipe.objects.all()), safe=False)
 
-    if 'fid' not in request.GET:
+    if 'fid' not in parameters:
         return JsonResponse(status=404, data={'response': 'token not in parameters'})
-    fid = validate_token(request.GET.get('fid'))
+    
+    #TESTING PURPOSES ONLY, VALIDATE TOKEN IN MAIN!!!!!!!!
+    fid = parameters.get('fid')
 
     if fid is None:
         return JsonResponse(status=404, data={'response':'invalid token'})
 
     user = User.objects.get(user_fid=fid)
 
-    recipe_desc = request.GET.get('desc')
+    recipe_desc = parameters.get('desc')
     recipe_user = user
-    recipe_name = request.GET.get('title')
-    recipe_ingredients = request.GET.get('ingredients')
-    ingredients = ast.literal_eval(request.GET.get('ingredients'))
+    recipe_name = parameters.get('title')
+    recipe_ingredients = parameters.get('ingredients')
+    ingredients = ast.literal_eval(parameters.get('ingredients'))
     recipe_sys_tags = allergens(str(ingredients))
-    recipe_tags = request.GET.get('tags')
-    vals = request.GET.get('image').split('/o/images/')
+    recipe_tags = parameters.get('tags')
+    vals = parameters.get('image').split('/o/images/')
     recipe_img = vals[0] + "/o/images%2F" + vals[1]
+
     recipe = Recipe(recipe_desc=recipe_desc, recipe_user=recipe_user,
                     recipe_name=recipe_name, recipe_ingredients=recipe_ingredients,
                     recipe_sys_tags=recipe_sys_tags, recipe_tags=recipe_tags, recipe_img=recipe_img)
@@ -144,9 +152,13 @@ def get_recipes_by_id(request):
         return JsonResponse(status=404, data={'response': 'not GET request'})
 
     if 'recipe_id' not in request.GET:
-        return JsonResponse(status=404, data={'response': 'No recipe_id in parameters'})
+        return JsonResponse(status=404, data={'response': 'No recipe-id in parameters'})
     try:
-        recipe = Recipe.objects.filter(recipe_id=int(request.GET.get('recipe_id')))
+        recipe_id = int(request.GET.get('recipe_id', '-1'))
+        if recipe_id < 0:
+            return JsonResponse(status=404, data={'response': 'invalid recipe id'})
+
+        recipe = Recipe.objects.filter(recipe_id=recipe_id)
         return JsonResponse(status=200, data={'response': serializers.serialize('json', recipe)})
     except Exception as e:
         print(e)
@@ -160,7 +172,9 @@ def get_recipes(request):
     if 'token' not in request.GET:
         return JsonResponse(status=404, data={'response': 'token not in parameters'})
 
-    fid = validate_token(request.GET.get('token'))
+    # TEST PURPOSES ONLY, IF ON MAIN, VALIDATE TOKEN!!!!!!!
+    fid = request.GET.get('token')
+
     if fid is None:
         return JsonResponse(status=404, data={'response': 'invalid token'})
 
@@ -175,18 +189,24 @@ def delete_recipe(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'not POST request'})
 
-    if 'token' not in request.GET:
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    if 'token' not in parameters:
         return JsonResponse(status=404, data={'response': 'token not in parameters'})
-    fid = validate_token(request.GET.get('token'))
+    
+    # TESTING PURPOSES ONLY! VALIDATE TOKEN ON MAIN!!!!!!
+    fid = parameters.get('token')
     if fid is None:
         return JsonResponse(status=404, data={'response': 'invalid token'})
 
-    if 'recipe_id' not in request.GET:
+    if 'recipe_id' not in parameters:
         return JsonResponse(status=404, data={'response': 'recipe_id not found'})
 
     user = User.objects.get(user_fid=fid)
     try:
-        recipe = Recipe.objects.get(recipe_user=user.user_id, recipe_id=request.GET.get('recipe_id'))
+        recipe = Recipe.objects.get(recipe_user=user.user_id, recipe_id=parameters.get('recipe_id'))
         recipe.delete()
     except:
         return JsonResponse(status=404, data={'response': 'Could not find recipe'})
@@ -241,33 +261,39 @@ def get_reviews(request):
 def create_review(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not POST request'})
-    if 'fid' not in request.GET:
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    if 'fid' not in parameters:
         return JsonResponse(status=404, data={'response': 'No fid in params'})
 
-    fid = validate_token(request.GET.get('fid'))
+    # TESTING PURPOSES ONLY!! VALIDATE TOKEN ON MAIN!!!!!!!!!!!!
+    fid = parameters.get('fid')
     if fid is None:
         return JsonResponse(status=404, data={'response': 'invalid token'})
     user = User.objects.get(user_fid=fid)
 
-    if 'description' not in request.GET:
+    if 'description' not in parameters:
         return JsonResponse(status=404, data={'response': 'No description in params'})
 
-    if 'rating' not in request.GET:
+    if 'rating' not in parameters:
         return JsonResponse(status=404, data={'response': 'No rating in params'})
 
-    if 'post_id' not in request.GET:
+    if 'post_id' not in parameters:
         return JsonResponse(status=404, data={'response': 'No rating in params'})
 
-    post = Post.objects.get(post_id=int(request.GET.get('post_id')))
+    post = Post.objects.get(post_id=int(parameters.get('post_id')))
     if post.post_consumer.user_fid != fid:
         return JsonResponse(status=404, data={'response': 'Do not have permission to create review'})
 
-    review_receiver = Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe.recipe_user
+    review_receiver = Post.objects.get(post_id=int(parameters.get('post_id'))).post_recipe.recipe_user
 
-    review = Review(review_desc=request.GET.get('description'), review_giver=user,
+    review = Review(review_desc=parameters.get('description'), review_giver=user,
                     review_receiver=review_receiver,
-                    review_recipe=Post.objects.get(post_id=int(request.GET.get('post_id'))).post_recipe,
-                    review_rating=request.GET.get('rating'), review_post=post)
+                    review_recipe=Post.objects.get(post_id=int(parameters.get('post_id'))).post_recipe,
+                    review_rating=int(parameters.get('rating')), review_post=post)
     review.save()
     return JsonResponse(status=200, data={'response': 'Saved review'})
 
@@ -553,6 +579,31 @@ def post_delete(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response': 'could not delete post: ' + str(E)})
+
+@csrf_exempt
+def user_by_uname(request):
+    if request.method == 'GET':
+        if 'uname' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_uname__exact=request.GET.get('uname'))
+        if len(list(user)) != 0:
+            return JsonResponse(status=405, data={'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(status=404, data={'response': 'uname does not exist'})
+    return JsonResponse(status=405, data={'response': 'Not Get request'})
+
+
+@csrf_exempt
+def user_by_id(request):
+    if request.method == 'GET':
+        if 'id' not in request.GET:
+            return JsonResponse(status=405, data={'response': 'missing uname in parameter'})
+
+        user = User.objects.filter(user_id=request.GET.get('id'))
+        if len(list(user)) != 0:
+            return JsonResponse(status=200, data={'data': serializers.serialize('json', user)}, safe=False)
+        return JsonResponse(status=404, data={'response': 'id does not exist'})
+    return JsonResponse(status=405, data={'response': 'Not Get request'})
 
 
 @csrf_exempt
