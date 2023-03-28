@@ -112,8 +112,6 @@ function Recipes({
       }
       let textCity = str[0].toUpperCase();
       let textState = str[1].toUpperCase();
-      console.log(textCity + " " + textState);
-      console.log(city + " " + state);
 
       if (textCity.localeCompare(city) === 0 &&
           textState.localeCompare(state) === 0) {
