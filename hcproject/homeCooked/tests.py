@@ -477,3 +477,57 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
 
         print(response.json())
+    
+    def test_302_get_reviews_by_fid(self):
+        print("\ntest 302")
+        print("getting reviews by fid")
+        print('expected response: "[review object]"')
+
+        review = Review(review_desc="Seller didn't tip", review_giver=self.user, review_receiver=self.user,
+            review_recipe=self.recipe, review_rating=1, review_post=self.post)
+        review.save();
+
+        response = self.c.get('/review/get', {'token':self.user.user_fid});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+    
+    def test_303_get_reviews_by_uname(self):
+        print("\ntest 303")
+        print("getting reviews by uname")
+        print('expected response: "[review object]"')
+
+        review = Review(review_desc="Seller didn't tip", review_giver=self.user, review_receiver=self.user,
+            review_recipe=self.recipe, review_rating=1, review_post=self.post)
+        review.save();
+
+        response = self.c.get('/review/get', {'uname':self.user.user_uname});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_304_get_avg_reviews(self):
+        print("\ntest 304")
+        print("getting avg rating of a user")
+        print('expected response: [rating out of 5]')
+
+        review = Review(review_desc="Seller didn't tip", review_giver=self.user, review_receiver=self.user,
+            review_recipe=self.recipe, review_rating=1, review_post=self.post)
+        review.save();
+
+        response = self.c.get('/review/average', {'fid':self.user.user_fid});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())

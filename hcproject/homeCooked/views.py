@@ -217,12 +217,13 @@ def delete_recipe(request):
 @csrf_exempt
 def get_average_review(request):
     if request.method != 'GET':
-        return JsonResponse(status=404, data={'response': 'Not POST request'})
+        return JsonResponse(status=404, data={'response': 'Expected GET request, got POST'})
 
     if 'fid' not in request.GET:
         return JsonResponse(status=404, data={'response': 'No fid in params'})
 
-    fid = validate_token(request.GET.get('fid'))
+    #TEST PURPOSES ONLY!! VALIDATE TOKEN IN MAIN!
+    fid = request.GET.get('fid')
     if fid is None:
         return JsonResponse(status=404, data={'response': 'invalid token'})
     user = User.objects.get(user_fid=fid)
@@ -242,7 +243,8 @@ def get_reviews(request):
         return JsonResponse(status=404, data={'response', "Not a GET request"})
 
     if 'token' in request.GET:
-        fid = validate_token(request.GET.get('token'))
+        #test purposes only! VALIDATE TOKEN IN MAIN!!!!!!!!!!
+        fid = request.GET.get('token')
         if fid is None:
             return JsonResponse(status=404, data={'response', "Could not find user"})
         user = User.objects.get(user_fid=fid)
