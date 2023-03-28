@@ -72,6 +72,16 @@ def delete_user(request):
     user.delete()
     
     return JsonResponse(status=200, data={'response':'Deleted User'})
+    if uid is None:
+        return JsonResponse(status=404, data={'response': 'token not in parameters'})
+
+    user = User.objects.get(user_fid=uid)
+
+    if user is None:
+        return JsonResponse(status=400, data={'response': 'Error: User does not exist'})
+    
+    user.delete()
+    return JsonResponse(status=200, data={'response': 'Deleted User'})
 
 
 def index(request):
@@ -591,23 +601,15 @@ def user_manager(request):
             return JsonResponse(status=404, data={'response': "Error: invalid token"})
 
         if parameters.get('type') == "Create":
-        if parameters.get('type') == "Create":
             # new user
             if 'uname' not in parameters:
                 return JsonResponse(status=405, data={'response': "Error: Username missing"})
-            if 'uname' not in parameters:
-                return JsonResponse(status=405, data={'response': "Error: Username missing"})
 
-            username = parameters.get('uname')
             username = parameters.get('uname')
 
             if len(list(User.objects.filter(user_fid=fid))) != 0:
                 return JsonResponse(status=404, data={'response': "Error: Account already created"})
-            if len(list(User.objects.filter(user_fid=fid))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
-            if len(list(User.objects.filter(user_uname=username))) != 0:
-                return JsonResponse(status=404, data={'response': "Error: Account already created"})
             if len(list(User.objects.filter(user_uname=username))) != 0:
                 return JsonResponse(status=404, data={'response': "Error: Account already created"})
 
@@ -615,7 +617,6 @@ def user_manager(request):
             user.save()
 
             return JsonResponse(status=200, data={ 'data': 'Created user'}, safe=False)
-        elif parameters.get('type') == "Change":  # change to id email or password
         elif parameters.get('type') == "Change":  # change to id email or password
 
             # testing purposes only!! DO NOT ALLOW IN MAIN/PROD

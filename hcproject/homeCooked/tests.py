@@ -3,7 +3,7 @@ from django.core import serializers
 from django.utils import timezone
 from .models import *
 
-class PostTestCase(TestCase):   
+class HomeCookedTestCases(TestCase):   
     def setUp(self):
         self.user = User(user_fid="user1", user_uname="sampleUser", 
             user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
@@ -387,3 +387,4 @@ class PostTestCase(TestCase):
             print(" Success! got correct response:")
 
         print(response.json())
+
