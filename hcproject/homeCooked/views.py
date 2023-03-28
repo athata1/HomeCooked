@@ -436,7 +436,6 @@ def post_consumer_closed(request):
     return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
 
 
-
 @csrf_exempt
 def post_update(request):
     try:
@@ -577,6 +576,7 @@ def post_delete(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not delete post: ' + str(E)})
 
+
 @csrf_exempt
 def user_by_uname(request):
     if request.method == 'GET':
@@ -620,11 +620,12 @@ def user_manager(request):
             return JsonResponse(status=404, data={'response': "Error: could not find user"})
 
         return JsonResponse(status=200, data={'user': serializers.serialize('json', user)}, safe=False)
+    
     if request.method == 'POST':
+        
         parameters = request.POST
         if len(request.POST) == 0:
             parameters = request.GET
-
 
         if 'fid' not in parameters:
             return JsonResponse(status=405, data={'response': "Error: Missing fid"})
@@ -656,7 +657,6 @@ def user_manager(request):
             return JsonResponse(status=200, data={ 'data': 'Created user'}, safe=False)
         elif parameters.get('type') == "Change":  # change to id email or password
 
-            # testing purposes only!! DO NOT ALLOW IN MAIN/PROD
             uid = validate_token(parameters.get('fid'))
 
             if uid is None:
