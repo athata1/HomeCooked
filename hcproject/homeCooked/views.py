@@ -216,7 +216,7 @@ def get_events(request):
 
     events = Event.objects.filter(event_host=user)
 
-    return JsonResponse(status=200, data={'response': serializers.serialize('json', recipes)})
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', events)})
 
 @csrf_exempt
 def create_event(request):
