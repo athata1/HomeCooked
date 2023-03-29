@@ -382,7 +382,7 @@ def post_sort(request):
     if 'filter' not in request.GET:
         return JsonResponse(status=405, data={'response': 'ParameterError: parameter "filter" required'})
     try:
-        fid = validate_token(parameters.get('token'))
+        fid = validate_token(request.GET.get('token'))
         if fid is None:
             return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
         user = User.objects.get(user_fid=fid)
