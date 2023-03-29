@@ -2,6 +2,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.core import serializers
 from django.utils import timezone
 from .models import *
+import time
 
 class HomeCookedTestCases(TestCase):   
     def setUp(self):
@@ -476,7 +477,7 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-    def test_301_review_create(self):
+    def test_301_create_event(self):
         print("\ntest 301")
         print("creating a review")
         print('expected response: "Saved review"')
@@ -537,6 +538,22 @@ class HomeCookedTestCases(TestCase):
         review.save();
 
         response = self.c.get('/review/average', {'fid':self.user.user_fid});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_401_create_event(self):
+        print("\ntest 401")
+        print("creating an event")
+        print('expected response: "Saved event"')
+
+        response = self.c.post('/event/create', {'token': self.user.user_fid, 'title': 'a random event',
+            'desc':'meeting up to talk about how much we absolutely hate CS182', 'location': 'ur mums bedroom',
+            'time':int(time.time() * 1000), 'cap':'10'})
         
         if response.status_code != 200:
             print(" Error encountered:")
