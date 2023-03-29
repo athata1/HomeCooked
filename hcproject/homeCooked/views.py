@@ -281,7 +281,7 @@ def get_reviews(request):
         return JsonResponse(status=400, data={'response', 'TypeError: request type must be POST'})
     try:
         if 'token' in request.GET:
-            fid = validate_token(parameters.get('token'))
+            fid = validate_token(request.GET.get('token'))
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
             user = User.objects.get(user_fid=fid)
