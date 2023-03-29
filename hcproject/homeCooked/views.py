@@ -204,6 +204,11 @@ def delete_recipe(request):
 def create_event(request):
     if request.method != 'POST':
         return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
+    
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
     if 'token' not in parameters:
         return JsonResponse(status=405, data={'response', 'ParameterError: parameter "token" required'})
     if 'title' not in parameters:
@@ -228,7 +233,7 @@ def create_event(request):
         time = date_time.time()
 
         event = Event(event_desc=parameters.get('desc'), event_location=parameters.get('location'),
-                    event_host=user, event_time=time, event_date=date, event_name=parameters.get('title'))
+                    event_host=user, event_time=time, event_date=date, event_name=parameters.get('title'), event_capacity=20)
         event.save()
         return JsonResponse(status=200, data={'response': 'Saved Event'})
 
