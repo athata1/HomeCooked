@@ -153,15 +153,15 @@ const Events = () => {
           </button> */}
         <div
           className="modal fade"
-          id="exampleModal"
+          id="eventModal"
           tabIndex="-1"
-          aria-labelledby="exampleModalLabel"
+          aria-labelledby="eventModalLabel"
           aria-hidden="true"
         >
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">
+                <h5 className="modal-title" id="eventModalLabel">
                   Create an Event
                 </h5>
                 <button
@@ -219,7 +219,7 @@ const Events = () => {
                   <span>&nbsp;&nbsp;</span>
                   <input id="meeting" type="datetime-local" name="meetingdate" />
 
-                    {/* <InputTag tags={ingredients} setSelected={setIngredients} placeholder="Add ingredients to recipe" /> */}
+                  {/* <InputTag tags={ingredients} setSelected={setIngredients} placeholder="Add ingredients to recipe" /> */}
                 </div>
 
               </div>
@@ -244,23 +244,24 @@ const Events = () => {
           </div>
         </div>
       </div>
-      {/* <Container>
-        <Row>
-          <Col>
-            <h2>Post Feed</h2>
-            <Posts />
-            <Posts />
-          </Col>
-          <Col>
-            <h2>Recipe Feed</h2>
-            <Posts />
-            <Posts />
-          </Col>
-          
-        </Row>
-      </Container> */}
+      <span>&nbsp;&nbsp;</span>
 
+      <Card>
+        <Card.Header>By: Producer Name</Card.Header>
+        <Card.Body>
+          <Card.Title>Event Name</Card.Title>
+          <Card.Text>
+            Pog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog Event
+          </Card.Text>
+          <Button variant="primary">Add to Calendar</Button>
+          {" "}
+          <Button variant="danger" data-bs-target="#eventModal" data-bs-toggle="modal">Edit</Button>
+
+        </Card.Body>
+      </Card>
+    
     </div>
+
 
   )
 }
