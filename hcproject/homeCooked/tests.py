@@ -71,7 +71,7 @@ class HomeCookedTestCases(TestCase):
         user_bio="a fake person")
         user2.save()
 
-        response = self.c.post('/posts/close', {'token':user2.user_fid, 'post-id':1})
+        response = self.c.post('/posts/close', {'token':user2.user_fid, 'uname':user2.user_uname, 'post-id':1})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
