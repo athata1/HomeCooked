@@ -27,7 +27,7 @@ class HomeCookedTestCases(TestCase):
         print('expected response: "Post created"')
 
         response = self.c.post('/posts/create', {
-            'fid':self.user.user_fid,
+            'token':self.user.user_fid,
             'recipe':self.recipe.recipe_id,
             'title':'a sample post',
             'desc':'a random description'
@@ -49,7 +49,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
 
-        response = self.c.get('/posts/sort', {'filter':'open', 'fid':self.user.user_fid})
+        response = self.c.get('/posts/sort', {'filter':'open', 'token':self.user.user_fid})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
@@ -71,7 +71,7 @@ class HomeCookedTestCases(TestCase):
         user_bio="a fake person")
         user2.save()
 
-        response = self.c.post('/posts/close', {'fid':user2.user_fid, 'post-id':1})
+        response = self.c.post('/posts/close', {'token':user2.user_fid, 'post-id':1})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
@@ -87,7 +87,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title", post_consumer=self.user, post_available=False)
         post.save()
 
-        response = self.c.get('/posts/sort', {'filter':'consumer-closed', 'fid':self.user.user_fid})
+        response = self.c.get('/posts/sort', {'filter':'consumer-closed', 'token':self.user.user_fid})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
@@ -102,7 +102,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title", post_consumer=self.user, post_available=False)
         post.save()
 
-        response = self.c.get('/posts/sort', {'filter':'producer-closed', 'fid':self.user.user_fid})
+        response = self.c.get('/posts/sort', {'filter':'producer-closed', 'token':self.user.user_fid})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
@@ -124,7 +124,7 @@ class HomeCookedTestCases(TestCase):
 
         print("\nnew recipe created: id = " + str(new_recipe.recipe_id))
 
-        response = self.c.post('/posts/update', {'fid':self.user.user_fid, 'post-id':str(post.post_id), 'title':'new title', 'desc':'a new description', 'recipe':new_recipe.recipe_id})
+        response = self.c.post('/posts/update', {'token':self.user.user_fid, 'post-id':str(post.post_id), 'title':'new title', 'desc':'a new description', 'recipe':new_recipe.recipe_id})
         if response.status_code != 200:
             print("error with updating post, test failed")
         else:
@@ -132,7 +132,7 @@ class HomeCookedTestCases(TestCase):
         print(response.json())
 
         print('new post is:')
-        print(self.c.get('/posts/sort', {'filter':'open', 'fid':self.user.user_fid}).json()['response'])
+        print(self.c.get('/posts/sort', {'filter':'open', 'token':self.user.user_fid}).json()['response'])
     
 
     def test_007_post_delete(self):
@@ -143,7 +143,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
 
-        response = self.c.post('/posts/delete', {'fid':self.user.user_fid, 'post-id':1})
+        response = self.c.post('/posts/delete', {'token':self.user.user_fid, 'post-id':1})
         if response.status_code != 200:
             print(" error with fetching post, test failed")
         else:
@@ -157,7 +157,7 @@ class HomeCookedTestCases(TestCase):
         print('expected response: "Post created"')
 
         response = self.c.post('/posts/create', {
-            'fid':self.user.user_fid,
+            'token':self.user.user_fid,
             'recipe':self.recipe.recipe_id,
         })
 
@@ -176,7 +176,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
 
-        response = self.c.post('/posts/close', {'fid':self.user.user_fid, 'post-id':1})
+        response = self.c.post('/posts/close', {'token':self.user.user_fid, 'post-id':1})
         if response.status_code != 404:
             print("Fail! you should not be able to do this!")
         else:
@@ -197,7 +197,7 @@ class HomeCookedTestCases(TestCase):
         user_bio="a fake person")
         user2.save()
 
-        response = self.c.post('/posts/delete', {'fid':user2.user_fid, 'post-id':1})
+        response = self.c.post('/posts/delete', {'token':user2.user_fid, 'post-id':1})
         if response.status_code != 404:
             print(" error: only the producer should be able to delete posts!")
         else:
