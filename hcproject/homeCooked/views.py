@@ -542,8 +542,8 @@ def post_close(request):
         if not post.post_available:
             return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
 
-        if post.post_producer.user_fid != fid:
-            return JsonResponse(status=404, data={'response': 'AuthorizationError: user unauthorized'})
+        if post.post_producer.user_fid == fid:
+            return JsonResponse(status=404, data={'response': 'AuthorizationError: you can not buy your own food'})
 
         user = User.objects.get(user_fid=fid)
         if user is None: 
