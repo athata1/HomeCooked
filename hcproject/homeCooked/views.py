@@ -385,6 +385,21 @@ def post_get_by_loc(request):
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
 
+@csrf_exempt
+def post_get_by_zip(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'request method must be GET'})
+    if 'zip' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "zip" required'})
+    try:
+        posts = []
+        for user in User.objects.filter(user_zip=request.GET.get('zip')):
+            posts.extend(Post.objects.filter(post_producer=user))
+        
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
 
 @csrf_exempt
 def post_sort(request):
