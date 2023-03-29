@@ -201,6 +201,24 @@ def delete_recipe(request):
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
 
 @csrf_exempt
+def get_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+    user = User.objects.get(user_fid=fid)
+    if user is None:
+        return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+    events = Event.objects.filter(event_host=user)
+
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', recipes)})
+
+@csrf_exempt
 def create_event(request):
     if request.method != 'POST':
         return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
