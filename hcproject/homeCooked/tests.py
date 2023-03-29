@@ -396,6 +396,21 @@ class HomeCookedTestCases(TestCase):
             user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
             user_bio="a fake person")
         self.user.save()
+    
+    def test_107_user_get_by_uname(self):
+        print("\ntest 107")
+        print("fetching a user by uname")
+        print('expected response: [a user object]')
+
+        response = self.c.get('/users/uname', {'uname':self.user.user_uname})
+
+        if response.status_code != 200:
+            print(" error with fetching post, test failed")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
 
     def test_201_recipe_create(self):
         print("\ntest 201")
