@@ -1,6 +1,7 @@
 from django.test import TestCase, Client, RequestFactory
 from django.core import serializers
 from django.utils import timezone
+from datetime import date
 from .models import *
 import time
 
@@ -570,8 +571,27 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-    def test_401_create_event(self):
+    def test_401_get_events(self):
         print("\ntest 401")
+        print("getting event")
+        print('expected response: [event object]')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=20, event_location="earth somewhere")
+        event.save();
+
+        response = self.c.get('/event/get', {'token':self.user.user_fid});
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_402_create_event(self):
+        print("\ntest 402")
         print("creating an event")
         print('expected response: "Saved event"')
 
