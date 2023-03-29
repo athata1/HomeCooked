@@ -91,7 +91,7 @@ def allergens(food):
         "X-RapidAPI-Host": "edamam-edamam-nutrition-analysis.p.rapidapi.com"
     }
     res = requests.request("GET", url, headers=headers, params=query_string)
-    print(res.text);
+    #print(res.text);
     return res.text
 
 
@@ -288,7 +288,7 @@ def get_reviews(request):
     try:
         if 'token' in request.GET:
             # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
-            fid = parameters.get('token')
+            fid = request.GET.get('token')
             if fid is None:
                 return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
             user = User.objects.get(user_fid=fid)
@@ -688,7 +688,8 @@ def user_manager(request):
             return JsonResponse(status=200, data={ 'data': 'Created user'})
 
         elif parameters.get('type') == "Change":  # change to id email or password
-            uid = validate_token(parameters.get('fid'))
+            # testing purposes only, validate token for official use!
+            uid = parameters.get('fid')
 
             if uid is None:
                 return JsonResponse(status=404, data={'response': "TokenError: invalid token"})

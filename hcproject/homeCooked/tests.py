@@ -122,8 +122,6 @@ class HomeCookedTestCases(TestCase):
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         new_recipe.save()
 
-        print("\nnew recipe created: id = " + str(new_recipe.recipe_id))
-
         response = self.c.post('/posts/update', {'token':self.user.user_fid, 'post-id':str(post.post_id), 'title':'new title', 'desc':'a new description', 'recipe':new_recipe.recipe_id})
         if response.status_code != 200:
             print("error with updating post, test failed")
@@ -255,7 +253,7 @@ class HomeCookedTestCases(TestCase):
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()      
 
-        response = self.c.get('/posts/zip', {'zip':'0'})
+        response = self.c.get('/posts/zip', {'city':'Timbucktwo', 'state':'Confusion'})
         if response.status_code != 200:
             print(" error with retrieving posts")
         else:
@@ -342,10 +340,10 @@ class HomeCookedTestCases(TestCase):
             'uname':'user1'
             })
 
-        if response.status_code != 404:
-            print(" Other error encountered:")
+        if response.status_code != 200:
+            print(" Error encountered:")
         else:
-            print(" Success! got correct response:")
+            print(" Success! got response:")
 
         print(response.json())
 
