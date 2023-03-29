@@ -553,7 +553,7 @@ class HomeCookedTestCases(TestCase):
 
         response = self.c.post('/event/create', {'token': self.user.user_fid, 'title': 'a random event',
             'desc':'meeting up to talk about how much we absolutely hate CS182', 'location': 'ur mums bedroom',
-            'time':int(time.time() * 1000), 'cap':'10'})
+            'time':int(time.time() * 1000)})
         
         if response.status_code != 200:
             print(" Error encountered:")
