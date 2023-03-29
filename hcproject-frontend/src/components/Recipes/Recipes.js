@@ -92,6 +92,11 @@ function Recipes({
   }, []);
 
   useEffect(() => {
+    console.log()
+    if (showMode === 3) {
+      setVisible(true);
+      return;
+    }
     if (searchMode === 1 && mode === "consumer") {
       let location = getZip(searchText);
       if (location === undefined) {
@@ -101,6 +106,10 @@ function Recipes({
       if (location[0].localeCompare(city) === 0 &&
           location[1].localeCompare(state) === 0) {
         setVisible(true);
+        return;
+      }
+      else {
+        setVisible(false)
         return;
       } 
     }
@@ -126,7 +135,7 @@ function Recipes({
     else {
       setVisible(true);
     }
-  }, [searchMode, searchText])
+  }, [searchMode, searchText, showMode])
 
   if (!visible) {
     return "";

@@ -7,7 +7,7 @@ import './RecipeShow.css'
 export default function RecipeShow({mode, isRecipe, isArchived, isPost, responses, setResponses, showMode, profileMode}) {
   
   const [url, setUrl] = useState('');
-  const {getToken} = useAuth();
+  const {getToken, searchMode} = useAuth();
 
   function removeResponseByPK(pk) {
     let index = responses.findIndex((res) => {
@@ -126,6 +126,41 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
       })
     })
   }
+
+  function closestPosts() {
+    getToken().then(token => {
+      let url = "http://localhost:8000/posts/consumer/dist?token=" + token;
+      fetch(url, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json()
+      }).then((data) => {
+        setResponses(JSON.parse(data.response))
+      })
+    })
+  }
+
+  useEffect(() => {
+    if (showMode !== 2 || mode !== 'consumer')
+      return;
+    
+    if (searchMode === 1 || searchMode === 2) {
+      allPosts();
+    }
+    else {
+      closestPosts();
+    }
+  }, [searchMode, mode, showMode])
+
 
   useEffect(() => {
     if (showMode === 1 && mode === 'producer') {

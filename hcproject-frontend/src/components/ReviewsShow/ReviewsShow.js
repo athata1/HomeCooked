@@ -29,7 +29,6 @@ const ReviewsShow = () => {
       })
       .then((data) => {
         console.log(data)
-        alert("Deleted Recipe");
       });
     })
   }, []);
