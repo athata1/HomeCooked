@@ -1,3 +1,4 @@
 .reviewshow-width {
-    padding-bottom: 50rem;
+  overflow-y: auto;
+  height: 450px;
 }

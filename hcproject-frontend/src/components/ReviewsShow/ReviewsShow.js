@@ -2,66 +2,50 @@ import React, { useState, useEffect } from "react";
 import { Rating } from "react-simple-star-rating";
 
 import { useAuth } from "../../Firebase/AuthContext";
+import ReviewList from "../ReviewList/ReviewList";
+import "./ReviewsShow.css"
 
 const ReviewsShow = () => {
   const [rating, setRating] = useState(3);
   const [reviews, setReviews] = useState();
   const { getToken } = useAuth();
+  const [username, setUsername] = useState([]);
 
   useEffect(() => {
     getToken().then((token) => {
-      fetch(
-        "http://localhost:8000/review/get?token=" + token,
-        {
-          method: "GET", // *GET, POST, PUT, DELETE, etc.
-          // mode: "no-cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        }
-      ).then((res) => {
-        return res.json();
+      fetch("http://localhost:8000/review/get?token=" + token, {
+        method: "GET", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
       })
-      .then((data) => {
-        console.log(data)
-        alert("Deleted Recipe");
-      });
-    })
+        .then((res) => {
+          return res.json();
+        })
+        .then((data) => {
+          setReviews(JSON.parse(data.response));
+          console.log(JSON.parse(data.response));
+          return data;
+        }).then(data => {
+            console.log(JSON.parse(data));
+        });
+    });
   }, []);
 
   return (
-    <div className="reviewshow-width px-5">
-      <div class="card">
-        <div class="card-header">
-        <Rating
-            readonly={true}
-            initialValue={rating}
-            fillColorArray={[
-              "#f17a45",
-              "#f19745",
-              "#f1a545",
-              "#f1b345",
-              "#f1d045",
-            ]}
-            allowFraction={true}
-            /* Available Props */
-          />
-        </div>
-        <div class="card-body">
-          <blockquote class="blockquote mb-0">
-            <p>
-              SPLENDID STUFF LADS
-            </p>
-            <footer class="blockquote-footer pt-4">
-              USERNAME
-            </footer>
-          </blockquote>
-        </div>
+    <div className="overflow-auto reviewsshow-width">
+      <div className="px-5 overflow-auto">
+        {reviews?.map((review, i) => {
+          return (
+            <ReviewList key={i} description={review?.fields?.review_desc} rating={review.fields.review_rating} user_id={review.fields.review_giver} />
+          );
+        })}
       </div>
     </div>
   );

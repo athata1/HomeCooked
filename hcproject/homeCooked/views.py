@@ -187,7 +187,7 @@ def get_user_id(request):
     if 'id' not in requests.GET:
         return JsonResponse(status=404, data={'response', 'Not id'})
 
-    user = User.object.get(user_id=request.GET.get('id'))
+    user = User.object.get(user_id=int(request.GET.get('id')))
     return JsonResponse(status=200, data={'response': user})
 
 @csrf_exempt
@@ -223,7 +223,7 @@ def get_reviews(request):
             return JsonResponse(status=404, data={'response', "Could not find user"})
         user = User.objects.get(user_fid=fid)
 
-        reviews = Review.objects.filter(review_receiver=user)
+        reviews = Review.objects.select_related('review_giver').filter(review_receiver=user).select_related()
         return JsonResponse(status=200, data={'response': serializers.serialize('json', reviews)}, safe=False)
 
     elif 'uname' in request.GET:
