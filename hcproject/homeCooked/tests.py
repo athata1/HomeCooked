@@ -169,12 +169,12 @@ class HomeCookedTestCases(TestCase):
     def test_009_post_close_post_as_producer(self):
         print('\ntest 009')
         print("Attempting to close post as producer")
-        print('''expected result: "You can't buy an item you sold"''')
+        print('''expected result: "AuthorizationError: you can not buy your own post"''')
 
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
 
-        response = self.c.post('/posts/close', {'token':self.user.user_fid, 'post-id':1})
+        response = self.c.post('/posts/close', {'token':self.user.user_fid, 'uname':self.user.user_uname, 'post-id':1})
         if response.status_code != 404:
             print("Fail! you should not be able to do this!")
         else:
@@ -185,7 +185,7 @@ class HomeCookedTestCases(TestCase):
     def test_010_post_delete_post_unauthorized(self):
         print('\ntest 010')
         print("Attempting to delete post as unauthorized user")
-        print('''expected response: "You do not have permission to delete this post"''')
+        print('''expected response: "AuthorizationError: user unauthorized"''')
 
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
         post.save()
@@ -296,7 +296,7 @@ class HomeCookedTestCases(TestCase):
     def test_103_user_create_dup_fid(self):
         print("\ntest 103")
         print("creating a new user with a duplicate user fid")
-        print('expected response: "Error: Account already created"')
+        print('expected response: "DatabaseError: fid already in use"')
 
         response = self.c.post('/users/', {
             'type':'Create',
@@ -311,10 +311,10 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-    def test_103_user_create_dup_uname(self):
-        print("\ntest 103")
+    def test_104_user_create_dup_uname(self):
+        print("\ntest 104")
         print("creating a new user with a duplicate username")
-        print('expected response: "Error: Account already created"')
+        print('expected response: "DatabaseError: username already in use"')
 
         response = self.c.post('/users/', {
             'type':'Create',
@@ -329,8 +329,8 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-    def test_104_user_update_uname(self):
-        print("\ntest 104")
+    def test_105_user_update_uname(self):
+        print("\ntest 105")
         print("updating a user's username")
         print('expected response: "Saved data"')
 
@@ -350,8 +350,8 @@ class HomeCookedTestCases(TestCase):
         print('\nnew user is:')
         print(self.c.get('/users/', {'fid':self.user.user_fid}).json()['user'])
 
-    def test_105_user_update_uname(self):
-        print("\ntest 105")
+    def test_106_user_update_uname(self):
+        print("\ntest 106")
         print("updating a user")
         print('expected response: "Saved data"')
 
@@ -376,8 +376,8 @@ class HomeCookedTestCases(TestCase):
         print('\nnew user is:')
         print(self.c.get('/users/', {'fid':self.user.user_fid}).json()['user'])
 
-    def test_106_user_delete(self):
-        print("\ntest 106")
+    def test_107_user_delete(self):
+        print("\ntest 107")
         print("deleting a user")
         print('expected response: "Deleted User"')
 
@@ -395,8 +395,8 @@ class HomeCookedTestCases(TestCase):
             user_bio="a fake person")
         self.user.save()
     
-    def test_107_user_get_by_uname(self):
-        print("\ntest 107")
+    def test_108_user_get_by_uname(self):
+        print("\ntest 108")
         print("fetching a user by uname")
         print('expected response: [a user object]')
 
