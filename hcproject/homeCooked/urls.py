@@ -7,6 +7,7 @@ from .views import *
 app_name = 'HomeCooked'
 urlpatterns = [
     path('event/create', create_event),
+    path('event/get', get_events),
     path('posts/consumer/closed', post_consumer_closed),
     path('posts/sort', post_sort),
     path('posts/create', post_create),
@@ -14,7 +15,8 @@ urlpatterns = [
     path('posts/close', post_close),
     path('posts/delete', post_delete),
     path('posts/all', post_get_all),
-    path('posts/zip', post_get_by_loc),
+    path('posts/zip', post_get_by_zip),
+    path('posts/loc', post_get_by_loc),
     path('users/delete', delete_user),
     path('users/', user_manager),
     path('users/uname', user_by_uname),
