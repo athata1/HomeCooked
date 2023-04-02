@@ -19,17 +19,20 @@ import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
+  const { searchMode, searchText} = useAuth();
 
   const [token, setToken] = useState();
   const [tags, setTags] = useState([])
   const [ingredients, setIngredients] = useState([]);
-
 
   const titleRef = useRef()
   const textRef = useRef()
   const [image, setImage] = useState(null);
   const [showMode, setShowMode] = useState(0);
   const [responses, setResponses] = useState([]);
+
+  const parentRef = useRef();
+  const [height, setHeight] = useState(200);
 
   const handleNewPost = (e) => {
     e.preventDefault();
@@ -98,6 +101,15 @@ const Dashboard = () => {
     getToken().then((t) => {
       setToken(t);
     });
+    
+    if (!parentRef.current) return;
+    const resizeObs = new ResizeObserver(() => {
+      setHeight(parentRef.current.offsetHeight);
+    });
+    resizeObs.observe(parentRef.current);
+
+    return () => resizeObs.disconnect();
+
   }, []);
 
   const handleChangeImage = (e) => {
@@ -112,7 +124,7 @@ const Dashboard = () => {
     <div className="dashboard">
       <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
-      <div >
+      <div ref = {parentRef}>
         <Container>
           <Row>
             <ButtonGroup>
@@ -151,10 +163,14 @@ const Dashboard = () => {
               }}>Archives</Button>
             </ButtonGroup>
           </Row>
-            {showMode === 1 || showMode === 2 || showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
-
         </Container>
-
+        {height < 200 ? 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              fontSize: '2rem'}}>Nothing to see here...</div> : ""}
+        {showMode === 1 || showMode === 2 || showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
         {/* <button
             className="btn btn-primary settings-button-remove settings-delete-account-button"
             data-bs-toggle="modal"
@@ -250,7 +266,6 @@ const Dashboard = () => {
       </div>
       {/* <Container>
         <Row>
-
           <Col>
             <h2>Post Feed</h2>
             <Posts />
@@ -263,7 +278,6 @@ const Dashboard = () => {
           </Col>
           
         </Row>
-
       </Container> */}
 
     </div>

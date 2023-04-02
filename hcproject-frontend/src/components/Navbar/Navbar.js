@@ -14,7 +14,21 @@ function Navbar({part, mode}) {
 
   function handleChange(e) {
     if (e.key === 'Enter') {
-      setSearchText(e.target.value)
+      if (searchMode === 1) {
+        if (e.target.value.match(/^\d{5}$/))
+          setSearchText(e.target.value)
+        else
+          alert("Invalid zipcode");
+      }
+      if (searchMode === 2) {
+        let arr = e.target.value.split(',');
+        if (arr.length !== 2) {
+          alert("Invalid city,state");
+        }
+        else {
+          setSearchText(e.target.value)
+        }
+      }
     }
   }
 

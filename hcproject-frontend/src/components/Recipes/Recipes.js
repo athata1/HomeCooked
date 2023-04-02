@@ -38,7 +38,7 @@ function Recipes({
   const [reviewDescription, setReviewDescription] = useState("");
   const [visible, setVisible] = useState(false);
 
-  const { searchMode, searchText, setSearchMode, setSearchText} = useAuth();
+  const { searchMode, searchText} = useAuth();
 
   useEffect(() => {
     setTitle(response.fields.recipe_name);
@@ -92,6 +92,11 @@ function Recipes({
   }, []);
 
   useEffect(() => {
+    console.log()
+    if (showMode === 3) {
+      setVisible(true);
+      return;
+    }
     if (searchMode === 1 && mode === "consumer") {
       let location = getZip(searchText);
       if (location === undefined) {
@@ -101,6 +106,10 @@ function Recipes({
       if (location[0].localeCompare(city) === 0 &&
           location[1].localeCompare(state) === 0) {
         setVisible(true);
+        return;
+      }
+      else {
+        setVisible(false)
         return;
       } 
     }
@@ -112,20 +121,21 @@ function Recipes({
       }
       let textCity = str[0].toUpperCase();
       let textState = str[1].toUpperCase();
-      console.log(textCity + " " + textState);
-      console.log(city + " " + state);
 
       if (textCity.localeCompare(city) === 0 &&
           textState.localeCompare(state) === 0) {
         setVisible(true);
         return;
-      } 
+      }
+      else {
+        setVisible(false)
+      }
       return;
     }
     else {
       setVisible(true);
     }
-  }, [searchMode, searchText])
+  }, [searchMode, searchText, showMode])
 
   if (!visible) {
     return "";
@@ -217,7 +227,15 @@ function Recipes({
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         }
-      );
+      ).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          alert("Gave post to user");
+        }
+        else {
+          alert("Could not find user");
+        }
+      });
     });
   }
 
