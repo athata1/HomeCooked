@@ -180,6 +180,41 @@ def delete_recipe(request):
     return JsonResponse(status=200, data={'response': 'Recipe deleted'})
 
 @csrf_exempt
+def change_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'Not POST request'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No token given'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    if 'event-id' not in request.GET:
+        return JsonResponse(status=404, data={'response', 'No event-id given'})
+
+    event = Event.objects.get(pk=int(request.GET.get('event-id')))
+    if event.event_host != user:
+        return JsonResponse(status=404, data={'response', 'You do not have permission to change this'})
+
+    if 'title' in request.GET:
+        event.event_name = request.GET.get('title')
+    if 'desc' in request.GET:
+        event.event_desc = request.GET.get('desc')
+    if 'location' in request.GET:
+        event.event_location = request.GET.get('location')
+    if 'time' in request.GET:
+        date_time = datetime.datetime.fromtimestamp(int(request.GET.get('time')) / 1000)
+        date = date_time.date()
+        time = date_time.time()
+        event.event_date = date
+        event.event_time = time
+    event.save()
+    return JsonResponse(status=200, data={'response': 'Updated Event'})
+
+@csrf_exempt
 def create_event(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not POST request'})
@@ -494,6 +529,50 @@ def post_update(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response': 'could not update post ' + str(E)})
+
+@csrf_exempt
+def get_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'request method must be GET'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'error, token required to update post'})
+    fid = validate_token(request.GET['token'])
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+    events = Event.objects.filter(event_host=user)
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', events)}, safe=False)
+
+
+
+@csrf_exempt
+def get_post_close(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'request method must be GET'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'error, token required to update post'})
+
+    fid = validate_token(request.GET['token'])
+
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+
+    user = User.objects.get(user_fid=fid)
+    lng = user.user_longitude
+    lat = user.user_latitude
+    lng_min = lng - 2
+    lng_max = lng + 2
+    lat_min = lat - 2
+    lat_max = lat + 2
+
+    posts = Post.objects.select_related('post_producer').filter(post_producer__user_longitude__lt=lng_max,
+                                                                post_producer__user_longitude__gt=lng_min,
+                                                                post_producer__user_latitude__lt=lat_max,
+                                                                post_producer__user_latitude__gt=lat_min)
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)}, safe=False)
 
 
 @csrf_exempt
