@@ -173,7 +173,9 @@ function Profile() {
         <br />
         <h1 className='px-5'>Posts</h1>
         <hr />
-        <RecipeShow responses={responses} setResponses={setResponses} mode="producer" showMode={2} profileMode={true}/>
+        <div style={{width: '100%', height: '500px', overflowY: 'scroll'}}>
+          <RecipeShow responses={responses} setResponses={setResponses} mode="producer" showMode={2} profileMode={true}/>
+        </div>
     </div>
   );
 }

@@ -29,8 +29,11 @@ const ReviewsShow = () => {
           return res.json();
         })
         .then((data) => {
-          setReviews(JSON.parse(data.response));
-          console.log(JSON.parse(data.response));
+          let sorted = JSON.parse(data.response).sort((a,b) => {
+            return b.fields.review_rating - a.fields.review_rating
+          })
+          setReviews(sorted);
+          console.log(sorted);
           return data;
         }).then(data => {
             console.log(JSON.parse(data));

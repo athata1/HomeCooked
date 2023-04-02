@@ -21,14 +21,13 @@ const ReviewList = ({ description, user_id, rating }) => {
         return res.json();
       })
       .then((data) => {
-        console.log("HERE", JSON.parse(data.data)[0].fields.user_uname);
         setUsername(JSON.parse(data.data)[0].fields.user_uname);
       });
   }, []);
 
   return (
     <div>
-      <div class="card">
+      <div class="card mt-3">
         <div class="card-header">
           <Rating
             readonly={true}

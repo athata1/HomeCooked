@@ -15,6 +15,7 @@ import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import RecipeShow from '../../components/RecipeShow/RecipeShow';
+import EventCard from '../../components/EventCard/EventCard';
 
 const Events = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -28,7 +29,6 @@ const Events = () => {
   const timeRef = useRef();
   const [showMode, setShowMode] = useState(0);
   const [responses, setResponses] = useState([]);
-
 
 
   const handleNewEvent = (e) => {
@@ -81,6 +81,33 @@ const Events = () => {
       })
     })
   };
+  useEffect(() => {
+    if (showMode === 2 && userMode === 'producer') {
+      getToken().then(token => {
+        let url = "http://localhost:8000/events/producer?token=" + token;
+        fetch(url, {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then(data => {
+          setResponses(JSON.parse(data.response))
+          console.log(JSON.parse(data.response))
+        })
+      })
+    }
+    else {
+      setResponses([])
+    }
+  },[showMode, userMode])
 
   return (
     <div className="events">
@@ -125,9 +152,9 @@ const Events = () => {
           </button> */}
         <div
           className="modal fade"
-          id="eventModal"
+          id="exampleModal"
           tabIndex="-1"
-          aria-labelledby="eventModalLabel"
+          aria-labelledby="exampleModalLabel"
           aria-hidden="true"
         >
           <div className="modal-dialog">
@@ -149,8 +176,6 @@ const Events = () => {
                   className="form-control settings-input"
                   placeholder="Title"
                   ref={titleRef}
-                // value={deleteAccountPassword}
-                // onChange={(e) => setDeleteAccountPassword(e.target.value)}
                 />
                 <span>&nbsp;&nbsp;</span>
                 <textarea
@@ -159,24 +184,8 @@ const Events = () => {
                   id="email_body"
                   rows="7"
                   ref={textRef}
-                // placeholder="Text"
-                // type="textarea"
-                // multiline={true} 
-                // style={{padding: 10}} 
-                // textAlignVertical="top"
-                // className="form-control settings-input"
-                // style={{height: "100px"}}
-
-                // value={deleteAccountPassword}
-                // onChange={(e) => setDeleteAccountPassword(e.target.value)}
                 />
                 <span>&nbsp;&nbsp;</span>
-
-                {/* <div>
-                  <label for="#formFileLg" className="form-label">Input Image</label>
-                  <input onChange={(e) => {handleChangeImage(e);}}className="form-control form-control-md" id="formFileLg" type="file" />
-                </div>
-*/}
                 <span>&nbsp;&nbsp;</span>
                 <div>
                   <input
@@ -218,20 +227,10 @@ const Events = () => {
       </div>
       <span>&nbsp;&nbsp;</span>
 
-      <Card>
-        <Card.Header>By: Producer Name</Card.Header>
-        <Card.Body>
-          <Card.Title>Event Name</Card.Title>
-          <Card.Text>
-            Pog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog EventPog Event
-          </Card.Text>
-          <Button variant="primary">Add to Calendar</Button>
-          {" "}
-          <Button variant="danger" data-bs-target="#eventModal" data-bs-toggle="modal">Edit</Button>
+      {responses.map((event) => {
 
-        </Card.Body>
-      </Card>
-    
+        return <EventCard response={event}/>
+      })}
     </div>
 
 
