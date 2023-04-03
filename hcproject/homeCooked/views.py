@@ -775,3 +775,32 @@ def user_manager(request):
             user.save()
 
             return JsonResponse(status=200, data={'response': 'Saved data'}, safe=False)
+
+
+@csrf_exempt
+def search_for(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'request method must be GET'})
+    if 'query' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "query" required'})
+    try:
+        query=request.GET.get()
+        results = []
+        if 'filter_posts' not in request.GET:
+            results.extend(Post.objects.filter(post_title__contains=query))
+        if 'filter_city' not in request.GET:
+            for users in Users.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
+                results.extend(Post.objects.filter(post_producer=user))
+
+        for user in User.objects.filter(user_unanme__contains=query):    
+            if 'filter_producer' not in request.GET:
+                results.extend(Post.objects.filter(post_producer__contains=User.objects.get))
+            if 'filter_consumer' not in request.GET:
+                results.extend(Post.objects.filter(post_consumer__contains=query))
+            if 'filter_user' not in request.GET:
+                results.extend(User.objects.filter(user_uname__contains=query))
+        
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', results)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
