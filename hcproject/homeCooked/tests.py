@@ -42,7 +42,6 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-
     def test_002_post_sort_open(self):
         print("\ntest 002")
         print("finding open posts from the user:")
@@ -59,7 +58,6 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-  
     def test_003_post_close_post(self):
         print('\ntest 003')
         print('closing post')
@@ -111,7 +109,6 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
         print(response.json())
 
-
     def test_006_post_update(self):
         print('\ntest 006')
         print("updating post:")
@@ -134,7 +131,6 @@ class HomeCookedTestCases(TestCase):
         print('new post is:')
         print(self.c.get('/posts/sort', {'filter':'open', 'token':self.user.user_fid}).json()['response'])
     
-
     def test_007_post_delete(self):
         print('\ntest 007')
         print('deleting post')
@@ -149,7 +145,6 @@ class HomeCookedTestCases(TestCase):
         else:
             print(" Success! Got response:")
         print(response.json())
-
 
     def test_008_post_create_empty_fields(self):
         print('\ntest 008')
@@ -170,7 +165,7 @@ class HomeCookedTestCases(TestCase):
     
     def test_009_post_close_post_as_producer(self):
         print('\ntest 009')
-        print("Attempting to close post as producer")
+        print("Attempting to buy one's own food")
         print('''expected result: "AuthorizationError: you can not buy your own post"''')
 
         post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
@@ -205,7 +200,6 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-
     def test_011_post_get_all(self):
         print('\ntest 011')
         print("Getting all posts")
@@ -221,7 +215,6 @@ class HomeCookedTestCases(TestCase):
             print(" Success! Got response")
 
         print(response.json())
-
 
     def test_012_post_get_by_location(self):
         print('\ntest 012')
@@ -502,7 +495,7 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
-    def test_301_create_event(self):
+    def test_301_create_review(self):
         print("\ntest 301")
         print("creating a review")
         print('expected response: "Saved review"')

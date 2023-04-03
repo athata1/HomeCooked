@@ -277,6 +277,7 @@ def get_user_id(request):
     user = User.object.get(user_id=request.GET.get('id'))
     return JsonResponse(status=200, data={'response': user})
 
+
 @csrf_exempt
 def get_average_review(request):
     if request.method != 'GET':
@@ -305,6 +306,7 @@ def get_average_review(request):
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
 
+
 @csrf_exempt
 def get_reviews(request):
     if request.method != 'GET':
@@ -332,6 +334,7 @@ def get_reviews(request):
     except Exception as E:
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
 
 @csrf_exempt
 def create_review(request):
@@ -375,6 +378,7 @@ def create_review(request):
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
 
+
 @csrf_exempt
 def post_get_all(request):
     if request.method != 'GET':
@@ -385,6 +389,7 @@ def post_get_all(request):
     except Exception as E:
         print(E)
     return JsonResponse(status=500, data={'response':'ServerError: an unknown error occured'})
+
 
 @csrf_exempt
 def post_get_by_loc(request):
@@ -404,6 +409,7 @@ def post_get_by_loc(request):
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
 
+
 @csrf_exempt
 def post_get_by_zip(request):
     if request.method != 'GET':
@@ -419,6 +425,7 @@ def post_get_by_zip(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
 
 @csrf_exempt
 def post_sort(request):
@@ -494,6 +501,7 @@ def post_create(request):
     except Exception as E:
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
 
 @csrf_exempt
 def post_consumer_closed(request):
@@ -659,6 +667,19 @@ def user_by_uname(request):
 
 
 @csrf_exempt
+def user_by_uname_contains(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'uname' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "uname" required'})
+
+    user = User.objects.filter(user_uname__contains=request.GET.get('uname'))
+    if len(list(user)) != 0:
+        return JsonResponse(status=200, data={'data': serializers.serialize('json', user)})
+    return JsonResponse(status=404, data={'response': 'uname does not exist'})
+
+
+@csrf_exempt
 def user_by_id(request):
     if request.method != 'GET':
         return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
@@ -673,6 +694,7 @@ def user_by_id(request):
     except: 
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
 
 @csrf_exempt
 def user_manager(request):
@@ -767,3 +789,32 @@ def user_manager(request):
             user.save()
 
             return JsonResponse(status=200, data={'response': 'Saved data'}, safe=False)
+
+
+@csrf_exempt
+def search_for(request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'request method must be GET'})
+    if 'query' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "query" required'})
+    try:
+        query=request.GET.get()
+        results = []
+        if 'filter_posts' not in request.GET:
+            results.extend(Post.objects.filter(post_title__contains=query))
+        if 'filter_city' not in request.GET:
+            for users in Users.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
+                results.extend(Post.objects.filter(post_producer=user))
+
+        for user in User.objects.filter(user_unanme__contains=query):    
+            if 'filter_producer' not in request.GET:
+                results.extend(Post.objects.filter(post_producer__contains=User.objects.get))
+            if 'filter_consumer' not in request.GET:
+                results.extend(Post.objects.filter(post_consumer__contains=query))
+            if 'filter_user' not in request.GET:
+                results.extend(User.objects.filter(user_uname__contains=query))
+        
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', results)})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})

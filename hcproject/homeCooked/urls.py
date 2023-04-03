@@ -20,6 +20,7 @@ urlpatterns = [
     path('users/delete', delete_user),
     path('users/', user_manager),
     path('users/uname', user_by_uname),
+    path('users/uname/contains', user_by_uname_contains),
     path('allergy/', allergy_request, name='allergy_request'),
     path('recipe/create', create_recipe),
     path('recipe/get', get_recipes),
@@ -27,5 +28,6 @@ urlpatterns = [
     path('recipe/get/id', get_recipes_by_id),
     path('review/create', create_review),
     path('review/average', get_average_review),
-    path('review/get', get_reviews)
+    path('review/get', get_reviews),
+    path('search', search_for),
 ]
