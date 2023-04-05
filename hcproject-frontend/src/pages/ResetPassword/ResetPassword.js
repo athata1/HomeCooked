@@ -39,6 +39,7 @@ export default function ResetPassword() {
 
     }).catch(() => {
       console.log("Error while changing password")
+      alert("Error while Changing password")
     }).finally(() => {
       setIsLoading(false);
     })

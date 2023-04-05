@@ -9,6 +9,7 @@ import Settings from "./pages/Settings/Settings";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Events from "./pages/Events/Events";
 import { AuthProvider } from "./Firebase/AuthContext";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
@@ -41,6 +42,10 @@ function App() {
           <Route
             path="/settings"
             element={<PrivateRoute element={<Settings />} />}
+          />
+          <Route
+            path="/events"
+            element={<PrivateRoute element={<Events />} />}
           />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>

@@ -13,6 +13,8 @@ import { useAuth } from "../../Firebase/AuthContext";
 import { filterBad } from "../../utils/badwords";
 import { Rating } from "react-simple-star-rating";
 
+import {getZip} from '../../utils/location'
+
 function Recipes({
   mode,
   response,
@@ -34,6 +36,9 @@ function Recipes({
   const { getToken } = useAuth();
   const [rating, setRating] = useState(0);
   const [reviewDescription, setReviewDescription] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  const { searchMode, searchText} = useAuth();
 
   useEffect(() => {
     setTitle(response.fields.recipe_name);
@@ -85,6 +90,56 @@ function Recipes({
         setState(response.fields.user_state);
       });
   }, []);
+
+  useEffect(() => {
+    console.log()
+    if (showMode === 3) {
+      setVisible(true);
+      return;
+    }
+    if (searchMode === 1 && mode === "consumer") {
+      let location = getZip(searchText);
+      if (location === undefined) {
+        setVisible(false);
+        return;
+      }
+      if (location[0].localeCompare(city) === 0 &&
+          location[1].localeCompare(state) === 0) {
+        setVisible(true);
+        return;
+      }
+      else {
+        setVisible(false)
+        return;
+      } 
+    }
+    else if (searchMode === 2 && mode === "consumer") {
+      let str = searchText.split(",");
+      if (str.length != 2) {
+        setVisible(false);
+        return;
+      }
+      let textCity = str[0].toUpperCase();
+      let textState = str[1].toUpperCase();
+
+      if (textCity.localeCompare(city) === 0 &&
+          textState.localeCompare(state) === 0) {
+        setVisible(true);
+        return;
+      }
+      else {
+        setVisible(false)
+      }
+      return;
+    }
+    else {
+      setVisible(true);
+    }
+  }, [searchMode, searchText, showMode])
+
+  if (!visible) {
+    return "";
+  }
 
   function handleDelete() {
     if (mode === "producer" && showMode === 1) {
@@ -172,7 +227,15 @@ function Recipes({
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         }
-      );
+      ).then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          alert("Gave post to user");
+        }
+        else {
+          alert("Could not find user");
+        }
+      });
     });
   }
 
@@ -322,7 +385,6 @@ function Recipes({
               )}
               {showMode === 3 && mode === "consumer" ? (
                 <div>
-                  {/* <Button onClick={handleReview} variant="success">Create Review</Button> */}
                   <button
                     className="btn btn-success"
                     data-bs-toggle="modal"
