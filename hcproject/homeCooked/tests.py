@@ -598,3 +598,16 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
 
         print(response.json())
+    def test_501_search_functionality(self):
+        print("\ntest 501")
+        print("Searching a database (and not getting dupes)")
+        print('expected response: [A singular post object]')
+        #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
+        response = self.c.get('/search', {'query':self.user.user_uname, 'filter_posts':'y', 'filter_city':'y', 'filter_users':'y'});
+
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
