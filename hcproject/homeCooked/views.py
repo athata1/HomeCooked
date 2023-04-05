@@ -784,23 +784,23 @@ def search_for(request):
     if 'query' not in request.GET:
         return JsonResponse(status=405, data={'response': 'ParameterError: parameter "query" required'})
     try:
-        query=request.GET.get()
+        query=request.GET.get('query')
         results = []
         if 'filter_posts' not in request.GET:
-            results.extend(Post.objects.filter(post_title__contains=query))
+            results.extend(Post.objects.filter(post_title__icontains=query))
         if 'filter_city' not in request.GET:
             for users in Users.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
                 results.extend(Post.objects.filter(post_producer=user))
+        if 'filter_users' not in request.GET:
+            results.extend(User.objects.filter(user_uname__icontains=query))
 
-        for user in User.objects.filter(user_unanme__contains=query):    
+        for user in list(User.objects.filter(user_uname__icontains=query)):    
             if 'filter_producer' not in request.GET:
-                results.extend(Post.objects.filter(post_producer__contains=User.objects.get))
+                results.extend(Post.objects.filter(post_producer=user))
             if 'filter_consumer' not in request.GET:
-                results.extend(Post.objects.filter(post_consumer__contains=query))
-            if 'filter_user' not in request.GET:
-                results.extend(User.objects.filter(user_uname__contains=query))
+                results.extend(Post.objects.filter(post_consumer=user))
         
-        return JsonResponse(status=200, data={'response': serializers.serialize('json', results)})
+        return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
