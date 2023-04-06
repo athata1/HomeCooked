@@ -803,7 +803,7 @@ def search_for(request):
         if 'filter_posts' not in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
         if 'filter_city' not in request.GET:
-            for users in User.objects.filter(user_city=request.GET.get('query')):
+            for user in User.objects.filter(user_city=request.GET.get('query')):
                 results.extend(Post.objects.filter(post_producer=user))
         if 'filter_users' not in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
