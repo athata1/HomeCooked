@@ -395,13 +395,13 @@ def post_sort(request):
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
         if post_filter == 'open':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=True)
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=True).sort_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'producer-closed':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=False)
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=False).sort_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'consumer-closed':
-            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False)
+            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False).sort_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         else:
             return JsonResponse(status=404, data={
@@ -789,7 +789,7 @@ def search_for(request):
         if 'filter_posts' not in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
         if 'filter_city' not in request.GET:
-            for users in Users.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
+            for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
                 results.extend(Post.objects.filter(post_producer=user))
         if 'filter_users' not in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
