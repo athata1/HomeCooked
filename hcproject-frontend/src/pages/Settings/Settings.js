@@ -51,6 +51,7 @@ const Settings = () => {
     loginWithoutEmail,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
+  const [personalLink, setPersonalLink] = useState(false);
 
   const [center, setCenter] = useState({lat: 38, lng: -97})
   const ZOOM_LEVEL = 9;
@@ -619,6 +620,30 @@ const Settings = () => {
                   Remove
                 </button>
               )}
+            </div>
+          </div>
+          <div className="row mt-5">
+            <div className="col">
+              <h3 className="settings-label">Communications</h3>
+            </div>
+          </div>
+          <div className="row mb-5">
+            <div className="col">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
+               <label class="form-check-label px-2" for="flexRadioDefault2">
+                  Default checked radio
+              </label>
+              <br />
+              <br />
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onClick={() => setPersonalLink(true)} disabled={!edit} />
+                <label class="form-check-label px-2" for="flexRadioDefault2">
+                  Personal Chat Link
+                </label>
+                {personalLink && (
+                  <div className="row mt-3">
+                    <input className="form-control settings-personal-link" placeholder="Link"/>
+                  </div>
+                )}
             </div>
           </div>
           <div className="row mt-5">
