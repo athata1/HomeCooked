@@ -2,8 +2,10 @@ from django.test import TestCase, Client, RequestFactory
 from django.core import serializers
 from django.utils import timezone
 from datetime import date
+from datetime import timedelta
 from .models import *
 import time
+import zoneinfo
 
 class HomeCookedTestCases(TestCase):   
     def setUp(self):
@@ -16,8 +18,10 @@ class HomeCookedTestCases(TestCase):
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         self.recipe.save()
 
+        timezone.activate(zoneinfo.ZoneInfo("America/Chicago"))
+
         self.post = Post.objects.create(post_producer=self.user, post_consumer=self.user, post_title="a new post", post_desc="a post description",
-            post_recipe=self.recipe)
+            post_recipe=self.recipe, post_created=datetime.now(tz=timezone.get_current_timezone()))
         self.post.save();
         
         self.c = Client()
@@ -273,6 +277,23 @@ class HomeCookedTestCases(TestCase):
         post.save()      
 
         response = self.c.get('/posts/loc', {'city':'Timbucktwo', 'state':'Confusion'})
+        if response.status_code != 200:
+            print(" error with retrieving posts")
+        else:
+            print(" Success! Got response")
+
+        print(response.json())
+    
+    def test_015_post_sort(self):
+        print('\ntest 015')
+        print("Sorting posts based on creation time")
+        print('''expected response: [2 seperate posts (first one is "some random title")]''')
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title",
+            post_created=datetime.now(tz=timezone.get_current_timezone()) - timedelta(days=1))
+        post.save()      
+
+        response = self.c.get('/posts/sort', {'filter':'open', 'token':self.user.user_fid})
         if response.status_code != 200:
             print(" error with retrieving posts")
         else:
@@ -603,7 +624,36 @@ class HomeCookedTestCases(TestCase):
         print("Searching a database (and not getting dupes)")
         print('expected response: [A singular post object]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
-        response = self.c.get('/search', {'query':self.user.user_uname, 'filter_posts':'y', 'filter_city':'y', 'filter_users':'y'});
+        response = self.c.get('/search', {'query':self.user.user_uname,
+            'filter_posts':'y', 'filter_city':'y', 'filter_users':'y', 'filter_recipe':'y'});
+
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+    def test_502_search_for_user(self):
+        print("\ntest 502")
+        print("Searching a database")
+        print('expected response: [Many object]')
+        #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
+        response = self.c.get('/search', {'query':'us', 'filter_posts':'y', 'filter_city':'y'});
+
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_503_search_loc(self):
+        print("\ntest 501")
+        print("Searching a database (and not getting dupes)")
+        print('expected response: [A singular post object]')
+        #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
+        response = self.c.get('/search', {'query':'chicago',
+            'filter_posts':'y', 'filter_users':'y', });
 
         if response.status_code != 200:
             print(" Error encountered:")
