@@ -17,6 +17,7 @@ import Profile from "./pages/Profile/Profile";
 import OtherProfiles from "./pages/OtherProfiles/OtherProfiles";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import Chat from "./pages/Chat/Chat";
 
 function App() {
   return (
@@ -46,6 +47,11 @@ function App() {
           <Route
             path="/events"
             element={<PrivateRoute element={<Events />} />}
+          />
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route
+            path="/chat"
+            element={<PrivateRoute element={<Chat />} />}
           />
           <Route path="/" element={<Navigate to="/login" />} />
         </Routes>
