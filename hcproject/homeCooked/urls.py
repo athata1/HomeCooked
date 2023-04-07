@@ -8,6 +8,7 @@ app_name = 'HomeCooked'
 urlpatterns = [
     path('event/create', create_event),
     path('event/get', get_events),
+    path('event/rsvp', rsvp_for_event),
     path('posts/sort', post_sort),
     path('posts/create', post_create),
     path('posts/get', post_get_all),

@@ -634,7 +634,7 @@ def post_delete(request):
     if 'token' not in parameters:
         return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
     if 'post-id' not in parameters:
-            return JsonResponse(status=405, data={'response': 'ParameterError: parameter "post-id" required'})
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "post-id" required'})
     try:
         # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
         fid = parameters.get('token')
@@ -820,3 +820,41 @@ def search_for(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
+@csrf_exempt
+def rsvp_for_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
+    
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+    
+    if 'token' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+    if 'event_id' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "event_id" required'})
+    try:
+        # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
+        fid = parameters.get('token')
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+
+        user = User.objects.get(user_fid=fid)
+        if user is None: 
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+        event = Event.objects.get(event_id=int(parameters.get('event_id')))
+
+        if len(list(Rsvp.objects.filter(rsvp_user=user, rsvp_event=event))) > 0:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: you already signed up for this event'})
+        if len(list(Rsvp.objects.filter(rsvp_event=event))) == event.event_capacity:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: event at capacity'})
+
+        rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
+        rsvp.save()
+
+        return JsonResponse(status=200, data={'response': 'RSVPd for the event'})
+    except Exception as E:
+        print(E)
+    return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})

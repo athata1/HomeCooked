@@ -619,6 +619,71 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
 
         print(response.json())
+    
+    def test_403_rsvp_for_event(self):
+        print("\ntest 403")
+        print("Rsvping for an event")
+        print('''expected response: "RSVPd for event"''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=20, event_location="earth somewhere")
+        event.save();
+
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+        
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+    
+    def test_404_rsvp_for_event(self):
+        print("\ntest 404")
+        print("Rsvping for an event twice")
+        print('''expected response: "DatabaseError: you're already attending this event"''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=20, event_location="earth somewhere")
+        event.save();
+
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+    def test_405_rsvp_for_event(self):
+        print("\ntest 405")
+        print("Rsvping for an event after it's full")
+        print('''expected response: "DatabaseError: event at capacity"''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+        response = self.c.post('/event/rsvp', {'token': user.user_fid, 'event_id':event.event_id})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
     def test_501_search_functionality(self):
         print("\ntest 501")
         print("Searching a database (and not getting dupes)")
@@ -648,7 +713,7 @@ class HomeCookedTestCases(TestCase):
         print(response.json())
 
     def test_503_search_loc(self):
-        print("\ntest 501")
+        print("\ntest 503")
         print("Searching a database (and not getting dupes)")
         print('expected response: [A singular post object]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
