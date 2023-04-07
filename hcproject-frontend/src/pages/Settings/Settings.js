@@ -255,6 +255,7 @@ const Settings = () => {
         })
           .then((res) => {
             if (res.status === 200) {
+              setCurrentUsername(username);
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + rand);
