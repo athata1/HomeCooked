@@ -1,0 +1,10 @@
+.message-title {
+  height: 75px;
+  background-color: #84a176;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  padding-left: 25px;
+  font-weight: 700;
+}

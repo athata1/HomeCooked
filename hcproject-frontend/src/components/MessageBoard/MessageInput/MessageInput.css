@@ -1,0 +1,26 @@
+.message-input {
+  height: 60px;
+  background-color: #002f2f;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.message-input-text {
+  flex-grow: 1;
+  outline: none;
+  background-color: #84a176;
+  color: #002f2f;
+  border: 1px solid #CAAA02;
+  font-size: 1.25rem;
+}
+
+.message-input-button {
+  background-color: #e6ffe3;
+  font-size: 1.25rem;
+  margin-left: 5px;
+  width: 100px;
+}
