@@ -7,12 +7,13 @@ import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
 import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
+import { storage, db } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import osm from '../../utils/osm-providers'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 const markerIcon = new L.Icon({
   iconUrl: require('../../images/marker.png'),
@@ -256,6 +257,21 @@ const Settings = () => {
           .then((res) => {
             if (res.status === 200) {
               setCurrentUsername(username);
+
+              try {
+                let docRef = setDoc(doc(db, "users", currentUser.uid), {
+                  uid: currentUser.uid,
+                  displayName: username
+                })
+                console.log("Document written " + docRef.id)
+                docRef = setDoc(doc(db, 'userChats', currentUser.uid), {
+
+                })
+                console.log("Document written " + docRef.id)
+              }
+              catch (e) {
+                console.log("Errror: " + e);
+              }
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + rand);

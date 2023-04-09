@@ -19,7 +19,7 @@ export default function SidebarTitle() {
   return (
     <div className='sidebar-title'>
       {
-        photo !== null ?  <img src={photo} style={{width: "40px", height: "40px", borderRadius: "50%", border:"solid 2px white"}}/>
+        photo !== null ?  <img src={photo} style={{width: "40px", height: "40px", borderRadius: "50%", marginLeft: '5px', border:"solid 2px white"}}/>
         :       <CgProfile size={40} style={{color: "#FFFFFF"}}/>
       }
       <div className='sidebar-title-name'>
