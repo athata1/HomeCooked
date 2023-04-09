@@ -38,6 +38,14 @@ class Event (models.Model):
     def __str__(self):
         return self.event_name
 
+class Rsvp (models.Model):
+    rsvp_id = models.AutoField(primary_key=True, verbose_name='Rsvp ID')
+    rsvp_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Event Guest')
+    rsvp_event = models.ForeignKey(Event, on_delete=models.CASCADE, verbose_name='Event Attending')
+    
+    def __str__(self):
+        return self.user.user_uname + "-" + self.event.event_name
+
 class Recipe (models.Model):
     recipe_id = models.AutoField(primary_key=True, verbose_name='Recipe ID')
     recipe_desc = models.CharField(max_length=200, verbose_name='Description')
