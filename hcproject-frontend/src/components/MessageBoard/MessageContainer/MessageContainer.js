@@ -11,8 +11,10 @@ export default function MessageContainer() {
 
   const [responses, setResponses] = useState(["Message","Message"])
   const feedRef = useRef();
+  const endRef = useRef();
   const {user} = useChatContext()
   const {currentUser} = useAuth()
+
 
   useEffect(() => {
     if (user === null)
@@ -27,8 +29,11 @@ export default function MessageContainer() {
   }, [user])
 
   useEffect(() => {
-    feedRef.current.scrollTop = feedRef.current.scrollHeight;
-  }, [responses])
+    setTimeout(() => {
+      //feedRef.current.scrollTop = feedRef.current.scrollHeight;
+      endRef.current?.scrollIntoView({ behavior: "smooth" })
+    }, 100)
+  }, [responses, user])
 
   return (
     <div className='message-container'>
@@ -38,6 +43,7 @@ export default function MessageContainer() {
           {responses.map((response) => {
             return <Message message={response}/>
           })}
+          <div ref={endRef}></div>
         </div>
       </div>
       <MessageInput />
