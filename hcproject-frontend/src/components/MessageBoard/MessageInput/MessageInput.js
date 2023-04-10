@@ -23,6 +23,7 @@ export default function MessageInput() {
         date: Timestamp.now(),
       })
     })
+    inputRef.current.value = "";
 
   }
 
