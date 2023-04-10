@@ -395,13 +395,13 @@ def post_sort(request):
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
         if post_filter == 'open':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=True).sort_by('post_created')
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=True).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'producer-closed':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=False).sort_by('post_created')
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=False).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'consumer-closed':
-            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False).sort_by('post_created')
+            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         else:
             return JsonResponse(status=404, data={
