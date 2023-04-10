@@ -63,6 +63,7 @@ export default function RecipeShow({mode, isRecipe, isArchived, isPost, response
           return res.json();
         })
         .then((data) => {
+          console.log(data.response)
           setResponses(JSON.parse(data.response));
         });
     });

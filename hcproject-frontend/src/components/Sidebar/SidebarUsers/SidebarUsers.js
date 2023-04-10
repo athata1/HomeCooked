@@ -15,7 +15,7 @@ export default function SidebarUsers(selectedUser) {
     const subscriber = onSnapshot(doc(db, 'userChats', currentUser.uid), (doc) => {
       let arr = Object.entries(doc.data())
       arr.sort((user1, user2) => {
-        return user1.date - user2.date
+        return user2[1].date.seconds - user1[1].date.seconds
       })
       setUsers(arr)
     })
@@ -27,7 +27,6 @@ export default function SidebarUsers(selectedUser) {
 
     //Create user chat
     try {
-      console.log(user)
       const combined = currentUser.uid > user[1].userInfo.uid ? currentUser.uid + user[1].userInfo.uid : user[1].userInfo.uid + currentUser.uid
 
       const res = await getDoc(doc(db, 'chats', combined));
