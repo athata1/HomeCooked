@@ -807,6 +807,10 @@ def search_for(request):
                 results.extend(Post.objects.filter(post_producer=user))
         if 'filter_users' not in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
+        if 'filter_events' not in request.GET:
+            for event in Event.objects.filter(event_name__icontains=query):
+                if (len(list(Rsvp.objects.filter(rsvp_event=event))) < event.event_capacity):
+                    results.append(event)
 
         for user in list(User.objects.filter(user_uname__icontains=query)):    
             if 'filter_producer' not in request.GET:

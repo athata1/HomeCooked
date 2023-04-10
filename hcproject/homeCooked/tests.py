@@ -726,3 +726,34 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
 
         print(response.json())
+    
+    def test_504_search_event_filter(self):
+        print("\ntest 504")
+        print("Searching for events (and ensuring that the search filters out already filled events)")
+        print('expected response: [A singular event object] [nothing]')
+        #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        response = self.c.get('/search', {'query':'meetup',
+            'filter_posts':'y', 'filter_users':'y', 'filter_city':'y', 'filter_producer':'y', 'filter_consumer':'y',
+            'filter_recipe':'y'});
+
+        if response.status_code != 200:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+        rsvp = Rsvp(rsvp_user=self.user, rsvp_event=event)
+        rsvp.save()
+
+        response = self.c.get('/search', {'query':'meetup',
+            'filter_posts':'y', 'filter_users':'y', 'filter_city':'y', 'filter_producer':'y', 'filter_consumer':'y',
+            'filter_recipe':'y'});
+        
+        print(response.json())
