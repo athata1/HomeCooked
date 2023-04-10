@@ -116,3 +116,18 @@ input[type="number"] {
   border: 1px solid red;
   padding-left: 20rem;
 }
+
+.settings-personal-link {
+  text-align: start;
+  font-family: "Montserrat";
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  text-align: center;
+
+  border-radius: 25px;
+  margin-bottom: 25px;
+  outline: none;
+  background: #d9d9d9;
+  width: 30rem;
+}

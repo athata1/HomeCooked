@@ -18,6 +18,12 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
     search_fields = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_host')
 
+class RsvpAdmin(admin.ModelAdmin):
+    list_display=('rsvp_id', 'rsvp_user', 'rsvp_event')
+    list_display_links = ('rsvp_id')
+    list_filter = ('rsvp_id', 'rsvp_user', 'rsvp_event')
+    search_filters = ('rsvp_id', 'rsvp_user', 'rsvp_event')
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img')
     list_display_links = ('recipe_id', 'recipe_name')

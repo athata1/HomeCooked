@@ -478,13 +478,13 @@ def post_sort(request):
             return JsonResponse(status=404, data={'response': 'invalid token'})
 
         if post_filter == 'open':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=True).sort_by('post_created')
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=True).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'producer-closed':
-            posts = Post.objects.filter(post_producer=user.user_id, post_available=False).sort_by('post_created')
+            posts = Post.objects.filter(post_producer=user.user_id, post_available=False).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         elif post_filter == 'consumer-closed':
-            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False).sort_by('post_created')
+            posts = Post.objects.filter(post_consumer=user.user_id, post_available=False).order_by('post_created')
             return JsonResponse(status=200, data={'response': serializers.serialize('json', posts)})
         else:
             return JsonResponse(status=404, data={
@@ -887,3 +887,41 @@ def search_for(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
+
+@csrf_exempt
+def rsvp_for_event(request):
+    if request.method != 'POST':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
+    
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+    
+    if 'token' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+    if 'event_id' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "event_id" required'})
+    try:
+        fid = validate_token(parameters.get('token'))
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+
+        user = User.objects.get(user_fid=fid)
+        if user is None: 
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+        event = Event.objects.get(event_id=int(parameters.get('event_id')))
+
+        if len(list(Rsvp.objects.filter(rsvp_user=user, rsvp_event=event))) > 0:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: you already signed up for this event'})
+        if len(list(Rsvp.objects.filter(rsvp_event=event))) == event.event_capacity:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: event at capacity'})
+
+        rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
+        rsvp.save()
+
+        return JsonResponse(status=200, data={'response': 'RSVPd for the event'})
+    except Exception as E:
+        print(E)
+    return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})

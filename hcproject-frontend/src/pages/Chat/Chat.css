@@ -1,0 +1,13 @@
+.chat-application {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chat-app-container {
+  width: 75%;
+  height: 700px;
+  border: 10px solid black;
+  display: flex;
+  justify-content: space-between;
+}

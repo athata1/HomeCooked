@@ -7,12 +7,13 @@ import { useAuth } from "../../Firebase/AuthContext";
 import Navbar from "../../components/Navbar/Navbar";
 import Alert from "react-bootstrap/Alert";
 import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
+import { storage, db } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import osm from '../../utils/osm-providers'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 const markerIcon = new L.Icon({
   iconUrl: require('../../images/marker.png'),
@@ -51,6 +52,7 @@ const Settings = () => {
     loginWithoutEmail,
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
+  const [personalLink, setPersonalLink] = useState(false);
 
   const [center, setCenter] = useState({lat: 38, lng: -97})
   const ZOOM_LEVEL = 9;
@@ -255,6 +257,22 @@ const Settings = () => {
         })
           .then((res) => {
             if (res.status === 200) {
+              setCurrentUsername(username);
+
+              try {
+                let docRef = setDoc(doc(db, "users", currentUser.uid), {
+                  uid: currentUser.uid,
+                  displayName: username
+                })
+                console.log("Document written " + docRef.id)
+                docRef = setDoc(doc(db, 'userChats', currentUser.uid), {
+
+                })
+                console.log("Document written " + docRef.id)
+              }
+              catch (e) {
+                console.log("Errror: " + e);
+              }
               if (uploadedFile !== null) {
                 let rand = crypto.randomUUID();
                 const imageRef = ref(storage, "images/" + rand);
@@ -619,6 +637,30 @@ const Settings = () => {
                   Remove
                 </button>
               )}
+            </div>
+          </div>
+          <div className="row mt-5">
+            <div className="col">
+              <h3 className="settings-label">Communications</h3>
+            </div>
+          </div>
+          <div className="row mb-5">
+            <div className="col">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
+               <label class="form-check-label px-2" for="flexRadioDefault2">
+                  Default checked radio
+              </label>
+              <br />
+              <br />
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onClick={() => setPersonalLink(true)} disabled={!edit} />
+                <label class="form-check-label px-2" for="flexRadioDefault2">
+                  Personal Chat Link
+                </label>
+                {personalLink && (
+                  <div className="row mt-3">
+                    <input className="form-control settings-personal-link" placeholder="Link"/>
+                  </div>
+                )}
             </div>
           </div>
           <div className="row mt-5">

@@ -1,0 +1,39 @@
+.sidebar-users {
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 75px);
+}
+
+.sidebar-users-input {
+  width: 100%;
+  height: 40px;
+  outline: none;
+  border: none;
+  background: #84a176;
+}
+
+.sidebar-users-input::placeholder {
+  color: black;
+  border-bottom: 1px solid black
+}
+
+.sidebar-user-buttons {
+  flex-grow: 1;
+  background: #84a176;
+}
+
+.sidebar-user-button {
+  height: 60px;
+  padding-left: 10px;
+  border-bottom: 1px solid black;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.clicked {
+  background: #002f2f;
+  color: white;
+}
