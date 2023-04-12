@@ -13,16 +13,22 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('event_id', 'event_name', 'event_desc', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
+    list_display = ('event_id', 'event_name', 'event_desc', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host', 'event_reminder')
     list_display_links = ('event_id', 'event_name')
     list_filter = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_capacity', 'event_host')
     search_fields = ('event_id', 'event_name', 'event_date', 'event_time', 'event_location', 'event_host')
 
 class RsvpAdmin(admin.ModelAdmin):
-    list_display=('rsvp_id', 'rsvp_user', 'rsvp_event')
+    list_display = ('rsvp_id', 'rsvp_user', 'rsvp_event')
     list_display_links = ('rsvp_id')
     list_filter = ('rsvp_id', 'rsvp_user', 'rsvp_event')
     search_filters = ('rsvp_id', 'rsvp_user', 'rsvp_event')
+
+class NotifAdmin(admin.ModelAdmin):
+    list_display = ('notif_id', 'notif_type', 'notif_time', 'notif_user', 'notif_message')
+    list_display_links = ('notif_id', 'notif_user')
+    list_filer = ('notif_id', 'notif_type', 'notif_time', 'notif_user')
+    search_fields = ('notif_id', 'notif_type', 'notif_time', 'notif_user')
 
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('recipe_id', 'recipe_desc', 'recipe_user', 'recipe_name', 'recipe_ingredients', 'recipe_img')
