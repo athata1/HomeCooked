@@ -31,4 +31,5 @@ urlpatterns = [
     path('review/average', get_average_review),
     path('review/get', get_reviews),
     path('search', search_for),
+    path('notifs', get_notifs),
 ]

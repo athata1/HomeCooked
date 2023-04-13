@@ -2,8 +2,9 @@ from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from .models import *
-import datetime
+import zoneinfo
 # import sqlite3
 import json
 import requests
@@ -22,14 +23,15 @@ def validate_token(token):
 
 
 def create_notif(notif_user, notif_type, notif_message):
-    notif = Notification(notif_type=datetime.now(), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
+    timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
+    notif = Notification(notif_time=datetime.now(tz=timezone.get_current_timezone()), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
     notif.save()
 
 def create_message_notif(sender_token, receiver_fid):
     notif_sender = User.objects.get(user_fid=validate_token(sender_token))
     notif_receiver = User.objects.get(user_fid=receiver_fid)
 
-    create_notif(notif_type = Notification.notif_type.MESSAGE, notif_user = notif_receiver,
+    create_notif(notif_type = Notification.type_enum.MESSAGE, notif_user = notif_receiver,
         notif_message = notif_sender.user_name + " has sent you a message.")
 
 def allergy_request(request):
@@ -629,7 +631,7 @@ def post_close(request):
         post.post_completed = timezone.now()
         post.save()
 
-        create_notif(notif_type = Notification.notif_type.POST, notif_user=user,
+        create_notif(notif_type = Notification.type_enum.POST, notif_user=user,
             notif_message=post.post_producer.user_uname + ' has given you item: "' + post.post_title + '"')
 
         return JsonResponse(status=200, data={'response': 'Post set to closed'})
@@ -841,11 +843,14 @@ def search_for(request):
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
 
+
 @csrf_exempt
 def rsvp_for_event(request):
     if request.method != 'POST':
         return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
     
+    #print(request.POST)
+
     parameters = request.POST
     if len(request.POST) == 0:
         parameters = request.GET
@@ -871,7 +876,7 @@ def rsvp_for_event(request):
         if len(list(Rsvp.objects.filter(rsvp_event=event))) == event.event_capacity:
             return JsonResponse(status=404, data={'response': 'DatabaseError: event at capacity'})
 
-        create_notif(notif_type = Notification.notif_type.POST, notif_user=event.event_host,
+        create_notif(notif_type = Notification.type_enum.POST, notif_user=event.event_host,
             notif_message=user.user_uname + " has rsvp\'d to \"" + event.event_name + "\"")
 
         rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
@@ -879,5 +884,29 @@ def rsvp_for_event(request):
 
         return JsonResponse(status=200, data={'response': 'RSVPd for the event'})
     except Exception as E:
+        print(E)
+    return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
+
+@csrf_exempt
+def get_notifs(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "id" required'})
+
+    try:
+        # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
+        fid = request.GET.get('token')
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+        user = User.objects.get(user_fid=fid)
+        if user is None:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+        
+        notifs = Notification.objects.filter(notif_user=user)
+        return JsonResponse(status=200, data={'data': serializers.serialize('json', notifs)})
+
+    except: 
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})

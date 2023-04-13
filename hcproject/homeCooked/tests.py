@@ -18,7 +18,7 @@ class HomeCookedTestCases(TestCase):
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         self.recipe.save()
 
-        timezone.activate(zoneinfo.ZoneInfo("America/Chicago"))
+        timezone.activate(zoneinfo.ZoneInfo("US/eastern"))
 
         self.post = Post.objects.create(post_producer=self.user, post_consumer=self.user, post_title="a new post", post_desc="a post description",
             post_recipe=self.recipe, post_created=datetime.now(tz=timezone.get_current_timezone()))
@@ -756,4 +756,78 @@ class HomeCookedTestCases(TestCase):
             'filter_posts':'y', 'filter_users':'y', 'filter_city':'y', 'filter_producer':'y', 'filter_consumer':'y',
             'filter_recipe':'y'});
         
+        print(response.json())
+
+    def test_601_create_post_notif(self):
+        print("\ntest 601")
+        print("closing a post and then printing the notification")
+        print('expected response: [post closed] \n[a notification object])')
+
+        post = Post(post_producer=self.user, post_recipe=self.recipe, post_title="some random title")
+        post.save()
+
+        user2 = User(user_fid="user2", user_uname='sampleUser2',
+        user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", # wrigley field
+        user_bio="a fake person")
+        user2.save()
+
+        response = self.c.post('/posts/close', {'token':user2.user_fid, 'uname':user2.user_uname, 'post-id':1})
+        if response.status_code != 200:
+            print(" error with fetching post, test failed")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+        print(Notification.objects.get(notif_user=user2).notif_message)
+
+    def test_602_create_event_notif(self):
+        print("\ntest 602")
+        print("Rsvping for an event and then printing the resultant notification")
+        print('''expected response: "sampleUser has rsvp'd to "a global meetup of flat earthers""''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        #print(response.json())
+
+        print(Notification.objects.get(notif_user=self.user).notif_message)
+
+    def test_603_get_notifs(self):
+        print("\ntest 603")
+        print("rsvping for an event, and then sending a request for the notifications for the user")
+        print('''expected response: "[a notification object]""''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        response = self.c.post('/event/rsvp', {'token': self.user.user_fid, 'event_id':event.event_id})
+        response = self.c.get('/notifs', {'token':self.user.user_fid})
+
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
         print(response.json())

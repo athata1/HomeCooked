@@ -106,7 +106,7 @@ class DiscussionBoard (models.Model):
         return self.discussion_name
 
 class Notification (models.Model):
-    class notif_type (models.TextChoices):
+    class type_enum (models.TextChoices):
         POST = 'PO', _('Post Bought')
         MESSAGE = 'ME', _('Message Recevied')
         USER = 'US', _('Profile Updated')
@@ -114,7 +114,7 @@ class Notification (models.Model):
         NONE = 'NO', _('error/default type') 
     
     notif_id = models.AutoField(primary_key=True, verbose_name='Notification ID')
-    notif_type = models.CharField(max_length=2, choices=notif_type.choices, default=notif_type.NONE)
+    notif_type = models.CharField(max_length=2, choices=type_enum.choices, default=type_enum.NONE)
     notif_time = models.DateTimeField(auto_created=True, verbose_name='notification time', default=timezone.now)
     notif_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='notification receiver')
     notif_message = models.CharField(max_length=200, verbose_name='notification message')
