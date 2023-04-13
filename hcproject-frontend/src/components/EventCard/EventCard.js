@@ -207,7 +207,7 @@ export default function EventCard(response) {
                   data-bs-dismiss="modal"
                   onClick={(e) => { handleChange(e) }}
                 >
-                  Add Recipe
+                  Edit Event
                 </button>
               </div>
             </div>
@@ -234,7 +234,8 @@ export default function EventCard(response) {
             </a>
           }
           {" "}
-          <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>
+          {response.userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
+          {response.userMode === "consumer" && <Button onClick={handleInit} variant="danger">RSVP</Button>}
         </Card.Body>
       </Card>
     </div>

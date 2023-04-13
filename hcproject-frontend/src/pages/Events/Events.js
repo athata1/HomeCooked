@@ -95,6 +95,30 @@ const Events = () => {
         })
       })
     }
+
+    if (showMode === 2 && userMode === 'consumer') {
+      getToken().then(token => {
+        let url = "http://localhost:8000/events/producer?token=" + token;
+        fetch(url, {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then(data => {
+          setResponses(JSON.parse(data.response))
+          console.log(JSON.parse(data.response))
+        })
+      })
+    }
+
     else {
       setResponses([])
     }
@@ -108,6 +132,16 @@ const Events = () => {
         <Container>
           <Row>
             <ButtonGroup>
+            {userMode == "consumer" ?
+                <>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setResponses([])
+                      setShowMode(0);
+                    }}
+                  >RSVPed Event</Button>
+                </> : ""}
               {userMode == "producer" ?
                 <>
                   <Button
@@ -209,7 +243,7 @@ const Events = () => {
                   data-bs-dismiss="modal"
                   onClick={(e) => { handleNewEvent(e) }}
                 >
-                  Add Recipe
+                  Add Event
                 </button>
               </div>
             </div>
@@ -220,7 +254,7 @@ const Events = () => {
 
       {responses.map((event) => {
 
-        return <EventCard response={event}/>
+        return <EventCard userMode={userMode} response={event}/>
       })}
     </div>
 

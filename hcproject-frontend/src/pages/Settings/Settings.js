@@ -648,7 +648,7 @@ const Settings = () => {
             <div className="col">
             <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
                <label class="form-check-label px-2" for="flexRadioDefault2">
-                  Default checked radio
+                  Use Default Chat
               </label>
               <br />
               <br />
