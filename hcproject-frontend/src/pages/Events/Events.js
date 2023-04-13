@@ -1,20 +1,11 @@
 import React from 'react'
 import { useState, useEffect, useRef } from "react";
 import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
-import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
-import Posts from '../../components/Posts/Posts';
-import InputTag from '../../components/InputTag/InputTag';
-import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
-import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
-import RecipeShow from '../../components/RecipeShow/RecipeShow';
 import EventCard from '../../components/EventCard/EventCard';
 
 const Events = () => {

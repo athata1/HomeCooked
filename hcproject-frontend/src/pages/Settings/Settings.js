@@ -388,7 +388,7 @@ const Settings = () => {
     <div>
       <Navbar part="Settings" mode="none" />
       <div className="px-5">
-        <div>
+        <div className="here">
           <h1 className="settings-title pt-3">
             Account{" "}
             {!edit && (
@@ -499,7 +499,7 @@ const Settings = () => {
               url={osm.maptiler.url} 
               attribution={osm.maptiler.attribution} />
             {center.lat}
-            {center.lat !== 0.0 && center.lng !== 0.9 ?
+            {center.lat !== 0.0 && center.lng !== 0.0 ?
             <Marker position={[center.lat, center.lng]} icon={markerIcon}>
               <Popup>
                 <b>Dropoff Location</b>
