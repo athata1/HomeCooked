@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import datetime
 
@@ -104,3 +105,17 @@ class DiscussionBoard (models.Model):
 
     def __str__(self):
         return self.discussion_name
+
+class Notification (models.Model):
+    class notif_type (models.TextChoices):
+        POST = 'PO', _('Post Bought')
+        MESSAGE = 'ME', _('Message Recevied')
+        USER = 'US', _('Profile Updated')
+        EVENT = 'EV', _('RSVP Received')
+        NONE = 'NO', _('error/default type') 
+    
+    notif_id = models.AutoField(primary_key=True, verbose_name='Notification ID')
+    notif_type = models.CharField(max_length=2, choices=notif_type.choices, default=notif_type.NONE)
+    notif_time = models.DateTimeField(auto_created=True, verbose_name='notification time', default=timezone.now)
+    notif_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='notification receiver')
+    notif_message = models.CharField(max_length=200, verbose_name='notification message')
