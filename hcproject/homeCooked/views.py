@@ -786,18 +786,18 @@ def search_for(request):
     try:
         query=request.GET.get('query')
         results = []
-        if 'filter_posts' not in request.GET:
+        if 'filter_posts' in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
-        if 'filter_city' not in request.GET:
+        if 'filter_city' in request.GET:
             for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
                 results.extend(Post.objects.filter(post_producer=user))
-        if 'filter_users' not in request.GET:
+        if 'filter_users' in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
 
         for user in list(User.objects.filter(user_uname__icontains=query)):    
-            if 'filter_producer' not in request.GET:
+            if 'filter_producer' in request.GET:
                 results.extend(Post.objects.filter(post_producer=user))
-            if 'filter_consumer' not in request.GET:
+            if 'filter_consumer' in request.GET:
                 results.extend(Post.objects.filter(post_consumer=user))
         
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
