@@ -2,8 +2,9 @@ from django.http import HttpResponse, JsonResponse, response
 from django.shortcuts import render, redirect
 from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 from .models import *
-import datetime
+import zoneinfo
 # import sqlite3
 import json
 import requests
@@ -19,6 +20,20 @@ def validate_token(token):
         return None;
     uid = decoded_token["uid"]
     return uid
+
+
+def create_notif(notif_user, notif_type, notif_message):
+    timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
+    notif = Notification(notif_time=datetime.now(tz=timezone.get_current_timezone()), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
+    notif.save()
+
+
+def create_message_notif(sender_token, receiver_fid):
+    notif_sender = User.objects.get(user_fid=validate_token(sender_token))
+    notif_receiver = User.objects.get(user_fid=receiver_fid)
+
+    create_notif(notif_type = Notification.type_enum.MESSAGE, notif_user = notif_receiver,
+        notif_message = notif_sender.user_name + " has sent you a message.")
 
 
 def allergy_request(request):
@@ -179,6 +194,7 @@ def delete_recipe(request):
 
     return JsonResponse(status=200, data={'response': 'Recipe deleted'})
 
+
 @csrf_exempt
 def change_event(request):
     if request.method != 'POST':
@@ -213,6 +229,7 @@ def change_event(request):
         event.event_time = time
     event.save()
     return JsonResponse(status=200, data={'response': 'Updated Event'})
+
 
 @csrf_exempt
 def create_event(request):
@@ -249,8 +266,6 @@ def create_event(request):
     return JsonResponse(status=200, data={'response': 'Saved Event'})
 
 
-
-
 @csrf_exempt
 def get_user_id(request):
     if request.method != 'GET':
@@ -261,6 +276,7 @@ def get_user_id(request):
 
     user = User.object.get(user_id=request.GET.get('id'))
     return JsonResponse(status=200, data={'response': user})
+
 
 @csrf_exempt
 def get_average_review(request):
@@ -283,6 +299,7 @@ def get_average_review(request):
     avg = sum_reviews['review_rating__sum'] / count
     return JsonResponse(status=200, data={'response': avg})
 
+
 @csrf_exempt
 def get_reviews(request):
     if request.method != 'GET':
@@ -303,6 +320,7 @@ def get_reviews(request):
         return JsonResponse(status=200, data={'response': serializers.serialize('json', reviews)}, safe=False)
     else:
         return JsonResponse(status=404, data={'response', 'Not valid method type'})
+
 
 @csrf_exempt
 def create_review(request):
@@ -337,6 +355,7 @@ def create_review(request):
     review.save()
     return JsonResponse(status=200, data={'response': 'Saved review'})
 
+
 @csrf_exempt
 def post_get_all(request):
     try:
@@ -348,6 +367,7 @@ def post_get_all(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response':'could not get post(s) ' + str(E)})
+
 
 @csrf_exempt
 def post_get_by_loc(request):
@@ -453,6 +473,7 @@ def post_create(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not create post ' + str(E)})
 
+
 @csrf_exempt
 def post_consumer_closed(request):
     if request.method != 'GET':
@@ -530,6 +551,7 @@ def post_update(request):
         print(E)
         return JsonResponse(status=500, data={'response': 'could not update post ' + str(E)})
 
+
 @csrf_exempt
 def get_events(request):
     if request.method != 'GET':
@@ -544,7 +566,6 @@ def get_events(request):
     user = User.objects.get(user_fid=fid)
     events = Event.objects.filter(event_host=user)
     return JsonResponse(status=200, data={'response': serializers.serialize('json', events)}, safe=False)
-
 
 
 @csrf_exempt
@@ -576,51 +597,55 @@ def get_post_close(request):
 
 
 @csrf_exempt
+@csrf_exempt
 def post_close(request):
+    if request.method != 'POST':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    if 'token' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+    if 'post-id' not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "post-id" required'})
+    if "uname" not in parameters:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "uname" required'})
     try:
-        if request.method != 'POST':
-            return JsonResponse(status=404, data={'response': 'request method must be POST'})
-
-        parameters = request.POST
-        if len(request.POST) == 0:
-            parameters = request.GET
-
-        if 'token' not in parameters:
-            return JsonResponse(status=404, data={'response': 'No token'})
-
-        fid = validate_token(request.GET.get('token'))
+        fid = validate_token(parameters.get('token'))
 
         if fid is None:
-            return JsonResponse(status=404, data={'response': 'invalid token'})
+            return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
 
-        if 'post-id' not in parameters:
-            return JsonResponse(status=404, data={'response': 'No post id'})
-        print(parameters.get('post-id'))
         post = Post.objects.get(pk=int(parameters.get('post-id')))
 
         if not post.post_available:
-            return JsonResponse(status=404, data={'response': 'Error: post already closed'})
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
 
-
-        if post.post_producer.user_fid != fid:
-            return JsonResponse(status=404, data={'response': 'You do not have permission to do this'})
+        if post.post_producer.user_fid == fid:
+            return JsonResponse(status=404, data={'response': 'AuthorizationError: you can not buy your own post'})
 
         user = User.objects.get(user_fid=fid)
-
-        if "uname" not in parameters:
-            return JsonResponse(status=404, data={'response': 'No consumer username'})
-
+        if user is None: 
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+        
         consumer_user = User.objects.get(user_uname=parameters.get("uname"))
-
+        if consumer_user is None:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+        
         post.post_consumer = consumer_user;
         post.post_available = False
         post.post_completed = timezone.now()
         post.save()
 
+        create_notif(notif_type = Notification.type_enum.POST, notif_user=user,
+            notif_message=post.post_producer.user_uname + ' has given you item: "' + post.post_title + '"')
+
         return JsonResponse(status=200, data={'response': 'Post set to closed'})
     except Exception as E:
         print(E)
-        return JsonResponse(status=500, data={'response': 'could not close post ' + str(E)})
+    return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
 
 
 @csrf_exempt
@@ -772,6 +797,8 @@ def user_manager(request):
             if 'lat' in parameters:
                 val = float(parameters.get('lat'))
                 user.user_latitude = val
+            if 'link' in parameters:
+                user.user_link = parameters.get('link')
             user.save()
 
             return JsonResponse(status=200, data={'response': 'Saved data'}, safe=False)
@@ -785,25 +812,64 @@ def search_for(request):
         return JsonResponse(status=405, data={'response': 'ParameterError: parameter "query" required'})
     try:
         query=request.GET.get('query')
+        users = User.objects.filter(user_uname__icontains=query)
         results = []
-        if 'filter_posts' not in request.GET:
+        if 'filter_posts' in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
-        if 'filter_city' not in request.GET:
-            for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
-                results.extend(Post.objects.filter(post_producer=user))
-        if 'filter_users' not in request.GET:
+        if 'filter_city' in request.GET:
+            results.extend(Post.objects.filter(post_producer__in=users))
+        if 'filter_users' in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
-
-        for user in list(User.objects.filter(user_uname__icontains=query)):    
-            if 'filter_producer' not in request.GET:
-                results.extend(Post.objects.filter(post_producer=user))
-            if 'filter_consumer' not in request.GET:
-                results.extend(Post.objects.filter(post_consumer=user))
-        
+        if 'filter_events' in request.GET:
+            for event in Event.objects.filter(event_name__icontains=query):
+                if (len(list(Rsvp.objects.filter(rsvp_event=event))) < event.event_capacity):
+                    results.append(event)
+        if 'filter_producer' in request.GET:
+            results.extend(Post.objects.filter(post_producer__in=users))
+        if 'filter_consumer' in request.GET:
+            results.extend(Post.objects.filter(post_consumer__in=users))
+        if 'filter_recipe' in request.GET:
+            results.extend(Recipe.objects.filter(recipe_user__in=users))
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
+
+@csrf_exempt
+def get_unattended_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+    user = User.objects.get(user_fid=fid)
+    if user is None: 
+        return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+    unattended_events = Event.objects.exclude(event_id__in=Rsvp.objects.filter(rsvp_user=user).values('rsvp_event'))
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', unattended_events)})
+
+
+@csrf_exempt
+def get_attended_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+
+    fid = validate_token(request.GET.get('token'))
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+    user = User.objects.get(user_fid=fid)
+    if user is None: 
+        return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+    attended_events = [event.rsvp_event for event in Rsvp.objects.filter(rsvp_user=user)]
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', attended_events)})
 
 
 @csrf_exempt
@@ -835,10 +901,36 @@ def rsvp_for_event(request):
         if len(list(Rsvp.objects.filter(rsvp_event=event))) == event.event_capacity:
             return JsonResponse(status=404, data={'response': 'DatabaseError: event at capacity'})
 
+        create_notif(notif_type = Notification.type_enum.POST, notif_user=event.event_host,
+            notif_message=user.user_uname + " has rsvp\'d to \"" + event.event_name + "\"")
+
         rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
         rsvp.save()
 
         return JsonResponse(status=200, data={'response': 'RSVPd for the event'})
     except Exception as E:
+        print(E)
+    return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
+
+@csrf_exempt
+def get_notifs(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "id" required'})
+
+    try:
+        fid = validate_token(request.GET.get('token'))
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+        user = User.objects.get(user_fid=fid)
+        if user is None:
+            return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+        
+        notifs = Notification.objects.filter(notif_user=user)
+        return JsonResponse(status=200, data={'data': serializers.serialize('json', notifs)})
+
+    except: 
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})

@@ -14,6 +14,7 @@ import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+import ProfileShow from '../../components/ProfileShow/ProfileShow'
 import RecipeShow from '../../components/RecipeShow/RecipeShow';
 
 
@@ -125,7 +126,7 @@ const Dashboard = () => {
       <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
       <div ref = {parentRef}>
-        <Container>
+        {searchMode !== 3 || userMode ==='producer' ? <Container>
           <Row>
             <ButtonGroup>
               {userMode == "producer" ?
@@ -163,14 +164,17 @@ const Dashboard = () => {
               }}>Archives</Button>
             </ButtonGroup>
           </Row>
-        </Container>
+        </Container> : "" }
         {height < 200 ? 
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               fontSize: '2rem'}}>Nothing to see here...</div> : ""}
-        {showMode === 1 || showMode === 2 || showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
+        {(searchMode === 3 && userMode === 'consumer') ?
+          <ProfileShow/>
+        : ""}
+        {(searchMode !== 3 || userMode === 'producer') && (showMode === 1 || showMode === 2 || showMode === 3) ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
         {/* <button
             className="btn btn-primary settings-button-remove settings-delete-account-button"
             data-bs-toggle="modal"

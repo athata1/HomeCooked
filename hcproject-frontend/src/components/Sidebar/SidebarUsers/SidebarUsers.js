@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../../Firebase/AuthContext';
 import { db } from '../../../Firebase/firebase';
 import { useChatContext } from '../../MessageBoard/ChatProvider/ChatProvider';
+import { useSearchParams } from 'react-router-dom';
 import './SidebarUsers.css'
 export default function SidebarUsers(selectedUser) {
 
@@ -10,6 +11,7 @@ export default function SidebarUsers(selectedUser) {
   const {user, setUser} = useChatContext()
   const {currentUser} = useAuth()
   const inputRef = useRef();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     const subscriber = onSnapshot(doc(db, 'userChats', currentUser.uid), (doc) => {
@@ -21,6 +23,25 @@ export default function SidebarUsers(selectedUser) {
     })
     return () => {subscriber()}
   }, [currentUser.uid])
+
+  useEffect(() => {
+    console.log(searchParams.get('user'))
+    const uid = searchParams.get('user');
+
+    const combined = currentUser.uid > uid ? currentUser.uid + uid : uid + currentUser.uid
+    
+    let docRef = doc(db, 'userChats', currentUser.uid)
+    getDoc(docRef).then((chatDoc) => {
+      let data = chatDoc.data()[combined]
+      if (data !== undefined) {
+        setUser([combined, data])
+      }
+      else {
+        console.log("Doesn't exist")
+      }
+    })
+
+  }, [])
 
   async function handleSelect(user) {
     //Check if group exists and create new on if it doesn't
