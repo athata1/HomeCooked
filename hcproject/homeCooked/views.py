@@ -836,8 +836,6 @@ def search_for(request):
                 results.extend(Post.objects.filter(post_consumer=user))
             if 'filter_recipe' not in request.GET:
                 results.extend(Recipe.objects.filter(recipe_user=user))
-        
-
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
