@@ -814,21 +814,28 @@ def search_for(request):
         if 'filter_posts' not in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
         if 'filter_city' not in request.GET:
-            for user in User.objects.filter(user_city=request.GET.get('city'), user_state=request.GET.get('state')):
+            for user in User.objects.filter(user_city__icontains=request.GET.get('query')):
                 results.extend(Post.objects.filter(post_producer=user))
         if 'filter_users' not in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
+        if 'filter_events' not in request.GET:
+            for event in Event.objects.filter(event_name__icontains=query):
+                if (len(list(Rsvp.objects.filter(rsvp_event=event))) < event.event_capacity):
+                    results.append(event)
 
         for user in list(User.objects.filter(user_uname__icontains=query)):    
             if 'filter_producer' not in request.GET:
                 results.extend(Post.objects.filter(post_producer=user))
             if 'filter_consumer' not in request.GET:
                 results.extend(Post.objects.filter(post_consumer=user))
+            if 'filter_recipe' not in request.GET:
+                results.extend(Recipe.objects.filter(recipe_user=user))
         
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
 
 
 @csrf_exempt
