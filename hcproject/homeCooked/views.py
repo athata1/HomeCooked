@@ -786,6 +786,8 @@ def user_manager(request):
 
             if 'address' in parameters:
                 user.user_address = parameters.get('address')
+            if 'link' in parameters:
+                user.user_link = parameters.get('link')
             if 'bio' in parameters:
                 user.user_bio = parameters.get('bio')
             if 'city' in parameters:
@@ -840,6 +842,11 @@ def search_for(request):
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
+
+
+#TODO: GET ALL EVENTS A USER ISN'T SIGNED UP FOR
+
+#TODO: GET ALL EVENTS A USE IS SIGNED UP FOR
 
 
 @csrf_exempt

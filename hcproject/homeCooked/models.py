@@ -24,6 +24,8 @@ class User (models.Model):
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
     user_longitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Longitude", default=0.0)
     user_latitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Latitude", default=0.0)
+    user_link = models.CharField(max_length=200, verbose_name="External String", default="localhost:3000/chat")
+    #TODO: impliment user_link
     def __str__(self):
         return self.user_uname
 
