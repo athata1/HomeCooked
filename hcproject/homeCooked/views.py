@@ -811,24 +811,24 @@ def search_for(request):
     try:
         query=request.GET.get('query')
         results = []
-        if 'filter_posts' not in request.GET:
+        if 'filter_posts' in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
-        if 'filter_city' not in request.GET:
+        if 'filter_city' in request.GET:
             for user in User.objects.filter(user_city__icontains=request.GET.get('query')):
                 results.extend(Post.objects.filter(post_producer=user))
-        if 'filter_users' not in request.GET:
+        if 'filter_users' in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
-        if 'filter_events' not in request.GET:
+        if 'filter_events' in request.GET:
             for event in Event.objects.filter(event_name__icontains=query):
                 if (len(list(Rsvp.objects.filter(rsvp_event=event))) < event.event_capacity):
                     results.append(event)
 
         for user in list(User.objects.filter(user_uname__icontains=query)):    
-            if 'filter_producer' not in request.GET:
+            if 'filter_producer' in request.GET:
                 results.extend(Post.objects.filter(post_producer=user))
-            if 'filter_consumer' not in request.GET:
+            if 'filter_consumer' in request.GET:
                 results.extend(Post.objects.filter(post_consumer=user))
-            if 'filter_recipe' not in request.GET:
+            if 'filter_recipe' in request.GET:
                 results.extend(Recipe.objects.filter(recipe_user=user))
         
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
