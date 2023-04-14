@@ -124,6 +124,14 @@ const Events = () => {
     }
   },[showMode, userMode])
 
+  function handleRSVP(index) {
+    const newResponses = [...responses].filter((event) => {
+      console.log(event.pk !== index)
+      return event.pk !== index;
+    })
+    console.log(newResponses)
+    setResponses(newResponses)
+  }
   return (
     <div className="events">
       <Navbar part="Events" mode={userMode} />
@@ -254,7 +262,7 @@ const Events = () => {
 
       {responses.map((event) => {
 
-        return <EventCard userMode={userMode} response={event}/>
+        return <EventCard userMode={userMode} rsvpCallback={handleRSVP} response={event}/>
       })}
     </div>
 
