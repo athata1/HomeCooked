@@ -5,7 +5,6 @@ from datetime import date
 from datetime import timedelta
 from .models import *
 import time
-import zoneinfo
 
 class HomeCookedTestCases(TestCase):   
     def setUp(self):
@@ -17,8 +16,6 @@ class HomeCookedTestCases(TestCase):
         self.recipe = Recipe.objects.create(recipe_user=self.user, recipe_name="a recipe", recipe_ingredients="stuff and things",
             recipe_img="https://imgur.com/71HOrWu", recipe_desc="a fake recipe that is deff not real.")
         self.recipe.save()
-
-        timezone.activate(zoneinfo.ZoneInfo("US/eastern"))
 
         self.post = Post.objects.create(post_producer=self.user, post_consumer=self.user, post_title="a new post", post_desc="a post description",
             post_recipe=self.recipe, post_created=datetime.now(tz=timezone.get_current_timezone()))
@@ -717,8 +714,9 @@ class HomeCookedTestCases(TestCase):
         print("Searching a database (and not getting dupes)")
         print('expected response: [A singular post object]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
+        
         response = self.c.get('/search', {'query':'chicago',
-            'filter_posts':'y', 'filter_users':'y', });
+            'filter_posts':'y', 'filter_users':'y'});
 
         if response.status_code != 200:
             print(" Error encountered:")

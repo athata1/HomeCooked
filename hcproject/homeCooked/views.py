@@ -4,7 +4,6 @@ from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from .models import *
-import zoneinfo
 # import sqlite3
 import json
 import requests
@@ -23,7 +22,7 @@ def validate_token(token):
 
 
 def create_notif(notif_user, notif_type, notif_message):
-    timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
+    #timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
     notif = Notification(notif_time=datetime.now(tz=timezone.get_current_timezone()), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
     notif.save()
 
@@ -247,7 +246,7 @@ def create_event(request):
         if user is None:
             return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
         
-        date_time = datetime.datetime.fromtimestamp(int(parameters.get('time'))/1000)
+        date_time = datetime.fromtimestamp(int(parameters.get('time'))/1000)
         date = date_time.date()
         time = date_time.time()
 
@@ -821,7 +820,7 @@ def search_for(request):
         if 'filter_posts' not in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
         if 'filter_city' not in request.GET:
-            for user in User.objects.filter(user_city=request.GET.get('query')):
+            for user in User.objects.filter(user_city__icontains=request.GET.get('query')):
                 results.extend(Post.objects.filter(post_producer=user))
         if 'filter_users' not in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
@@ -838,6 +837,7 @@ def search_for(request):
             if 'filter_recipe' not in request.GET:
                 results.extend(Recipe.objects.filter(recipe_user=user))
         
+
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
