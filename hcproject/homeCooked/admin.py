@@ -7,7 +7,7 @@ class AllergyAdmin(admin.ModelAdmin):
     search_fields = ('food_name', 'health_labels')
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state', 'image_text', 'user_longitude', 'user_latitude')
+    list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state', 'image_text', 'user_longitude', 'user_latitude', 'user_link')
     list_display_links = ('user_id', 'user_fid')
     list_filter = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
     search_fields = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
