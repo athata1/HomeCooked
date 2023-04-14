@@ -818,35 +818,68 @@ def search_for(request):
         return JsonResponse(status=405, data={'response': 'ParameterError: parameter "query" required'})
     try:
         query=request.GET.get('query')
+        users = User.objects.filter(user_uname__icontains=query)
         results = []
-        if 'filter_posts' not in request.GET:
+        if 'filter_posts' in request.GET:
             results.extend(Post.objects.filter(post_title__icontains=query))
-        if 'filter_city' not in request.GET:
-            for user in User.objects.filter(user_city__icontains=request.GET.get('query')):
-                results.extend(Post.objects.filter(post_producer=user))
-        if 'filter_users' not in request.GET:
+        if 'filter_city' in request.GET:
+            results.extend(Post.objects.filter(post_producer__in=users))
+        if 'filter_users' in request.GET:
             results.extend(User.objects.filter(user_uname__icontains=query))
-        if 'filter_events' not in request.GET:
+        if 'filter_events' in request.GET:
             for event in Event.objects.filter(event_name__icontains=query):
                 if (len(list(Rsvp.objects.filter(rsvp_event=event))) < event.event_capacity):
                     results.append(event)
-
-        for user in list(User.objects.filter(user_uname__icontains=query)):    
-            if 'filter_producer' not in request.GET:
-                results.extend(Post.objects.filter(post_producer=user))
-            if 'filter_consumer' not in request.GET:
-                results.extend(Post.objects.filter(post_consumer=user))
-            if 'filter_recipe' not in request.GET:
-                results.extend(Recipe.objects.filter(recipe_user=user))
+        if 'filter_producer' in request.GET:
+            results.extend(Post.objects.filter(post_producer__in=users))
+        if 'filter_consumer' in request.GET:
+            results.extend(Post.objects.filter(post_consumer__in=users))
+        if 'filter_recipe' in request.GET:
+            results.extend(Recipe.objects.filter(recipe_user__in=users))
         return JsonResponse(status=200, data={'response': serializers.serialize('json', list(set(results)))})
     except Exception as E:
         print(E)
         return JsonResponse(status=500, data={'response' : 'could not create post ' + str(E)})
 
 
-#TODO: GET ALL EVENTS A USER ISN'T SIGNED UP FOR
+@csrf_exempt
+def get_unattended_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
 
-#TODO: GET ALL EVENTS A USE IS SIGNED UP FOR
+    # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
+    fid = request.GET.get('token')
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+    user = User.objects.get(user_fid=fid)
+    if user is None: 
+        return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+    unattended_events = Event.objects.exclude(event_id__in=Rsvp.objects.filter(rsvp_user=user).values('rsvp_event'))
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', unattended_events)})
+
+@csrf_exempt
+def get_attended_events(request):
+    if request.method != 'GET':
+        return JsonResponse(status=400, data={'response': 'TypeError: request type must be GET'})
+    if 'token' not in request.GET:
+        return JsonResponse(status=405, data={'response': 'ParameterError: parameter "token" required'})
+
+    # TEST ONLY! VALIDATE TOKEN FOR OFFICIAL USE
+    fid = request.GET.get('token')
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'TokenError: invalid token'})
+    user = User.objects.get(user_fid=fid)
+    if user is None: 
+        return JsonResponse(status=404, data={'response': 'DatabaseError: no user matching that fid'})
+
+    #attending_event_ids =
+    attended_events = [event.rsvp_event for event in Rsvp.objects.filter(rsvp_user=user)]
+
+    
+    return JsonResponse(status=200, data={'response': serializers.serialize('json', attended_events)})
 
 
 @csrf_exempt
@@ -882,7 +915,7 @@ def rsvp_for_event(request):
             return JsonResponse(status=404, data={'response': 'DatabaseError: event at capacity'})
 
         create_notif(notif_type = Notification.type_enum.POST, notif_user=event.event_host,
-            notif_message=user.user_uname + " has rsvp\'d to \"" + event.event_name + "\"")
+            notif_message=user.user_uname + f' will be attending your event "' + event.event_name +f'"')
 
         rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
         rsvp.save()

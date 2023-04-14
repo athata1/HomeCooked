@@ -387,7 +387,7 @@ class HomeCookedTestCases(TestCase):
         print('\nnew user is:')
         print(self.c.get('/users/', {'fid':self.user.user_fid}).json()['user'])
 
-    def test_106_user_update_uname(self):
+    def test_106_user_update(self):
         print("\ntest 106")
         print("updating a user")
         print('expected response: "Saved data"')
@@ -400,7 +400,8 @@ class HomeCookedTestCases(TestCase):
             'bio':'something something',
             'city':'sanfransokio',
             'state':'constant fear',
-            'zip':'58008'
+            'zip':'58008',
+            'link':'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             })
 
         if response.status_code != 404:
@@ -680,6 +681,41 @@ class HomeCookedTestCases(TestCase):
             print(" Success! got response:")
 
         print(response.json())
+    
+    def test_406_get_unattended_and_attended_events(self):
+        print("\ntest 406")
+        print("Getting unattended events, attending the event, and then getting attended events")
+        print('''expected response: "[an event object]"''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        response = self.c.get('/event/get/unattended', {'token': user.user_fid})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+        rsvp = Rsvp(rsvp_user=user, rsvp_event=event)
+        rsvp.save()
+        
+        response = self.c.get('/event/get/attended', {'token': user.user_fid})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
 
     def test_501_search_functionality(self):
         print("\ntest 501")
@@ -687,7 +723,7 @@ class HomeCookedTestCases(TestCase):
         print('expected response: [A singular post object]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
         response = self.c.get('/search', {'query':self.user.user_uname,
-            'filter_posts':'y', 'filter_city':'y', 'filter_users':'y', 'filter_recipe':'y'});
+            'filter_producer':'y', 'filter_consumer':'y'});
 
         if response.status_code != 200:
             print(" Error encountered:")
@@ -697,10 +733,9 @@ class HomeCookedTestCases(TestCase):
         print(response.json())
     def test_502_search_for_user(self):
         print("\ntest 502")
-        print("Searching a database")
-        print('expected response: [Many object]')
-        #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
-        response = self.c.get('/search', {'query':'us', 'filter_posts':'y', 'filter_city':'y'});
+        print("Searching a database for a user")
+        print('expected response: [A user object]')
+        response = self.c.get('/search', {'query':'us', 'filter_users':'y'});
 
         if response.status_code != 200:
             print(" Error encountered:")
@@ -711,7 +746,7 @@ class HomeCookedTestCases(TestCase):
 
     def test_503_search_loc(self):
         print("\ntest 503")
-        print("Searching a database (and not getting dupes)")
+        print("Searching a database for a location")
         print('expected response: [A singular post object]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
         
@@ -727,7 +762,7 @@ class HomeCookedTestCases(TestCase):
     
     def test_504_search_event_filter(self):
         print("\ntest 504")
-        print("Searching for events (and ensuring that the search filters out already filled events)")
+        print("Searching the database for events (and ensuring that the search filters out already filled events)")
         print('expected response: [A singular event object] [nothing]')
         #The post has the same producer and consumer, and given this is a search function, we don't want duplicate entries. So if we search for something, each object should be unique
 
@@ -736,9 +771,7 @@ class HomeCookedTestCases(TestCase):
             event_capacity=1, event_location="earth somewhere")
         event.save();
 
-        response = self.c.get('/search', {'query':'meetup',
-            'filter_posts':'y', 'filter_users':'y', 'filter_city':'y', 'filter_producer':'y', 'filter_consumer':'y',
-            'filter_recipe':'y'});
+        response = self.c.get('/search', {'query':'meetup', 'filter_events':'y'});
 
         if response.status_code != 200:
             print(" Error encountered:")
@@ -750,9 +783,7 @@ class HomeCookedTestCases(TestCase):
         rsvp = Rsvp(rsvp_user=self.user, rsvp_event=event)
         rsvp.save()
 
-        response = self.c.get('/search', {'query':'meetup',
-            'filter_posts':'y', 'filter_users':'y', 'filter_city':'y', 'filter_producer':'y', 'filter_consumer':'y',
-            'filter_recipe':'y'});
+        response = self.c.get('/search', {'query':'meetup', 'filter_events':'y'});
         
         print(response.json())
 
