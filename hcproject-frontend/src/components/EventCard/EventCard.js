@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../../Firebase/AuthContext';
-export default function EventCard({response, rsvpCallback}) {
+export default function EventCard({response, rsvpCallback, showMode}) {
   const titleRef = useRef()
   const locationRef = useRef()
   const textRef = useRef()
@@ -19,15 +19,13 @@ export default function EventCard({response, rsvpCallback}) {
 
 
   useEffect(() => {
-    console.log(response)
-    console.log(rsvpCallback)
     setLocation(response.fields.event_location);
     setTitle(response.fields.event_name)
     setDescription(response.fields.event_desc)
     setDate(response.fields.event_date)
     setTime(response.fields.event_time);
     setId(response.pk)
-  }, [])
+  }, [response])
 
   function formatURLDate(date) {
     let year=date.getFullYear();
@@ -123,7 +121,29 @@ export default function EventCard({response, rsvpCallback}) {
   }
 
   function handleRSVP(event) {
-    rsvpCallback(event.pk)  
+
+    getToken().then((token) => {
+      let url = `http://localhost:8000/event/rsvp?token=${token}&event_id=${event.pk}`
+      console.log(event.pk)
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json();
+      }).then((data) => {
+        console.log(data)
+        rsvpCallback(event.pk)  
+      })
+    })
+
   }
 
   return (
@@ -241,7 +261,7 @@ export default function EventCard({response, rsvpCallback}) {
           }
           {" "}
           {userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
-          {userMode === "consumer" && <Button onClick={() => {handleRSVP(response)}} variant="danger">RSVP</Button>}
+          {userMode === "consumer" && showMode !== 0 && <Button onClick={() => {handleRSVP(response)}} variant="danger">RSVP</Button>}
         </Card.Body>
       </Card>
     </div>

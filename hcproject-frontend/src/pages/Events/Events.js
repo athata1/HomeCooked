@@ -73,6 +73,53 @@ const Events = () => {
     })
   };
   useEffect(() => {
+
+    if (showMode === 2 && userMode === 'consumer') {
+        getToken().then(token => {
+          let url = "http://localhost:8000/event/get/unattended?token=" + token;
+          fetch(url, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          }).then((res) => {
+            return res.json();
+          }).then(data => {
+            console.log(JSON.parse(data.response))
+            setResponses(JSON.parse(data.response))
+          })
+        })
+    }
+
+    if (showMode === 0 && userMode === 'consumer') {
+      getToken().then(token => {
+          let url = "http://localhost:8000/event/get/attended?token=" + token;
+          fetch(url, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          }).then((res) => {
+            return res.json();
+          }).then(data => {
+            console.log(JSON.parse(data.response))
+            setResponses(JSON.parse(data.response))
+          })
+        })
+    }
+
     if (showMode === 2 && userMode === 'producer') {
       getToken().then(token => {
         let url = "http://localhost:8000/events/producer?token=" + token;
@@ -94,33 +141,6 @@ const Events = () => {
           console.log(JSON.parse(data.response))
         })
       })
-    }
-
-    if (showMode === 2 && userMode === 'consumer') {
-      getToken().then(token => {
-        let url = "http://localhost:8000/events/producer?token=" + token;
-        fetch(url, {
-          method: "GET", // *GET, POST, PUT, DELETE, etc.
-          // mode: "no-cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        }).then((res) => {
-          return res.json();
-        }).then(data => {
-          setResponses(JSON.parse(data.response))
-          console.log(JSON.parse(data.response))
-        })
-      })
-    }
-
-    else {
-      setResponses([])
     }
   },[showMode, userMode])
 
@@ -144,6 +164,7 @@ const Events = () => {
                 <>
                   <Button
                     variant="danger"
+                    disabled={showMode === 0}
                     onClick={() => {
                       setResponses([])
                       setShowMode(0);
@@ -262,7 +283,7 @@ const Events = () => {
 
       {responses.map((event) => {
 
-        return <EventCard userMode={userMode} rsvpCallback={handleRSVP} response={event}/>
+        return <EventCard showMode={showMode} userMode={userMode} rsvpCallback={handleRSVP} response={event}/>
       })}
     </div>
 

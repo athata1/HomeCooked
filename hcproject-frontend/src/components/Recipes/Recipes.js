@@ -37,7 +37,9 @@ function Recipes({
   const [rating, setRating] = useState(0);
   const [reviewDescription, setReviewDescription] = useState("");
   const [visible, setVisible] = useState(false);
-
+  const [link, setLink] = useState('');
+  const [postUser, setPostUser] = useState('');
+  const [userBio, setUserBio] = useState('');
   const { searchMode, searchText} = useAuth();
 
   useEffect(() => {
@@ -87,7 +89,10 @@ function Recipes({
       .then((response) => {
         response = JSON.parse(response.data)[0];
         setCity(response.fields.user_city);
+        setPostUser(response.fields.user_uname);
+        setUserBio(response.fields.user_bio)
         setState(response.fields.user_state);
+        setLink(response.fields.user_link);
       });
   }, []);
 
@@ -321,7 +326,7 @@ function Recipes({
 
   return (
     <div className="posts mb-3">
-      <Card>
+      <Card style={{width: '400px'}}>
         <Card.Img variant="top" src={recipeURL} />
         <Card.Body>
           <Card.Title>
@@ -357,9 +362,27 @@ function Recipes({
                 );
               })}
             </div>
+            <div>
+              <Card.Title>User Info:</Card.Title>
+              <Card.Subtitle>User: {postUser}</Card.Subtitle>
+              <div className="mt-3">
+                <Card.Subtitle>User Bio</Card.Subtitle>
+                <Card.Text className='text-wrap'>
+                  {userBio}
+                </Card.Text>
+              </div>
+            </div>
           </div>
           {!profileMode ? (
             <ButtonGroup style={{ float: "right" }}>
+              
+              {showMode === 2 && mode === 'consumer' ?
+                <a href={link}>
+                  <Button variant="success">
+                    Go To Chat
+                  </Button>
+                </a>
+              : ""}
               {showMode === 1 && mode === "producer" ? (
                 <Button onClick={handlePost} variant="success">
                   Post

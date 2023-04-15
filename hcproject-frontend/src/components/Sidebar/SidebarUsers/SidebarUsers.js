@@ -25,21 +25,23 @@ export default function SidebarUsers(selectedUser) {
   }, [currentUser.uid])
 
   useEffect(() => {
-    console.log(searchParams.get('user'))
+    /*console.log(searchParams.get('user'))
     const uid = searchParams.get('user');
 
-    const combined = currentUser.uid > uid ? currentUser.uid + uid : uid + currentUser.uid
-    
-    let docRef = doc(db, 'userChats', currentUser.uid)
-    getDoc(docRef).then((chatDoc) => {
-      let data = chatDoc.data()[combined]
-      if (data !== undefined) {
-        setUser([combined, data])
-      }
-      else {
-        console.log("Doesn't exist")
-      }
-    })
+    if (uid !== null) {
+      const combined = currentUser.uid > uid ? currentUser.uid + uid : uid + currentUser.uid
+      
+      let docRef = doc(db, 'userChats', currentUser.uid)
+      getDoc(docRef).then((chatDoc) => {
+        let data = chatDoc.data()[combined]
+        if (data !== undefined) {
+          setUser([combined, data])
+        }
+        else {
+          console.log("No User here")
+        }
+      })
+    }*/
 
   }, [])
 
