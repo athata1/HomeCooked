@@ -1,20 +1,11 @@
 import React from 'react'
 import { useState, useEffect, useRef } from "react";
 import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
-import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
-import Posts from '../../components/Posts/Posts';
-import InputTag from '../../components/InputTag/InputTag';
-import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
-import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
-import RecipeShow from '../../components/RecipeShow/RecipeShow';
 import EventCard from '../../components/EventCard/EventCard';
 
 const Events = () => {
@@ -104,11 +95,43 @@ const Events = () => {
         })
       })
     }
+
+    if (showMode === 2 && userMode === 'consumer') {
+      getToken().then(token => {
+        let url = "http://localhost:8000/events/producer?token=" + token;
+        fetch(url, {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then(data => {
+          setResponses(JSON.parse(data.response))
+          console.log(JSON.parse(data.response))
+        })
+      })
+    }
+
     else {
       setResponses([])
     }
   },[showMode, userMode])
 
+  function handleRSVP(index) {
+    const newResponses = [...responses].filter((event) => {
+      console.log(event.pk !== index)
+      return event.pk !== index;
+    })
+    console.log(newResponses)
+    setResponses(newResponses)
+  }
   return (
     <div className="events">
       <Navbar part="Events" mode={userMode} />
@@ -117,6 +140,16 @@ const Events = () => {
         <Container>
           <Row>
             <ButtonGroup>
+            {userMode == "consumer" ?
+                <>
+                  <Button
+                    variant="danger"
+                    onClick={() => {
+                      setResponses([])
+                      setShowMode(0);
+                    }}
+                  >RSVPed Event</Button>
+                </> : ""}
               {userMode == "producer" ?
                 <>
                   <Button
@@ -218,7 +251,7 @@ const Events = () => {
                   data-bs-dismiss="modal"
                   onClick={(e) => { handleNewEvent(e) }}
                 >
-                  Add Recipe
+                  Add Event
                 </button>
               </div>
             </div>
@@ -229,7 +262,7 @@ const Events = () => {
 
       {responses.map((event) => {
 
-        return <EventCard response={event}/>
+        return <EventCard userMode={userMode} rsvpCallback={handleRSVP} response={event}/>
       })}
     </div>
 

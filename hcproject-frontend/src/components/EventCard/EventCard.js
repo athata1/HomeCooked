@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../../Firebase/AuthContext';
-export default function EventCard(response) {
+export default function EventCard({response, rsvpCallback}) {
   const titleRef = useRef()
   const locationRef = useRef()
   const textRef = useRef()
@@ -15,16 +15,18 @@ export default function EventCard(response) {
   const [time, setTime] = useState();
   const [id, setId] = useState();
   const [url, setUrl] = useState("");
-  const {getToken} = useAuth()
+  const {getToken, userMode} = useAuth()
 
 
   useEffect(() => {
-    setLocation(response.response.fields.event_location);
-    setTitle(response.response.fields.event_name)
-    setDescription(response.response.fields.event_desc)
-    setDate(response.response.fields.event_date)
-    setTime(response.response.fields.event_time);
-    setId(response.response.pk)
+    console.log(response)
+    console.log(rsvpCallback)
+    setLocation(response.fields.event_location);
+    setTitle(response.fields.event_name)
+    setDescription(response.fields.event_desc)
+    setDate(response.fields.event_date)
+    setTime(response.fields.event_time);
+    setId(response.pk)
   }, [])
 
   function formatURLDate(date) {
@@ -120,6 +122,10 @@ export default function EventCard(response) {
     })
   }
 
+  function handleRSVP(event) {
+    rsvpCallback(event.pk)  
+  }
+
   return (
     <div>
       <div
@@ -207,7 +213,7 @@ export default function EventCard(response) {
                   data-bs-dismiss="modal"
                   onClick={(e) => { handleChange(e) }}
                 >
-                  Add Recipe
+                  Edit Event
                 </button>
               </div>
             </div>
@@ -234,7 +240,8 @@ export default function EventCard(response) {
             </a>
           }
           {" "}
-          <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>
+          {userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
+          {userMode === "consumer" && <Button onClick={() => {handleRSVP(response)}} variant="danger">RSVP</Button>}
         </Card.Body>
       </Card>
     </div>

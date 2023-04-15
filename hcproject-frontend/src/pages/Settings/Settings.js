@@ -388,7 +388,7 @@ const Settings = () => {
     <div>
       <Navbar part="Settings" mode="none" />
       <div className="px-5">
-        <div>
+        <div className="here">
           <h1 className="settings-title pt-3">
             Account{" "}
             {!edit && (
@@ -499,7 +499,7 @@ const Settings = () => {
               url={osm.maptiler.url} 
               attribution={osm.maptiler.attribution} />
             {center.lat}
-            {center.lat !== 0.0 && center.lng !== 0.9 ?
+            {center.lat !== 0.0 && center.lng !== 0.0 ?
             <Marker position={[center.lat, center.lng]} icon={markerIcon}>
               <Popup>
                 <b>Dropoff Location</b>
@@ -648,7 +648,7 @@ const Settings = () => {
             <div className="col">
             <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
                <label class="form-check-label px-2" for="flexRadioDefault2">
-                  Default checked radio
+                  Use Default Chat
               </label>
               <br />
               <br />
