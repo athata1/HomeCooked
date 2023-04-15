@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import './Navbar.css'
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
 import {BsHouseDoor, BsBell} from 'react-icons/bs'
@@ -10,7 +10,7 @@ import { useAuth } from "../../Firebase/AuthContext";
 function Navbar({part, mode}) {
   const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
   const textRef = useRef();
-  const dropdown = ["Default", "Zipcode", "City/State"]
+  const dropdown = ["Default", "Zipcode", "City/State", "Profile"]
 
   function handleChange(e) {
     if (e.key === 'Enter') {
@@ -20,7 +20,7 @@ function Navbar({part, mode}) {
         else
           alert("Invalid zipcode");
       }
-      if (searchMode === 2) {
+      else if (searchMode === 2) {
         let arr = e.target.value.split(',');
         if (arr.length !== 2) {
           alert("Invalid city,state");
@@ -29,8 +29,15 @@ function Navbar({part, mode}) {
           setSearchText(e.target.value)
         }
       }
+      else {
+        setSearchText(e.target.value)
+      }
     }
   }
+
+  useEffect(() => {
+    console.log(searchMode)
+  }, [searchMode])
 
   return <div className="navbar">
     <div className="navbarLeft">
