@@ -4,7 +4,6 @@ from django.core import serializers
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from .models import *
-import zoneinfo
 # import sqlite3
 import json
 import requests
@@ -23,8 +22,7 @@ def validate_token(token):
 
 
 def create_notif(notif_user, notif_type, notif_message):
-    timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
-    notif = Notification(notif_time=datetime.now(tz=timezone.get_current_timezone()), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
+    notif = Notification(notif_time=datetime.now(), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
     notif.save()
 
 
@@ -890,6 +888,6 @@ def get_notifs(request):
         notifs = Notification.objects.filter(notif_user=user)
         return JsonResponse(status=200, data={'data': serializers.serialize('json', notifs)})
 
-    except: 
+    except Exception as E:
         print(E)
     return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
