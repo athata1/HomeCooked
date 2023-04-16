@@ -14,6 +14,23 @@ import osm from '../../utils/osm-providers'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
+
 
 const markerIcon = new L.Icon({
   iconUrl: require('../../images/marker.png'),
@@ -192,12 +209,12 @@ const Settings = () => {
             res.json().then((data) => {
               console.log(data);
             })
-            alert("Error: Could not delete account");
+            createNotification('Error', 'Could not delete account', 'danger')
           }
         })
     })}
     ).catch((e) => {
-      alert("Error: Invalid password")
+      createNotification('Error', 'Invalid password', 'danger')
     })
   };
 

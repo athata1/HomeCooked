@@ -7,6 +7,22 @@ import { useAuth } from '../../Firebase/AuthContext';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import EventCard from '../../components/EventCard/EventCard';
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 const Events = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -25,19 +41,19 @@ const Events = () => {
   const handleNewEvent = (e) => {
     e.preventDefault();
     if (timeRef.current.value === '') {
-      alert("Event must have a start time");
+      createNotification('Error', 'Event must have a start time');
       return;
     }
     if (titleRef.current.value.length < 6) {
-      alert("Title must have at least 6 characters");
+      createNotification('Error', 'Title must have at least 6 characters', 'danger');
       return;
     }
     if (textRef.current.value.length < 10) {
-      alert("Description must have at least 20 characters");
+      createNotification('Error', "Description must have at least 20 characters", 'danger');
       return;
     }
     if (locationRef.current.value.length < 10) {
-      alert("Location must have at least 20 characters");
+      createNotification('Error', 'Location must have at least 10 characters')
       return;
     }
 
@@ -68,7 +84,7 @@ const Events = () => {
         titleRef.current.value = '';
         textRef.current.value = '';
         locationRef.current.value = '';
-        alert("Event Created");
+        createNotification('Success', 'Event Created', 'success');
       })
     })
   };

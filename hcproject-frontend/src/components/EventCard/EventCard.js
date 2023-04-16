@@ -2,6 +2,22 @@ import React, { useEffect, useRef, useState } from 'react'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../../Firebase/AuthContext';
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 export default function EventCard({response, rsvpCallback, showMode}) {
   const titleRef = useRef()
   const locationRef = useRef()
@@ -66,19 +82,19 @@ export default function EventCard({response, rsvpCallback, showMode}) {
   function handleChange(e) {
     console.log(timeRef.current.value);
     if (timeRef.current.value === '') {
-      alert("Event must have a start time");
+      createNotification('Error', "Event must have a start time", 'danger');
       return;
     }
     if (titleRef.current.value.length < 6) {
-      alert("Title must have at least 6 characters");
+      createNotification('Error',"Title must have at least 6 characters", 'danger');
       return;
     }
     if (textRef.current.value.length < 10) {
-      alert("Description must have at least 20 characters");
+      createNotification('Error', "Description must have at least 20 characters", 'danger');
       return;
     }
     if (locationRef.current.value.length < 10) {
-      alert("Location must have at least 20 characters");
+      createNotification('Error',"Location must have at least 20 characters", 'danger');
       return;
     }
       

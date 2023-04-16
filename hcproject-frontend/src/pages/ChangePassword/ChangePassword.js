@@ -3,7 +3,22 @@ import {Link} from "react-router-dom"
 import "./ChangePassword.css"
 import { useAuth } from '../../Firebase/AuthContext'
 import { useLocation, Navigate } from "react-router-dom";
-
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 export default function ChangePassword() {
 
   const [email, setEmail] = useState("");
@@ -44,7 +59,7 @@ export default function ChangePassword() {
 
       
     if (!validateEmail(email)) {
-      alert("Error: Please enter a valid email")
+      createNotification('Error', 'Please enter a valid email', 'danger')
       return;
     }
 
@@ -55,7 +70,7 @@ export default function ChangePassword() {
       setSuccess(true);
     }
     catch (e){
-      alert("Failed to login to account")
+      createNotification('Error', 'Failed to login to account', 'danger')
       console.log(e);
     }
     setIsLoading(false);

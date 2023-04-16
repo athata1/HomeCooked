@@ -2,6 +2,22 @@ import React, {useRef, useState} from 'react'
 import "./ResetPassword.css"
 import { useAuth } from '../../Firebase/AuthContext'
 import { useLocation, Navigate, useSearchParams, useNavigate } from "react-router-dom";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 export default function ResetPassword() {
 
@@ -21,12 +37,12 @@ export default function ResetPassword() {
     e.preventDefault()
     
     if (passwordRef.current.value.length < 6) {
-      alert("Error: Password must have length of at least 6");
+      createNotification('Error', 'Password must have length of at least 6', 'danger')
       return;
     }
 
     if (passwordRef.current.value !== confirmPasswordRef.current.value) {
-      alert("Error: Passwords do not match")
+      createNotification('Error', 'Passwords do not match', 'danger')
       return;
     }
 
@@ -39,7 +55,7 @@ export default function ResetPassword() {
 
     }).catch(() => {
       console.log("Error while changing password")
-      alert("Error while Changing password")
+      createNotification('Error', 'Error while changing password', 'danger')
     }).finally(() => {
       setIsLoading(false);
     })

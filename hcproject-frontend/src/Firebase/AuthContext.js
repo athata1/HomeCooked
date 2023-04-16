@@ -1,6 +1,22 @@
 import React, { useContext, useEffect, useState } from "react";
 import { auth } from "./firebase";
 import firebase from "firebase/compat/app";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 const AuthContext = React.createContext();
 
 export function useAuth() {
@@ -163,7 +179,7 @@ export function AuthProvider({ children }) {
           console.log(e);
         }
       }).catch(() => {
-        alert("Error: Email already Exists")
+        createNotification('Error', 'Email already exists', 'danger');
       })
     setCreating(false);
   }

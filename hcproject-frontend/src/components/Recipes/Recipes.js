@@ -12,8 +12,24 @@ import { ListGroup } from "react-bootstrap";
 import { useAuth } from "../../Firebase/AuthContext";
 import { filterBad } from "../../utils/badwords";
 import { Rating } from "react-simple-star-rating";
-
 import {getZip} from '../../utils/location'
+
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 function Recipes({
   mode,
@@ -175,7 +191,8 @@ function Recipes({
             return res.json();
           })
           .then((data) => {
-            alert("Deleted Recipe");
+            removeCallback(response.pk)
+            createNotification('Success', 'Deleted Recipe', 'success')
           });
       });
     }
@@ -203,7 +220,7 @@ function Recipes({
             return res.json();
           })
           .then((data) => {
-            alert("Deleted Post");
+            createNotification('Success', 'Deleted Post', 'success')
             removeCallback(postIndex);
           });
       });
@@ -235,10 +252,10 @@ function Recipes({
       ).then((res) => {
         console.log(res);
         if (res.status === 200) {
-          alert("Gave post to user");
+          createNotification('Success', 'Gave post to user', 'success')
         }
         else {
-          alert("Could not find user");
+          createNotification('Error', 'Could not find user', 'danger')
         }
       });
     });
@@ -268,14 +285,14 @@ function Recipes({
           return res.json();
         })
         .then((data) => {
-          alert("Created Post");
-        });
+          createNotification('Success', "Created Post", "success")
+        })
     });
   }
 
   function handleReview() {
     if (reviewDescription.length === 0) {
-      alert("Please Add a Description");
+      createNotification('Error', 'Please Add a Description', 'danger')
       return;
     }
     getToken().then((token) => {
@@ -306,7 +323,7 @@ function Recipes({
         })
         .then((data) => {
           console.log(data)
-          alert("Created Review");
+          createNotification('Success', 'Created Review', 'success');
         });
     });
     setRating(0);

@@ -5,6 +5,22 @@ import { db } from '../../../Firebase/firebase';
 import { useChatContext } from '../../MessageBoard/ChatProvider/ChatProvider';
 import { useSearchParams } from 'react-router-dom';
 import './SidebarUsers.css'
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 export default function SidebarUsers(selectedUser) {
 
   const [users, setUsers] = useState([]);
@@ -92,7 +108,7 @@ export default function SidebarUsers(selectedUser) {
       const querySnapshot = await getDocs(q);
       console.log(querySnapshot.docs.length)
       if (querySnapshot.docs.length === 0) {
-        alert("Error Could not find user");
+        createNotification('Error', "Could not find username", 'danger')
         return;
       }
       querySnapshot.forEach((doc) => {
