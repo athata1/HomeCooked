@@ -18,6 +18,7 @@ import OtherProfiles from "./pages/OtherProfiles/OtherProfiles";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
+import Notifications from "./pages/Notifications/Notifications"
 import { ReactNotifications } from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
 
