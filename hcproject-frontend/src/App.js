@@ -20,6 +20,7 @@ import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
 import { ReactNotifications } from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
+import Notifications from "./pages/Notifications/Notifications";
 
 function App() {
   return (
@@ -38,6 +39,10 @@ function App() {
           <Route
             path="/dashboard"
             element={<PrivateRoute element={<Dashboard />} />}
+          />
+          <Route
+            path="/notifications"
+            element={<PrivateRoute element={<Notifications />} />}
           />
           <Route
             path="/profile"

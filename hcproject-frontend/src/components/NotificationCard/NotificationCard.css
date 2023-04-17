@@ -1,0 +1,30 @@
+.notification-card {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 100px;
+  margin-bottom: 10px;
+  border: 4px solid #CAAA02;
+  padding-left: 10px;
+}
+
+.notification-card-icon {
+  display: grid;
+  place-items: center;
+  height: 75%;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  padding: 15px;
+  background-color: blue;
+  color: white
+}
+
+.notification-card-message {
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  height: 100%;
+  flex-grow: 1;
+  font-size: 2rem;
+  margin-left: 10px
+}
