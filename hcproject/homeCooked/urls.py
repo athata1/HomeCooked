@@ -9,6 +9,8 @@ urlpatterns = [
     path('events/producer',get_events),
     path('event/create', create_event),
     path('event/change', change_event),
+    path('event/get/attended', get_attended_events),
+    path('event/get/unattended', get_unattended_events),
     path('posts/consumer/dist', get_post_close),
     path('posts/consumer/closed', post_consumer_closed),
     path('posts/sort', post_sort),

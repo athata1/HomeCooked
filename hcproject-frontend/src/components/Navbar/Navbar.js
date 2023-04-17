@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import './Navbar.css'
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown'
 import {BsHouseDoor, BsBell} from 'react-icons/bs'
@@ -6,11 +6,27 @@ import NavbarDropdown from "../NavbarDropdown/NavbarDropdown";
 import { Link } from "react-router-dom";
 import {Switch} from "./../Switch/Switch"
 import { useAuth } from "../../Firebase/AuthContext";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 function Navbar({part, mode}) {
   const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
   const textRef = useRef();
-  const dropdown = ["Default", "Zipcode", "City/State"]
+  const dropdown = ["Default", "Zipcode", "City/State", "Profile"]
 
   function handleChange(e) {
     if (e.key === 'Enter') {
@@ -18,19 +34,26 @@ function Navbar({part, mode}) {
         if (e.target.value.match(/^\d{5}$/))
           setSearchText(e.target.value)
         else
-          alert("Invalid zipcode");
+          createNotification('Error', 'Invalid zipcode', 'danger')
       }
-      if (searchMode === 2) {
+      else if (searchMode === 2) {
         let arr = e.target.value.split(',');
         if (arr.length !== 2) {
-          alert("Invalid city,state");
+          createNotification('Error', 'Invalid city,state', 'danger');
         }
         else {
           setSearchText(e.target.value)
         }
       }
+      else {
+        setSearchText(e.target.value)
+      }
     }
   }
+
+  useEffect(() => {
+    console.log(searchMode)
+  }, [searchMode])
 
   return <div className="navbar">
     <div className="navbarLeft">

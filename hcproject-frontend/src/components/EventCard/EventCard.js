@@ -2,7 +2,23 @@ import React, { useEffect, useRef, useState } from 'react'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import { useAuth } from '../../Firebase/AuthContext';
-export default function EventCard(response) {
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
+export default function EventCard({response, rsvpCallback, showMode}) {
   const titleRef = useRef()
   const locationRef = useRef()
   const textRef = useRef()
@@ -15,17 +31,17 @@ export default function EventCard(response) {
   const [time, setTime] = useState();
   const [id, setId] = useState();
   const [url, setUrl] = useState("");
-  const {getToken} = useAuth()
+  const {getToken, userMode} = useAuth()
 
 
   useEffect(() => {
-    setLocation(response.response.fields.event_location);
-    setTitle(response.response.fields.event_name)
-    setDescription(response.response.fields.event_desc)
-    setDate(response.response.fields.event_date)
-    setTime(response.response.fields.event_time);
-    setId(response.response.pk)
-  }, [])
+    setLocation(response.fields.event_location);
+    setTitle(response.fields.event_name)
+    setDescription(response.fields.event_desc)
+    setDate(response.fields.event_date)
+    setTime(response.fields.event_time);
+    setId(response.pk)
+  }, [response])
 
   function formatURLDate(date) {
     let year=date.getFullYear();
@@ -66,19 +82,19 @@ export default function EventCard(response) {
   function handleChange(e) {
     console.log(timeRef.current.value);
     if (timeRef.current.value === '') {
-      alert("Event must have a start time");
+      createNotification('Error', "Event must have a start time", 'danger');
       return;
     }
     if (titleRef.current.value.length < 6) {
-      alert("Title must have at least 6 characters");
+      createNotification('Error',"Title must have at least 6 characters", 'danger');
       return;
     }
     if (textRef.current.value.length < 10) {
-      alert("Description must have at least 20 characters");
+      createNotification('Error', "Description must have at least 20 characters", 'danger');
       return;
     }
     if (locationRef.current.value.length < 10) {
-      alert("Location must have at least 20 characters");
+      createNotification('Error',"Location must have at least 20 characters", 'danger');
       return;
     }
       
@@ -118,6 +134,32 @@ export default function EventCard(response) {
         setTime(militaryTime)
       })
     })
+  }
+
+  function handleRSVP(event) {
+
+    getToken().then((token) => {
+      let url = `http://localhost:8000/event/rsvp?token=${token}&event_id=${event.pk}`
+      console.log(event.pk)
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json();
+      }).then((data) => {
+        console.log(data)
+        rsvpCallback(event.pk)  
+      })
+    })
+
   }
 
   return (
@@ -234,8 +276,8 @@ export default function EventCard(response) {
             </a>
           }
           {" "}
-          {response.userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
-          {response.userMode === "consumer" && <Button onClick={handleInit} variant="danger">RSVP</Button>}
+          {userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
+          {userMode === "consumer" && showMode !== 0 && <Button onClick={() => {handleRSVP(response)}} variant="danger">RSVP</Button>}
         </Card.Body>
       </Card>
     </div>

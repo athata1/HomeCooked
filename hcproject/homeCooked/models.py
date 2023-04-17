@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from datetime import datetime
 
@@ -22,6 +23,7 @@ class User (models.Model):
     image_text = models.CharField(max_length=200, verbose_name='Image text', default="")
     user_longitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Longitude", default=0.0)
     user_latitude = models.DecimalField(decimal_places=5, max_digits=8, verbose_name="Latitude", default=0.0)
+    user_link = models.CharField(max_length=200, verbose_name="External link", default="localhost:3000/chat")
     def __str__(self):
         return self.user_uname
 
@@ -104,3 +106,17 @@ class DiscussionBoard (models.Model):
 
     def __str__(self):
         return self.discussion_name
+
+class Notification (models.Model):
+    class type_enum (models.TextChoices):
+        POST = 'PO', _('Post Bought')
+        MESSAGE = 'ME', _('Message Recevied')
+        USER = 'US', _('Profile Updated')
+        EVENT = 'EV', _('RSVP Received')
+        NONE = 'NO', _('error/default type') 
+    
+    notif_id = models.AutoField(primary_key=True, verbose_name='Notification ID')
+    notif_type = models.CharField(max_length=2, choices=type_enum.choices, default=type_enum.NONE)
+    notif_time = models.DateTimeField(auto_created=True, verbose_name='notification time', default=timezone.now)
+    notif_user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='notification receiver')
+    notif_message = models.CharField(max_length=200, verbose_name='notification message')

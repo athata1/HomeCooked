@@ -1,0 +1,14 @@
+.profile-show {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.profile-container {
+  width: 75%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  row-gap: 20px;
+  column-gap: 20px;
+}

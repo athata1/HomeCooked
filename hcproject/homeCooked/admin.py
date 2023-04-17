@@ -7,7 +7,7 @@ class AllergyAdmin(admin.ModelAdmin):
     search_fields = ('food_name', 'health_labels')
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state', 'image_text', 'user_longitude', 'user_latitude')
+    list_display = ('user_id', 'user_uname', 'user_fid', 'user_address', 'user_bio', 'user_city', 'user_state', 'image_text', 'user_longitude', 'user_latitude', 'user_link')
     list_display_links = ('user_id', 'user_fid')
     list_filter = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
     search_fields = ('user_id', 'user_uname', 'user_fid', 'user_city', 'user_state')
@@ -54,6 +54,13 @@ class DiscussionBoardAdmin(admin.ModelAdmin):
     list_filter = ('discussion_id', 'discussion_sender', 'discussion_event', 'discussion_data')
     search_fields = ('discussion_id', 'discussion_sender', 'discussion_event')
 
+
+class NotifAdmin(admin.ModelAdmin):
+    list_display = ('notif_id', 'notif_type', 'notif_time', 'notif_user', 'notif_message')
+    list_display_links = ('notif_id', 'notif_user')
+    list_filer = ('notif_id', 'notif_type', 'notif_time', 'notif_user')
+    search_fields = ('notif_id', 'notif_type', 'notif_time', 'notif_user')
+
 # Register your models here.
 admin.site.register(Allergy, AllergyAdmin)
 admin.site.register(User, UserAdmin)
@@ -63,3 +70,4 @@ admin.site.register(Review, ReviewAdmin)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Message, MessageAdmin)
 admin.site.register(DiscussionBoard, DiscussionBoardAdmin)
+admin.site.register(Notification, NotifAdmin)

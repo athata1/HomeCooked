@@ -4,14 +4,13 @@ import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar';
 import { useAuth } from '../../Firebase/AuthContext'
 import { ChatProvider, useChatContext } from '../../components/MessageBoard/ChatProvider/ChatProvider';
+import {useSearchParams} from 'react-router-dom';
+import { db } from '../../Firebase/firebase';
 import './Chat.css'
+import { doc, getDoc } from 'firebase/firestore';
 export default function Chat() {
 
   const {currentUser} = useAuth();
-
-  useEffect(() => {
-    console.log(currentUser)
-  }, [])
 
   return (
     <ChatProvider>

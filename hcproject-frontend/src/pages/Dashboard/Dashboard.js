@@ -14,8 +14,24 @@ import { storage } from "../../Firebase/firebase";
 import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+import ProfileShow from '../../components/ProfileShow/ProfileShow'
 import RecipeShow from '../../components/RecipeShow/RecipeShow';
-
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 const Dashboard = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -37,23 +53,23 @@ const Dashboard = () => {
   const handleNewPost = (e) => {
     e.preventDefault();
     if (image === null) {
-      alert("Error: Please add image")
+      createNotification('Error', 'Please add image', 'danger')
       return;
     }
     if (titleRef.current.value.length < 6) {
-      alert("Error: title must be at least 6 characters")
+      createNotification('Error', 'title must be at least 6 characters', 'danger')
       return;
     }
     if (textRef.current.value < 10) {
-      alert("Error: description must be at least 10 characters")
+      createNotification('Error', 'description must be at least 10 characters', 'danger')
       return;
     }
     if (tags.length < 1) {
-      alert("Error: There must be at least 1 tag")
+      createNotification('Error', 'There must be at least 1 tag', 'danger')
       return;
     }
     if (ingredients.length < 1) {
-      alert("Error: There must be at least 1 ingredient")
+      createNotification('Error', 'There must be at least 1 ingredient', 'danger');
       return;
     }
 
@@ -125,7 +141,7 @@ const Dashboard = () => {
       <Navbar part="Posts" mode={userMode} />
       <span>&nbsp;&nbsp;</span>
       <div ref = {parentRef}>
-        <Container>
+        {searchMode !== 3 || userMode ==='producer' ? <Container>
           <Row>
             <ButtonGroup>
               {userMode == "producer" ?
@@ -163,14 +179,17 @@ const Dashboard = () => {
               }}>Archives</Button>
             </ButtonGroup>
           </Row>
-        </Container>
+        </Container> : "" }
         {height < 200 ? 
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
               fontSize: '2rem'}}>Nothing to see here...</div> : ""}
-        {showMode === 1 || showMode === 2 || showMode === 3 ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
+        {(searchMode === 3 && userMode === 'consumer') ?
+          <ProfileShow/>
+        : ""}
+        {(searchMode !== 3 || userMode === 'producer') && (showMode === 1 || showMode === 2 || showMode === 3) ? <RecipeShow responses={responses} setResponses={setResponses} mode={userMode} showMode={showMode} /> : ""}
         {/* <button
             className="btn btn-primary settings-button-remove settings-delete-account-button"
             data-bs-toggle="modal"

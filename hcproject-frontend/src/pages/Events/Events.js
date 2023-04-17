@@ -1,21 +1,28 @@
 import React from 'react'
 import { useState, useEffect, useRef } from "react";
 import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Card from 'react-bootstrap/Card';
-import CardGroup from 'react-bootstrap/CardGroup';
 import Navbar from '../../components/Navbar/Navbar';
 import { useAuth } from '../../Firebase/AuthContext';
-import Posts from '../../components/Posts/Posts';
-import InputTag from '../../components/InputTag/InputTag';
-import { ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../Firebase/firebase";
-import { getDownloadURL } from "firebase/storage";
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
-import RecipeShow from '../../components/RecipeShow/RecipeShow';
 import EventCard from '../../components/EventCard/EventCard';
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 const Events = () => {
   const { currentUser, getToken, userMode, setUserMode } = useAuth();
@@ -34,19 +41,19 @@ const Events = () => {
   const handleNewEvent = (e) => {
     e.preventDefault();
     if (timeRef.current.value === '') {
-      alert("Event must have a start time");
+      createNotification('Error', 'Event must have a start time');
       return;
     }
     if (titleRef.current.value.length < 6) {
-      alert("Title must have at least 6 characters");
+      createNotification('Error', 'Title must have at least 6 characters', 'danger');
       return;
     }
     if (textRef.current.value.length < 10) {
-      alert("Description must have at least 20 characters");
+      createNotification('Error', "Description must have at least 20 characters", 'danger');
       return;
     }
     if (locationRef.current.value.length < 10) {
-      alert("Location must have at least 20 characters");
+      createNotification('Error', 'Location must have at least 10 characters')
       return;
     }
 
@@ -77,11 +84,58 @@ const Events = () => {
         titleRef.current.value = '';
         textRef.current.value = '';
         locationRef.current.value = '';
-        alert("Event Created");
+        createNotification('Success', 'Event Created', 'success');
       })
     })
   };
   useEffect(() => {
+
+    if (showMode === 2 && userMode === 'consumer') {
+        getToken().then(token => {
+          let url = "http://localhost:8000/event/get/unattended?token=" + token;
+          fetch(url, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          }).then((res) => {
+            return res.json();
+          }).then(data => {
+            console.log(JSON.parse(data.response))
+            setResponses(JSON.parse(data.response))
+          })
+        })
+    }
+
+    if (showMode === 0 && userMode === 'consumer') {
+      getToken().then(token => {
+          let url = "http://localhost:8000/event/get/attended?token=" + token;
+          fetch(url, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            // mode: "no-cors", // no-cors, *cors, same-origin
+            cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: "same-origin", // include, *same-origin, omit
+            headers: {
+              "Content-Type": "application/json",
+              // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: "follow", // manual, *follow, error
+            referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          }).then((res) => {
+            return res.json();
+          }).then(data => {
+            console.log(JSON.parse(data.response))
+            setResponses(JSON.parse(data.response))
+          })
+        })
+    }
+
     if (showMode === 2 && userMode === 'producer') {
       getToken().then(token => {
         let url = "http://localhost:8000/events/producer?token=" + token;
@@ -104,35 +158,16 @@ const Events = () => {
         })
       })
     }
-
-    if (showMode === 2 && userMode === 'consumer') {
-      getToken().then(token => {
-        let url = "http://localhost:8000/events/producer?token=" + token;
-        fetch(url, {
-          method: "GET", // *GET, POST, PUT, DELETE, etc.
-          // mode: "no-cors", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          redirect: "follow", // manual, *follow, error
-          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        }).then((res) => {
-          return res.json();
-        }).then(data => {
-          setResponses(JSON.parse(data.response))
-          console.log(JSON.parse(data.response))
-        })
-      })
-    }
-
-    else {
-      setResponses([])
-    }
   },[showMode, userMode])
 
+  function handleRSVP(index) {
+    const newResponses = [...responses].filter((event) => {
+      console.log(event.pk !== index)
+      return event.pk !== index;
+    })
+    console.log(newResponses)
+    setResponses(newResponses)
+  }
   return (
     <div className="events">
       <Navbar part="Events" mode={userMode} />
@@ -145,6 +180,7 @@ const Events = () => {
                 <>
                   <Button
                     variant="danger"
+                    disabled={showMode === 0}
                     onClick={() => {
                       setResponses([])
                       setShowMode(0);
@@ -263,7 +299,7 @@ const Events = () => {
 
       {responses.map((event) => {
 
-        return <EventCard userMode={userMode} response={event}/>
+        return <EventCard showMode={showMode} userMode={userMode} rsvpCallback={handleRSVP} response={event}/>
       })}
     </div>
 
