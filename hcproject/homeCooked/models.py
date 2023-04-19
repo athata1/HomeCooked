@@ -36,6 +36,7 @@ class Event (models.Model):
     event_location = models.CharField(max_length=200, verbose_name='Location')
     event_capacity = models.IntegerField(verbose_name='Capacity', null=True)
     event_host = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Host')
+    event_updates = models.BooleanField(verbose_name='Updated event', default=False)
 
     def __str__(self):
         return self.event_name
