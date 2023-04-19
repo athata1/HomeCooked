@@ -717,6 +717,62 @@ class HomeCookedTestCases(TestCase):
 
         print(response.json())
 
+    def test_407_remove_rsvp(self):
+        print("\ntest 407")
+        print("Removing an rsvp after it's been created")
+        print('''expected response: "Deleted RSVP"''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        rsvp = Rsvp(rsvp_event = event, rsvp_user = user)
+        rsvp.save()
+
+        response = self.c.post('/rsvp/remove', {'token': user.user_fid, 'event-id':event.event_id})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+
+    def test_408_remove_rsvp(self):
+        print("\ntest 408")
+        print("Creating an rsvp and getting the number of rsvps (1)")
+        print('''expected response: 1''')
+
+        event = Event(event_host=self.user, event_name="a global meetup of flat earthers",
+            event_desc="irony incarnate", event_date=date.today(), event_time=datetime.now(),
+            event_capacity=1, event_location="earth somewhere")
+        event.save();
+
+        user = User(user_fid="user2", user_uname="sampleUser", 
+            user_address="1060 W Addison St", user_city="Chicago", user_state="Illinois", user_zip='60613', # wrigley field
+            user_bio="a fake person")
+        user.save()
+
+        rsvp = Rsvp(rsvp_event = event, rsvp_user = user)
+        rsvp.save()
+
+        response = self.c.get('/rsvp/num', {'token': self.user.user_fid, 'event-id':event.event_id})
+        
+        if response.status_code != 404:
+            print(" Error encountered:")
+        else:
+            print(" Success! got response:")
+
+        print(response.json())
+
+
     def test_501_search_functionality(self):
         print("\ntest 501")
         print("Searching a database (and not getting dupes)")

@@ -117,6 +117,60 @@ def allergens(food):
 
 
 @csrf_exempt
+def num_rsvps (request):
+    if request.method != 'GET':
+        return JsonResponse(status=404, data={'response': 'Not GET request'})
+
+    if 'token' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'No token given'})
+
+    fid = request.GET.get('token');
+    if fid is None:
+        return JsonResponse(status=404, data={'response': 'invalid token'})
+    user = User.objects.get(user_fid=fid)
+
+    if 'event-id' not in request.GET:
+        return JsonResponse(status=404, data={'response': 'No event-id given'})
+
+    event = Event.objects.get(pk=int(request.GET.get('event-id')));
+
+    if event.event_host != user:
+        return JsonResponse(status=404, data={'response': 'Invalid permission'})
+
+    num_participants = len(list(Rsvp.objects.filter(rsvp_event=event)))
+    return JsonResponse(status=200, data={'response': num_participants})
+
+@csrf_exempt
+def remove_rsvp(request):
+    if request.method != 'POST':
+        return JsonResponse(status=404, data={'response': 'Not POST request'})
+
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
+
+    if 'token' not in parameters:
+        return JsonResponse(status=404, data={'response': 'No token given'})
+
+    try:
+        fid = parameters.get('token');
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'invalid token'});
+        user = User.objects.get(user_fid=fid)
+
+        if 'event-id' not in parameters:
+            return JsonResponse(status=404, data={'response': 'No event-id given'})
+
+        event = Event.objects.get(pk=int(parameters.get('event-id')))
+
+        rsvp = Rsvp.objects.get(rsvp_user=user, rsvp_event=event)
+        rsvp.delete()
+        return JsonResponse(status=200, data={'response': 'Deleted RSVP'})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
+@csrf_exempt
 def create_recipe(request):
     if request.method != 'POST':
         return JsonResponse(status=400, data={'response': 'TypeError: request type must be POST'})

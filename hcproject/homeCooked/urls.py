@@ -10,6 +10,8 @@ urlpatterns = [
     path('event/get', get_events),
     path('event/rsvp', rsvp_for_event),
     path('event/get/attended', get_attended_events),
+    path('rsvp/remove', remove_rsvp),
+    path('rsvp/num', num_rsvps),
     path('event/get/unattended', get_unattended_events),
     path('posts/sort', post_sort),
     path('posts/create', post_create),
