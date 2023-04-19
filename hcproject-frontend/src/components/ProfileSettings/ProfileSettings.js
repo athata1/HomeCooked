@@ -8,7 +8,22 @@ import Alert from "react-bootstrap/Alert";
 import {ref, uploadBytes} from 'firebase/storage'
 import {storage} from '../../Firebase/firebase'
 import { getDownloadURL } from "firebase/storage";
-
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 const ProfileSettings = ({callback, photoCallback, cityCallback, stateCallback, usernameCallback, aboutCallback}) => {
   const [selectedState, setSelectedState] = useState("--Choose State--");
   const [selectedCity, setSelectedCity] = useState("--Choose City--");
@@ -154,7 +169,7 @@ const ProfileSettings = ({callback, photoCallback, cityCallback, stateCallback, 
               setDeletedAccount(res)
             );
           } else {
-            alert("Error: Could not delete account");
+            createNotification('Error', 'Could not delete account');
           }
         });
     });

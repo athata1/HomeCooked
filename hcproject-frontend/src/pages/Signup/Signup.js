@@ -3,7 +3,22 @@ import { Link } from "react-router-dom";
 import "./Signup.css";
 import { useAuth } from "../../Firebase/AuthContext";
 import { useLocation, Navigate } from "react-router-dom";
-
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 export default function Signup() {
   const emailRef = useRef();
   const passwordRef = useRef();
@@ -28,38 +43,39 @@ export default function Signup() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!emailRef.current || !emailRef.current.value) {
-      alert("Error: email is empty");
+      createNotification('Success',"Error: email is empty", 'danger');
+      
       return;
     }
 
     if (!validateEmail(emailRef.current.value)) {
-      alert("Error: invalid email");
+      createNotification('Error',"Error: invalid email", 'danger');
       return;
     }
 
     if (!usernameRef.current || !usernameRef.current.value) {
-      alert("Error: username is empty");
+      createNotification('Error',"Error: username is empty", 'danger');
       return;
     }
 
     if (!passwordRef.current || !passwordRef.current.value) {
-      alert("Error: password is empty");
+      createNotification('Error',"password is empty", 'danger');
       return;
     }
 
     if (!confirmPasswordRef.current || !confirmPasswordRef.current.value) {
-      alert("Error: conform password is empty");
+      createNotification('Error',"Conform password is empty", 'danger');
       return;
     }
 
     if (passwordRef.current.value.length < 6) {
-      alert("Error: Password must have length of at least 6");
+      createNotification('Error',"Password must have length of at least 6", 'danger');
       return;
     }
 
     
     if (confirmPasswordRef.current.value !== passwordRef.current.value) {
-      alert("Error: Passwords do not match");
+      createNotification('Error',"Passwords do not match", 'danger');
       return;
     }
     
@@ -77,7 +93,7 @@ export default function Signup() {
       referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
     }).then((res) => {
       if (res.status === 200) {
-        alert('Error: username already exists');
+        createNotification('Error', 'username already exists', 'danger')
       }
       else {
         res.json().then((data) => {
@@ -91,7 +107,8 @@ export default function Signup() {
             );
             console.log("Success!");
           } catch (e) {
-            alert("Failed to create an account");
+            createNotification('Error', 'Failed to create account', 'danger')
+            
             console.log(e);
           }
           setIsLoading(false);

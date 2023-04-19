@@ -75,7 +75,7 @@ function Profile() {
         return res.json()
       }).then((data) => {
         console.log(typeof data.response)
-        setRating(data.response);
+        setRating(Math.round(data.response* 100) / 100);
       })
     })
 

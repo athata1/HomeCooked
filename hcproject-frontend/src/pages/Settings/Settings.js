@@ -13,7 +13,24 @@ import {MapContainer, Marker, Popup, TileLayer} from 'react-leaflet'
 import osm from '../../utils/osm-providers'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
+
 
 const markerIcon = new L.Icon({
   iconUrl: require('../../images/marker.png'),
@@ -53,6 +70,8 @@ const Settings = () => {
   } = useAuth();
   const [uploadedFile, setCurrentUploadedFile] = useState(null);
   const [personalLink, setPersonalLink] = useState(false);
+  const [linkURL, setLinkURL] = useState('');
+
 
   const [center, setCenter] = useState({lat: 38, lng: -97})
   const ZOOM_LEVEL = 9;
@@ -83,6 +102,18 @@ const Settings = () => {
         })
         .then((data) => {
           let userData = JSON.parse(data.user)[0];
+          console.log(userData);
+          let link = userData.fields.user_link;
+          console.log(link)
+
+          if (link.startsWith('http://localhost:3000/chat')) {
+            setPersonalLink(false);
+          }
+          else {
+            setPersonalLink(true);
+            setLinkURL(link);
+          }
+
           setUsername(userData.fields.user_uname);
           setSelectedState(userData.fields.user_state.toUpperCase());
           setSelectedCity(userData.fields.user_city.toUpperCase());
@@ -178,12 +209,12 @@ const Settings = () => {
             res.json().then((data) => {
               console.log(data);
             })
-            alert("Error: Could not delete account");
+            createNotification('Error', 'Could not delete account', 'danger')
           }
         })
     })}
     ).catch((e) => {
-      alert("Error: Invalid password")
+      createNotification('Error', 'Invalid password', 'danger')
     })
   };
 
@@ -229,6 +260,14 @@ const Settings = () => {
       }
 
       getToken().then((token) => {
+        let link = '';
+        if (!personalLink) {
+          link = `http://localhost:3000/chat?user=${currentUser.uid}`
+        }
+        else {
+          link = linkURL;
+          console.log(link);
+        }
         let url =
           "http://localhost:8000/users/?type=Change&uname=" +
           username +
@@ -242,7 +281,8 @@ const Settings = () => {
           about +
           "&lat=" + 
           center.lat + 
-          "&lng=" + center.lng;
+          "&lng=" + center.lng +
+          '&link='+link;
         fetch(url, {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           // mode: "no-cors", // no-cors, *cors, same-origin
@@ -255,7 +295,7 @@ const Settings = () => {
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
         })
-          .then((res) => {
+          .then(async (res) => {
             if (res.status === 200) {
               setCurrentUsername(username);
 
@@ -265,10 +305,19 @@ const Settings = () => {
                   displayName: username
                 })
                 console.log("Document written " + docRef.id)
-                docRef = setDoc(doc(db, 'userChats', currentUser.uid), {
+                
+                docRef = await getDoc(doc(db, 'userChats', currentUser.uid))
+                if (!docRef.exists()) {
+                  docRef = setDoc(doc(db, 'userChats', currentUser.uid), {
 
-                })
-                console.log("Document written " + docRef.id)
+                  })
+                  console.log("Document written " + docRef.id)
+                }
+                else {
+                  console.log("Data already exists")
+                }
+                
+                
               }
               catch (e) {
                 console.log("Errror: " + e);
@@ -646,19 +695,24 @@ const Settings = () => {
           </div>
           <div className="row mb-5">
             <div className="col">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
-               <label class="form-check-label px-2" for="flexRadioDefault2">
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked={!personalLink} onClick={() => setPersonalLink(false)} disabled={!edit} />
+               <label class="form-check-label px-2" for="flexRadioDefault1">
                   Use Default Chat
               </label>
               <br />
               <br />
-              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" onClick={() => setPersonalLink(true)} disabled={!edit} />
+              <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" 
+              checked={personalLink}
+              onClick={() => setPersonalLink(true)} disabled={!edit} />
                 <label class="form-check-label px-2" for="flexRadioDefault2">
                   Personal Chat Link
                 </label>
                 {personalLink && (
                   <div className="row mt-3">
-                    <input className="form-control settings-personal-link" placeholder="Link"/>
+                    <input 
+                    value={linkURL}
+                    onChange={(e) => {setLinkURL(e.target.value)}}
+                    className="form-control settings-personal-link" placeholder="Link"/>
                   </div>
                 )}
             </div>

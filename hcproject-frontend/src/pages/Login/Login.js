@@ -3,6 +3,22 @@ import {Link} from "react-router-dom"
 import "./Login.css"
 import { useAuth } from '../../Firebase/AuthContext'
 import { useLocation, Navigate } from "react-router-dom";
+import { Store } from 'react-notifications-component';
+function createNotification(messageTitle, messageMessage, messageType) {
+  Store.addNotification({
+    title: messageTitle,
+    message: messageMessage,
+    type: messageType,
+    insert: "top",
+    container: "top-center",
+    animationIn: ["animate__animated", "animate__fadeIn"],
+    animationOut: ["animate__animated", "animate__fadeOut"],
+    dismiss: {
+      duration: 1000,
+      onScreen: true
+    }
+  })
+}
 
 export default function Login() {
 
@@ -30,12 +46,13 @@ export default function Login() {
     console.log(emailRef.current.value)
       
     if (!validateEmail(emailRef.current.value)) {
-      alert("Error: Please enter a valid email")
+      createNotification('Error', 'Please enter a valid email', 'danger')
       return;
     }
 
     if (passwordRef.current.value.length < 6) {
-      alert("Error: Password must have length of at least 6");
+      createNotification('Error', 'Password must have length of at least 6', 'danger')
+
       return;
     }
 
@@ -45,7 +62,7 @@ export default function Login() {
       console.log("Success!")
     }
     catch (e){
-      alert("Failed to login to account")
+      createNotification('Error', 'Failed to login to account', 'danger')
       console.log(e);
     }
     setIsLoading(false);
