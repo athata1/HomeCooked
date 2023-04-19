@@ -113,6 +113,7 @@ class Notification (models.Model):
         MESSAGE = 'ME', _('Message Recevied')
         USER = 'US', _('Profile Updated')
         EVENT = 'EV', _('RSVP Received')
+        UPDAT = 'UP', _('Event Ready')
         NONE = 'NO', _('error/default type') 
     
     notif_id = models.AutoField(primary_key=True, verbose_name='Notification ID')

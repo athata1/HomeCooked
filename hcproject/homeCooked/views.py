@@ -21,6 +21,15 @@ def validate_token(token):
     return uid
 
 
+def event_updates():
+    matches = list(Rsvp.objects.filter(rsvp_event__in=Event.objects.filter(event_time__lte=datetime.now()+timedelta(minutes=10), event_time__gte=datetime.now(), event_updates=False)))
+    for match in matches:
+        match.rsvp_event.event_updates=True
+        match.rsvp_event.save()
+        notif = Notification(notif_type=Notification.type_enum.UPDAT, notif_user=match.rsvp_user, notif_message= match.rsvp_event.event_title + " will start in 10 minutes")
+        notif.save()
+
+
 def create_notif(notif_user, notif_type, notif_message):
     #timezone.activate(zoneinfo.ZoneInfo("US/Eastern"))
     notif = Notification(notif_time=datetime.now(tz=timezone.get_current_timezone()), notif_type=notif_type, notif_user=notif_user, notif_message=notif_message)
