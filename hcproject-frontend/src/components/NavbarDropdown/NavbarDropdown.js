@@ -9,6 +9,7 @@ export default function NavbarDropdown({ part }) {
     ["Posts", "/dashboard"],
     ["Profile", "/profile"],
     ["Settings", "/settings"],
+    ["Notifications", "/notifications"]
   ];
 
   return (

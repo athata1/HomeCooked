@@ -87,7 +87,9 @@ function Navbar({part, mode}) {
     <div className="navbarRight">
       {mode == "none" ? "" : <Switch mode={mode}/>}
       <div className="navbarBellContainer">
-        <BsBell size={40} style={{color: "#ffffff"}}/>
+        <Link to="/notifications">
+          <BsBell size={40} style={{color: "#ffffff"}}/>
+        </Link>
       </div>
       <ProfileDropdown />
     </div>
