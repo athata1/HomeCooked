@@ -241,7 +241,7 @@ def num_rsvps (request):
         return JsonResponse(status=404, data={'response': 'Not GET request'})
 
     if 'token' not in request.GET:
-        return JsonResponse(status=404, data={'response', 'No token given'})
+        return JsonResponse(status=404, data={'response': 'No token given'})
 
     fid = validate_token(request.GET.get('token'));
     if fid is None:
@@ -249,12 +249,12 @@ def num_rsvps (request):
     user = User.objects.get(user_fid=fid)
 
     if 'event-id' not in request.GET:
-        return JsonResponse(status=404, data={'response', 'No event=id given'})
+        return JsonResponse(status=404, data={'response': 'No event-id given'})
 
-    event = Event.get(pk=int(request.GET.get('event-id')));
+    event = Event.objects.get(pk=int(request.GET.get('event-id')));
 
     if event.event_host != user:
-        return JsonResponse(status=404, data={'response', 'Invalid permission'})
+        return JsonResponse(status=404, data={'response': 'Invalid permission'})
 
     num_participants = len(list(Rsvp.objects.filter(rsvp_event=event)))
     return JsonResponse(status=200, data={'response': num_participants})
@@ -264,22 +264,31 @@ def remove_rsvp(request):
     if request.method != 'POST':
         return JsonResponse(status=404, data={'response': 'Not POST request'})
 
-    if 'token' not in request.GET:
-        return JsonResponse(status=404, data={'response', 'No token given'})
+    parameters = request.POST
+    if len(request.POST) == 0:
+        parameters = request.GET
 
-    fid = validate_token(request.GET.get('token'));
-    if fid is None:
-        return JsonResponse(status=404, data={'response': 'invalid token'})
-    user = User.objects.get(user_fid=fid)
+    if 'token' not in parameters:
+        return JsonResponse(status=404, data={'response': 'No token given'})
 
-    if 'event-id' not in request.GET:
-        return JsonResponse(status=404, data={'response', 'No event=id given'})
+    try:
+        fid = validate_token(parameters.get('token'));
+        if fid is None:
+            return JsonResponse(status=404, data={'response': 'invalid token'});
+        user = User.objects.get(user_fid=fid)
 
-    event = Event.get(pk=int(request.GET.get('event-id')))
+        if 'event-id' not in parameters:
+            return JsonResponse(status=404, data={'response': 'No event-id given'})
 
-    rsvp = Rsvp.objects.get(rsvp_user=user, rsvp_event=event)
-    rsvp.delete()
-    return JsonResponse(status=200, data={'response': 'Deleted RSVP'})
+        event = Event.objects.get(pk=int(parameters.get('event-id')))
+
+        rsvp = Rsvp.objects.get(rsvp_user=user, rsvp_event=event)
+        rsvp.delete()
+        return JsonResponse(status=200, data={'response': 'Deleted RSVP'})
+    except Exception as E:
+        print(E)
+        return JsonResponse(status=500, data={'response': 'ServerError: an unknown error occured'})
+
 
 @csrf_exempt
 def create_event(request):
