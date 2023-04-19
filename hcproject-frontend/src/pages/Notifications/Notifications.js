@@ -26,7 +26,7 @@ const Notifications = () => {
         return res.json();
       }).then((data) => {
         let res = JSON.parse(data.data).sort((a,b) => {
-          return Date.parse(a.fields.notif_time) - Date.parse(b.fields.notif_time);
+          return Date.parse(b.fields.notif_time) - Date.parse(a.fields.notif_time);
         })
         setResponse(res);
       })
@@ -38,7 +38,7 @@ const Notifications = () => {
         <Navbar part="Notifications" mode="none" />
         <div className='notification-container'>
           {response.map((notif) => {
-            return <NotificationCard response={notif}/>
+            return <NotificationCard key={notif.pk} response={notif}/>
           })}
         </div>
     </>

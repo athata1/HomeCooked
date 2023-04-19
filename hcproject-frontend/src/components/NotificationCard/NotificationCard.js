@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import './NotificationCard.css'
 import { FaCarrot } from 'react-icons/fa'
 import { RxEnvelopeOpen } from 'react-icons/rx'
+import { BsPencil } from 'react-icons/bs'
 
 export default function NotificationCard({ response }) {
 
@@ -15,12 +16,14 @@ export default function NotificationCard({ response }) {
   useEffect(() => {
     setType(response.fields.notif_type);
     setMessage(response.fields.notif_message);
-    console.log(response.fields.notif_type)
     if (response.fields.notif_type === 'PO') {
       setColor(['lightgreen','green']);
     }
     else if (response.fields.notif_type === 'EV') {
       setColor(['#A7C7E7', '#000080']);
+    }
+    else if (response.fields.notif_type === 'ME') {
+      setColor(['#ffd580', 'orange'])
     }
   }, [response])
 
@@ -34,6 +37,9 @@ export default function NotificationCard({ response }) {
           : "" }
           {type === 'EV' ?
             <RxEnvelopeOpen size={40} />
+          : "" }
+          {type === 'ME' ?
+            <BsPencil size={40} />
           : "" }
         </div>
         <div className='notification-card-message'>

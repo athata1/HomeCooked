@@ -26,7 +26,7 @@ function createNotification(messageTitle, messageMessage, messageType) {
 function Navbar({part, mode}) {
   const {searchMode, setSearchMode, searchText, setSearchText} = useAuth();
   const textRef = useRef();
-  const dropdown = ["Default", "Zipcode", "City/State", "Profile"]
+  const dropdown = ["Default", "Zipcode", "City/State", "Profile", "Food"]
 
   function handleChange(e) {
     if (e.key === 'Enter') {

@@ -153,10 +153,24 @@ function Recipes({
       }
       return;
     }
+    else if (searchMode === 4 && mode === 'consumer') {
+      let show = true;
+      let foods = searchText.split(' ');
+      for (let i = 0; i < foods.length; i++) {
+        const food = foods[i].replace('_', ' ');
+        if (food === '')
+          continue;
+        if (!ingredients.includes(food)) {
+          show = false;
+          break;
+        }
+      }
+      setVisible(show);
+    }
     else {
       setVisible(true);
     }
-  }, [searchMode, searchText, showMode])
+  }, [searchMode, searchText, showMode, ingredients])
 
   if (!visible) {
     return "";
