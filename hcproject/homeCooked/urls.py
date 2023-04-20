@@ -37,5 +37,6 @@ urlpatterns = [
     path('review/create', create_review),
     path('review/average', get_average_review),
     path('review/get', get_reviews),
-    path('notifications/get', get_notifs)
+    path('notifications/get', get_notifs),
+    path('event/refresh', eventUpdates)
 ]
