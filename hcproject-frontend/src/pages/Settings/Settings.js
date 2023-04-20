@@ -746,13 +746,24 @@ const Settings = () => {
           )}
           {edit && (
             <div className="col mb-3 settings-save-div d-flex justify-content-center">
+              {!personalLink ? 
               <button
                 className="mx-5 btn settings-button settings-save-button"
                 onClick={handleSave}
                 disabled={newPassword !== confirmPassword}
               >
                 Save
-              </button>
+              </button> : ""}
+              {personalLink ? 
+              <button
+                className="mx-5 btn settings-button settings-save-button"
+                data-bs-toggle="modal"
+                data-bs-target="#confirmationModal"
+                disabled={newPassword !== confirmPassword}
+                onClick={(e) => {e.preventDefault()}}
+              >
+                Save
+              </button> : ""}
             </div>
           )}
           <div className="col mb-5 settings-save-div d-flex justify-content-center">
@@ -764,6 +775,30 @@ const Settings = () => {
             >
               Delete Account
             </button>
+            <div             
+              className="modal fade"
+              id="confirmationModal"
+              tabIndex="-1"
+              aria-labelledby="confirmationModalLabel"
+              aria-hidden="true">
+                <div className="modal-dialog" role="document">
+                  <div className="modal-content">
+                    <div className="modal-header">
+                      <h5 className="modal-title">Confirmation</h5>
+                      <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div className="modal-body">
+                      <p>Are you sure you want to use external website? We are not responsible for what happens on this page.</p>
+                    </div>
+                    <div className="modal-footer">
+                      <button type="button" className="btn btn-secondary" data-dismiss="modal" data-bs-dismiss='modal'>No</button>
+                      <button type="button" className="btn btn-primary" id="confirmBtn" data-bs-dismiss="modal" onClick={handleSave}>Yes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             <div
               className="modal fade"
               id="exampleModal"
