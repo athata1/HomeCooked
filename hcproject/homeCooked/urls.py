@@ -6,9 +6,13 @@ from .views import *
 
 app_name = 'HomeCooked'
 urlpatterns = [
+    path('search/items', search_for),
     path('events/producer',get_events),
     path('event/create', create_event),
     path('event/change', change_event),
+    path('event/rsvp', rsvp_for_event),
+    path('rsvp/remove', remove_rsvp),
+    path('rsvp/num', num_rsvps),
     path('event/get/attended', get_attended_events),
     path('event/get/unattended', get_unattended_events),
     path('posts/consumer/dist', get_post_close),
@@ -33,5 +37,5 @@ urlpatterns = [
     path('review/create', create_review),
     path('review/average', get_average_review),
     path('review/get', get_reviews),
-    path('search/', search_for),
+    path('notifications/get', get_notifs)
 ]
