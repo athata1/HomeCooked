@@ -41,7 +41,7 @@ export default function SidebarUsers(selectedUser) {
   }, [currentUser.uid])
 
   useEffect(() => {
-    /*console.log(searchParams.get('user'))
+    console.log(searchParams.get('user'))
     const uid = searchParams.get('user');
 
     if (uid !== null) {
@@ -57,7 +57,7 @@ export default function SidebarUsers(selectedUser) {
           console.log("No User here")
         }
       })
-    }*/
+    }
 
   }, [])
 

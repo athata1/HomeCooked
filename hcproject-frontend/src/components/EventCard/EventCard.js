@@ -32,7 +32,7 @@ export default function EventCard({response, rsvpCallback, showMode}) {
   const [id, setId] = useState();
   const [url, setUrl] = useState("");
   const {getToken, userMode} = useAuth()
-
+  const [participants, setParticipants] = useState(0);
 
   useEffect(() => {
     setLocation(response.fields.event_location);
@@ -41,7 +41,32 @@ export default function EventCard({response, rsvpCallback, showMode}) {
     setDate(response.fields.event_date)
     setTime(response.fields.event_time);
     setId(response.pk)
-  }, [response])
+    if (userMode === 'producer' && showMode === 2) {
+      getToken().then(token => {
+        let url = "http://localhost:8000/rsvp/num?token="
+         + token + 
+         '&event-id=' + response.pk;
+        fetch(url, {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          // mode: "no-cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        }).then((res) => {
+          return res.json();
+        }).then(data => {
+          setParticipants(data.response);
+          console.log(data.response)
+        })
+      })
+    }
+
+  }, [response, showMode])
 
   function formatURLDate(date) {
     let year=date.getFullYear();
@@ -162,6 +187,30 @@ export default function EventCard({response, rsvpCallback, showMode}) {
 
   }
 
+  function removeRSVP(event) {
+    getToken().then((token) => {
+      let url = `http://localhost:8000/rsvp/remove?token=${token}&event-id=${event.pk}`
+      console.log(event.pk)
+      fetch(url, {
+        method: "POST", // *GET, POST, PUT, DELETE, etc.
+        // mode: "no-cors", // no-cors, *cors, same-origin
+        cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: "same-origin", // include, *same-origin, omit
+        headers: {
+          "Content-Type": "application/json",
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: "follow", // manual, *follow, error
+        referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+      }).then((res) => {
+        return res.json();
+      }).then((data) => {
+        console.log(data)
+        rsvpCallback(event.pk)  
+      })
+    })
+  }
+
   return (
     <div>
       <div
@@ -256,7 +305,7 @@ export default function EventCard({response, rsvpCallback, showMode}) {
           </div>
         </div>
       <Card style={{marginLeft: '20px', marginRight: '20px', marginBottom: '20px'}}>
-        <Card.Header>{title}</Card.Header>
+        <Card.Header>{title} {userMode === 'producer' && showMode === 2 ? `(${participants} Participants)` : ""}</Card.Header>
         <Card.Body>
           <Card.Title>
             Location: {location}
@@ -278,6 +327,7 @@ export default function EventCard({response, rsvpCallback, showMode}) {
           {" "}
           {userMode === "producer" && <Button onClick={handleInit} variant="danger" data-bs-target={"#eventModal" + id} data-bs-toggle="modal">Edit</Button>}
           {userMode === "consumer" && showMode !== 0 && <Button onClick={() => {handleRSVP(response)}} variant="danger">RSVP</Button>}
+          {userMode === 'consumer' && showMode === 0 ? <Button onClick={() => {removeRSVP(response)}} variant="danger">Remove RSVP</Button> : ""}
         </Card.Body>
       </Card>
     </div>

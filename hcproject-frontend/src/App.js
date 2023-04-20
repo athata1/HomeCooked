@@ -18,9 +18,15 @@ import OtherProfiles from "./pages/OtherProfiles/OtherProfiles";
 import ChangePassword from "./pages/ChangePassword/ChangePassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Chat from "./pages/Chat/Chat";
+<<<<<<< HEAD
+import { ReactNotifications } from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
+import Notifications from "./pages/Notifications/Notifications";
+=======
 import Notifications from "./pages/Notifications/Notifications"
 import { ReactNotifications } from 'react-notifications-component'
 import 'react-notifications-component/dist/theme.css'
+>>>>>>> 8db44d52f12783b586ee07575130abfb5f199935
 
 function App() {
   return (

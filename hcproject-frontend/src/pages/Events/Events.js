@@ -113,7 +113,7 @@ const Events = () => {
         })
     }
 
-    if (showMode === 0 && userMode === 'consumer') {
+    else if (showMode === 0 && userMode === 'consumer') {
       getToken().then(token => {
           let url = "http://localhost:8000/event/get/attended?token=" + token;
           fetch(url, {
@@ -136,7 +136,7 @@ const Events = () => {
         })
     }
 
-    if (showMode === 2 && userMode === 'producer') {
+    else if (showMode === 2 && userMode === 'producer') {
       getToken().then(token => {
         let url = "http://localhost:8000/events/producer?token=" + token;
         fetch(url, {
@@ -157,6 +157,9 @@ const Events = () => {
           console.log(JSON.parse(data.response))
         })
       })
+    }
+    else {
+      setResponses([])
     }
   },[showMode, userMode])
 
