@@ -6,6 +6,7 @@ import './NotificationCard.css'
 import { FaCarrot } from 'react-icons/fa'
 import { RxEnvelopeOpen } from 'react-icons/rx'
 import { BsPencil } from 'react-icons/bs'
+import {BiTimeFive} from 'react-icons/bi'
 
 export default function NotificationCard({ response }) {
 
@@ -25,6 +26,9 @@ export default function NotificationCard({ response }) {
     else if (response.fields.notif_type === 'ME') {
       setColor(['#ffd580', 'orange'])
     }
+    else if (response.fields.notif_type === 'UD') {
+      setColor(['#ff6961','red'])
+    }
   }, [response])
 
 
@@ -40,6 +44,9 @@ export default function NotificationCard({ response }) {
           : "" }
           {type === 'ME' ?
             <BsPencil size={40} />
+          : "" }
+          {type === 'UD' ?
+            <BiTimeFive size={40} />
           : "" }
         </div>
         <div className='notification-card-message'>
