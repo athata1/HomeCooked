@@ -251,7 +251,7 @@ def num_rsvps (request):
     if 'event-id' not in request.GET:
         return JsonResponse(status=404, data={'response', 'No event=id given'})
 
-    event = Event.get(pk=int(request.GET.get('event-id')));
+    event = Event.objects.get(pk=int(request.GET.get('event-id')));
 
     if event.event_host != user:
         return JsonResponse(status=404, data={'response', 'Invalid permission'})
@@ -273,9 +273,9 @@ def remove_rsvp(request):
     user = User.objects.get(user_fid=fid)
 
     if 'event-id' not in request.GET:
-        return JsonResponse(status=404, data={'response', 'No event=id given'})
+        return JsonResponse(status=404, data={'response': 'No event=id given'})
 
-    event = Event.get(pk=int(request.GET.get('event-id')))
+    event = Event.objects.get(pk=int(request.GET.get('event-id')))
 
     rsvp = Rsvp.objects.get(rsvp_user=user, rsvp_event=event)
     rsvp.delete()
