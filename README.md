@@ -7,16 +7,16 @@ With the COVID-19 pandemic having occured, there is still a level of aversion to
 WE decided to create HomeCooked as a way to help streamline the process of providing food that otherwise will not be used. Not only is this beneficial to both parties involved, but it alsp helps to prevent food waste. We allow for users to have a breath of options regarding how the service facilitates its service like distance based food matching to built in chat application <br/>
 
 Attached below are example image of the application being run
-# Login
+## Login
 <img src="images/HomeCookedLogin.png" width="700"/>
 
-# Signup
+## Signup
 <img src="images/HomeCookedSignup.png" width="700"/>
 
-# Profile
+## Profile
 <img src="images/HomeCookedProfile.png" width="700"/>
 
-# Dashboard
+## Dashboard
 <img src="images/HomeCookedRecipes.png" width="700"/>
 
 ## data structures
